@@ -1,0 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Cairo:wght@200..900&display=swap');
+@import "tailwindcss";
+
+:root, .theme-dark {
+  --bg-primary: #090909;
+  --bg-secondary: #111111;
+  --bg-tertiary: #040404;
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --text-tertiary: #6b7280;
+  --border-primary: rgba(255, 255, 255, 0.05);
+  --border-secondary: rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(14, 14, 14, 0.75);
+}
+
+.theme-light, html.theme-light {
+  --bg-primary: #FAF9F6; /* Cream Alabaster */
+  --bg-secondary: #ffffff; /* Pure White */
+  --bg-tertiary: #f4f3ef; /* Slightly darker cream */
+  --text-primary: #1c1917; /* Dark stone */
+  --text-secondary: #57534e; /* Medium stone */
+  --text-tertiary: #78716c; /* Light stone */
+  --border-primary: rgba(0, 0, 0, 0.08);
+  --border-secondary: rgba(0, 0, 0, 0.15);
+  --glass-bg: rgba(250, 249, 246, 0.85);
+}
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-arabic: "Cairo", "Inter", sans-serif;
+  
+  --color-brand-burgundy: #631B19;
+  --color-brand-gold: #E4AA00;
+  --color-brand-soft-yellow: #F3D772;
+  --color-brand-brown: #AB6A25;
+  
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-tertiary: var(--bg-tertiary);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-border-primary: var(--border-primary);
+  --color-border-secondary: var(--border-secondary);
+  --color-glass-bg: var(--glass-bg);
+  
+  --color-gold-50: #fbf8f3;
+  --color-gold-100: #f4edd8;
+  --color-gold-200: #e8dbb2;
+  --color-gold-300: #dac384;
+  --color-gold-400: #E4AA00;
+  --color-gold-500: #E4AA00;
+  --color-gold-600: #caa759;
+  --color-gold-700: #AB6A25;
+  --color-gold-800: #631B19;
+  --color-gold-900: #301e0f;
+  --color-gold-950: #1b1009;
+}
+
+/* Base style overrides */
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.font-arabic body,
+.font-arabic button,
+.font-arabic input,
+.font-arabic textarea,
+.font-arabic select,
+.font-arabic h1,
+.font-arabic h2,
+.font-arabic h3,
+.font-arabic h4,
+.font-arabic h5,
+.font-arabic h6,
+.font-arabic span,
+.font-arabic p {
+  font-family: var(--font-arabic) !important;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-secondary);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-gold);
+}
