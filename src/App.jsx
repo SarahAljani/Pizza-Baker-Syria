@@ -1,26 +1,27 @@
-import { useState, useEffect } from 'react';
-import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import PizzaMenu from './components/PizzaMenu';
-import PizzaBuilder from './components/PizzaBuilder';
-import ReservationSection from './components/ReservationSection';
-import ReviewsSection from './components/ReviewsSection';
-import CartDrawer from './components/CartDrawer';
-import Footer from './components/Footer';
+import { useState, useEffect } from "react";
+import Navbar from "./components/Navbar";
+import Hero from "./components/Hero";
+import PizzaMenu from "./components/PizzaMenu";
+import ExtrasMenu from "./components/ExtrasMenu";
+import PizzaBuilder from "./components/PizzaBuilder";
+import ReservationSection from "./components/ReservationSection";
+import ReviewsSection from "./components/ReviewsSection";
+import CartDrawer from "./components/CartDrawer";
+import Footer from "./components/Footer";
 
 export default function App() {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('hero');
+  const [activeSection, setActiveSection] = useState("hero");
 
   // Load cart from local storage on mount
   useEffect(() => {
-    const savedCart = localStorage.getItem('pizzabaker_cart');
+    const savedCart = localStorage.getItem("pizzabaker_cart");
     if (savedCart) {
       try {
         setCart(JSON.parse(savedCart));
       } catch (e) {
-        console.error('Failed to parse cart storage', e);
+        console.error("Failed to parse cart storage", e);
       }
     }
   }, []);
@@ -28,13 +29,20 @@ export default function App() {
   // Save cart changes
   const saveCart = (updatedCart) => {
     setCart(updatedCart);
-    localStorage.setItem('pizzabaker_cart', JSON.stringify(updatedCart));
+    localStorage.setItem("pizzabaker_cart", JSON.stringify(updatedCart));
   };
 
   // Add standard menu item to cart
   const handleAddToCart = (item, size) => {
-    const existingIndex = cart.findIndex((c) => c.id === item.id && c.size === size);
-    const itemPrice = size === 'small' ? item.prices.small : size === 'medium' ? item.prices.medium : item.prices.large;
+    const existingIndex = cart.findIndex(
+      (c) => c.id === item.id && c.size === size,
+    );
+
+    // Support custom/standard sizes for pizzas and extras
+    const itemPrice =
+      item.prices[size] !== undefined
+        ? item.prices[size]
+        : item.prices.standard || item.prices.medium || 0;
 
     if (existingIndex > -1) {
       const updated = [...cart];
@@ -44,6 +52,7 @@ export default function App() {
       const newItem = {
         id: item.id,
         name: item.name,
+        translationKey: item.translationKey || null,
         size,
         price: itemPrice,
         quantity: 1,
@@ -105,14 +114,21 @@ export default function App() {
 
       window.scrollTo({
         top: offsetPosition,
-        behavior: 'smooth',
+        behavior: "smooth",
       });
     }
   };
 
   // Intersection observer to track which section is currently viewed on scroll
   useEffect(() => {
-    const sections = ['hero', 'menu', 'builder', 'reviews', 'reservation'];
+    const sections = [
+      "hero",
+      "menu",
+      "extras",
+      "builder",
+      "reviews",
+      "reservation",
+    ];
     const handleScroll = () => {
       const scrollPosition = window.scrollY + 200;
 
@@ -129,8 +145,8 @@ export default function App() {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
@@ -141,7 +157,7 @@ export default function App() {
         onOpenCart={() => setIsCartOpen(true)}
         activeSection={activeSection}
         onNavigate={handleNavigate}
-        onOpenReservation={() => handleNavigate('reservation')}
+        onOpenReservation={() => handleNavigate("reservation")}
       />
 
       {/* Main Sections */}
@@ -149,19 +165,17 @@ export default function App() {
         {/* Hero Section */}
         <Hero
           onNavigate={handleNavigate}
-          onOpenReservation={() => handleNavigate('reservation')}
+          onOpenReservation={() => handleNavigate("reservation")}
         />
 
         {/* Pizza Menu Section */}
-        <PizzaMenu
-          onAddToCart={handleAddToCart}
-          cart={cart}
-        />
+        <PizzaMenu onAddToCart={handleAddToCart} cart={cart} />
+
+        {/* Snacks & Dessert Section */}
+        <ExtrasMenu onAddToCart={handleAddToCart} cart={cart} />
 
         {/* Visual Pizza Builder */}
-        <PizzaBuilder
-          onAddCustomToCart={handleAddCustomToCart}
-        />
+        <PizzaBuilder onAddCustomToCart={handleAddCustomToCart} />
 
         {/* Table Reservation Desk */}
         <ReservationSection />
@@ -173,7 +187,7 @@ export default function App() {
       {/* Footer */}
       <Footer
         onNavigate={handleNavigate}
-        onOpenReservation={() => handleNavigate('reservation')}
+        onOpenReservation={() => handleNavigate("reservation")}
       />
 
       {/* Sliding Cart Drawer */}
