@@ -3,6 +3,7 @@ export const translations = {
     // Navigation
     home: "HOME",
     menu: "OUR MENU",
+    extras: "SIDES & DESSERTS",
     builder: "PIZZA BUILDER",
     reviews: "REVIEWS",
     bookTable: "BOOK TABLE",
@@ -150,18 +151,20 @@ export const translations = {
     standard: "Standard",
     three_pcs: "3 Pieces",
     six_pcs: "6 Pieces",
+    small_portion: "Small Portion",
+    large_portion: "Large Portion",
 
     // Snacks & Desserts General
     snacks: "Snacks",
-    desserts: "Desserts",
+    desserts: "Pizza Desserts",
     snacksPreTitle: "SIDES & SHARABLES",
     snacksTitle: "SNACKS & APPETIZERS",
     snacksDesc:
       "PERFECT COMPANIONS TO ACCENTUATE YOUR ARTISANAL PIZZA JOURNEY.",
     dessertsPreTitle: "THE SWEET FINALE",
-    dessertsTitle: "DESSERT ARTISTRY",
+    dessertsTitle: "PIZZA DESSERTS",
     dessertsDesc:
-      "EXQUISITE SWEET DELICACIES MADE FROM SCRATCH WITH DELECTABLE NUTELLA.",
+      "EXQUISITE SWEET PIZZA DELICACIES CREATED WITH DELECTABLE NUTELLA.",
 
     // Snacks & Desserts Items
     garlic_bread: "Garlic Bread",
@@ -170,9 +173,12 @@ export const translations = {
     chicken_drumsticks: "Chicken Drumsticks",
     chicken_drumsticks_desc:
       "Tender, juicy marinated chicken drumsticks baked to perfection.",
-    pure_nutella: "Pure Nutella",
+    pure_nutella: "Nutella Pure",
     pure_nutella_desc:
-      "Rich hazelnut spread layered over our signature warm crust.",
+      "Rich hazelnut Nutella spread layered over our warm pizza crust.",
+    nutella_pistachio: "Nutella Pistachio",
+    nutella_pistachio_desc:
+      "Warm pizza crust topped with rich Nutella and crushed pistachios.",
     nutella_banana: "Nutella with Banana",
     nutella_banana_desc:
       "Warm crust topped with thick Nutella and sliced fresh bananas.",
@@ -182,6 +188,9 @@ export const translations = {
     fruity_nutella: "Fruity Nutella",
     fruity_nutella_desc:
       "A grand dessert crust layered with Nutella, bananas, strawberries, and fruits.",
+    fruity_pistachio_nutella: "Fruity Pistachio Nutella",
+    fruity_pistachio_nutella_desc:
+      "Deluxe pizza dessert with Nutella, pistachios, bananas, and fresh strawberries.",
 
     // Footer
     footerFeedback: "Tell us how we're doing.",
@@ -368,6 +377,7 @@ export const translations = {
     // Navigation
     home: "الرئيسية",
     menu: "قائمتنا",
+    extras: "المقبلات والحلويات",
     builder: "صانع البيتزا",
     reviews: "الآراء والتقييمات",
     bookTable: "حجز طاولة",
@@ -474,25 +484,54 @@ export const translations = {
     commentPlaceholder:
       "شاركنا تفاصيل تجربتك، نكهة الصلصات الاستثنائية، المكونات الطازجة، قوام العجين الرائع...",
     dispatchReview: "إرسال التقييم بأمان",
-    opinionCommitted: "تم حفظ ونشر رأيك بنجاح! شكراً جزيلاً لك!",
-    noReviews: "لا توجد تقييمات بعد. كن أول من يشاركنا رأيه وتجربته الرائعة!",
-    "Abdullah Alhamwi": "عبد الله الحموي",
-    "Saral Aljani": "سارال الجاني",
-    "Haitham Jlailati": "هيثم جليلاتي",
-    review1_comment:
-      "أفضل بيتزا في سوريا بلا منازع! العجينة هشة ومقرمشة للغاية، والأسعار بالليرة السورية مناسبة جداً. طلبت عبر الواتساب واستلمت الطلب في غضون ٢٠ دقيقة!",
-    review2_comment:
-      "بيتزا كباب سبيشال استثنائية للغاية. لمسة صلصة الكباب الحلزونية هي فن حقيقي. عملية الدفع والتأكيد عبر واتساب غاية في السهولة والروعة.",
-    review3_comment:
-      "نعشق حجز طاولة عائلية هنا. الحصول على تأكيد فوري عبر البريد الإلكتروني مع طعم البيتزا اللذيذة يجعل هذا مطعمنا المفضل دائماً!",
-    "July 2, 2026": "٢ يوليو ٢٠٢٦",
-    "June 28, 2026": "٢٨ يونيو ٢٠٢٦",
-    "June 15, 2026": "١٥ يونيو ٢٠٢٦",
+    opinionCommitted: "تم ",
+    small: "صغير",
+    medium: "وسط",
+    large: "كبير",
+    thin: "رقيقة (Thin)",
+    standard: "عادي",
+    three_pcs: "٣ قطع",
+    six_pcs: "٦ قطع",
+    small_portion: "وجبة صغيرة (٣٥٠ ل.س)",
+    large_portion: "وجبة كاملة (٧٠٠ ل.س)",
 
-    // CartDrawer
-    yourBasket: "سلتك الحالية",
-    orderCompleted: "تم إرسال الطلب بنجاح",
-    basketIsEmpty: "السلة فارغة حالياً",
+    // Snacks & Desserts General
+    snacks: "وجبات خفيفة",
+    desserts: "بيتزا حلويات",
+    snacksPreTitle: "مقبلات وأطباق جانبية",
+    snacksTitle: "وجبات خفيفة ومقبلات",
+    snacksDesc:
+      "الرفيق المثالي لتعزيز وإثراء رحلة نكهات البيتزا المتميرة لديك.",
+    dessertsPreTitle: "النهاية السعيدة واللذيذة",
+    dessertsTitle: "بيتزا حلويات",
+    dessertsDesc:
+      "حلويات دافئة ومميزة مصنوعة بحب وغنية بفرش شوكولاتة نوتيلا اللذيذة.",
+
+    // Snacks & Desserts Items
+    garlic_bread: "خبزة الثوم",
+    garlic_bread_desc:
+      "خبز حرفي طازج بالفرن مع زبدة الثوم، البقدونس، والأعشاب الطازجة.",
+    chicken_drumsticks: "دبابيس دجاج",
+    chicken_drumsticks_desc:
+      "دبابيس دجاج طرية ومتبلة بعناية ومخبوزة في الفرن للحصول على قرمشة ونكهة مثالية.",
+    pure_nutella: "نوتيلا بيور",
+    pure_nutella_desc:
+      "شوكولاتة نوتيلا الغنية بالبندق موزعة بسخاء على عجينتنا الدافئة والمقرمشة.",
+    nutella_pistachio: "نوتيلا بستاشيو",
+    nutella_pistachio_desc:
+      "عجينة دافئة مغطاة بنوتيلا الغنية والفستق الحلبي (البستاشيو) الفاخر.",
+    nutella_banana: "نوتيلا بالموز",
+    nutella_banana_desc:
+      "عجينة دافئة ومقرمشة مغطاة بنوتيلا الغنية مع شرائح الموز الطازجة اللذيذة.",
+    nutella_strawberry: "نوتيلا بالفريز",
+    nutella_strawberry_desc:
+      "عجينة دافئة مقرمشة مغطاة بالنوتيلا وحبات الفريز (الفراولة) الطازجة الشامية.",
+    fruity_nutella: "نوتيلا فواكه",
+    fruity_nutella_desc:
+      "تحلية ملكية فاخرة تجمع بين فرش النوتيلا والموز والفريز وتشكيلة فواكه الموسم الطازجة.",
+    fruity_pistachio_nutella: "نوتيلا بستاشيو فواكه",
+    fruity_pistachio_nutella_desc:
+      "تحلية ملكية فاخرة بنوتيلا، البستاشيو، الموز، الفريز وتشكيلة الفواكه اللذيذة.",
     basketEmptyDesc:
       "قم بإضافة بعض من أصناف البيتزا الشهية لبدء طلبك وبدء رحلتك الاستثنائية.",
     browseMenu: "تصفح قائمة الطعام",

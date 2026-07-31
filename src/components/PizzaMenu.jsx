@@ -4,6 +4,88 @@ import { ShoppingCart, Check, Flame, User, Users, Search } from "lucide-react";
 import { INITIAL_MENU } from "../data";
 import { useThemeLanguage } from "../context/ThemeLanguageContext";
 
+const CUSTOM_PIZZA_FILE_NAMES = {
+  1: "1 The Classic Margherita.jpeg",
+  2: "2 The Salami One.jpeg",
+  3: "3 My Dream.jpeg",
+  4: "4 Pizzabaker Special.jpeg",
+  5: "5 Hawaii.jpeg",
+  6: "6 Pepperoni.jpeg",
+  7: "7 Mexicano.jpeg",
+  8: "8 Meat Lover.jpeg",
+  9: "9 The Marinated.jpeg",
+  10: "10 Hot Pepper Beef.jpeg",
+  11: "11 The Flame.jpeg",
+  12: "12 Taco Chicken.jpeg",
+  13: "13 Master Chicken.jpeg",
+  14: "14 Master Favourite.jpeg",
+  15: "15 Spark Baker.jpeg",
+  16: "16 Chicken Deluxe.jpeg",
+  17: "17 Pesto Chicken.jpeg",
+  18: "18 Vegan.jpeg",
+  19: "19 Kebab Pizza.jpeg",
+  20: "20 Mr. Mix.jpeg",
+  21: "21 Mr. X.jpeg",
+  22: "22 The Double Decker.jpeg",
+  23: "23 Chorizo.jpeg",
+  24: "24 Hot Chicken.jpeg",
+  25: "25 Chorizo.jpeg",
+  26: "26.png",
+  27: "27 Moby Tuna.jpeg",
+  28: "28 Greek Special.jpeg",
+  29: "29 Tropicana.jpeg",
+  30: "30.png",
+};
+
+function PizzaCardImage({ pizza, altText }) {
+  const customFileName =
+    CUSTOM_PIZZA_FILE_NAMES[pizza.number] ||
+    `${pizza.number} ${pizza.name}.jpeg`;
+  const defaultPath = `/pizza_images/${customFileName}`;
+  const hoverPath = `/pizza_images/${pizza.number}.png`;
+
+  const [mainAttempt, setMainAttempt] = useState(0); // 0: primary name, 1: .jpg variant, 2: fallback image
+  const [hoverAttempt, setHoverAttempt] = useState(0); // 0: .png, 1: fallback to main image
+
+  let mainSrc = defaultPath;
+  if (mainAttempt === 1) {
+    mainSrc = defaultPath.replace(/\.jpeg$/i, ".jpg");
+  } else if (mainAttempt >= 2) {
+    mainSrc = pizza.image;
+  }
+
+  let hoverSrc = hoverPath;
+  if (hoverAttempt >= 1) {
+    hoverSrc = mainSrc;
+  }
+
+  return (
+    <div className="relative h-48 overflow-hidden bg-black/40">
+      {/* Default (non-hover) image */}
+      <img
+        src={mainSrc}
+        alt={altText}
+        onError={() => setMainAttempt((prev) => prev + 1)}
+        className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:opacity-0"
+        loading="lazy"
+        referrerPolicy="no-referrer"
+      />
+
+      {/* Hover image (appears on mouse hover) */}
+      <img
+        src={hoverSrc}
+        alt={`${altText} hover`}
+        onError={() => setHoverAttempt((prev) => prev + 1)}
+        className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-all duration-500 group-hover:scale-105"
+        loading="lazy"
+        referrerPolicy="no-referrer"
+      />
+
+      <div className="absolute inset-0 bg-gradient-to-t from-bg-secondary via-transparent to-transparent pointer-events-none" />
+    </div>
+  );
+}
+
 export default function PizzaMenu({ onAddToCart, cart }) {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedSizes, setSelectedSizes] = useState({}); // { [pizzaId]: 'small' | 'medium' | 'large' }
@@ -231,16 +313,10 @@ export default function PizzaMenu({ onAddToCart, cart }) {
                   </div>
 
                   {/* Pizza visual illustration */}
-                  <div className="relative h-48 overflow-hidden bg-black/40">
-                    <img
-                      src={pizza.image}
-                      alt={t(`pizzas.${pizza.id}.name`)}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      loading="lazy"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-bg-secondary via-transparent to-transparent" />
-                  </div>
+                  <PizzaCardImage
+                    pizza={pizza}
+                    altText={t(`pizzas.${pizza.id}.name`)}
+                  />
 
                   {/* Pizza Info Body */}
                   <div className="p-6 flex-1 flex flex-col justify-between space-y-6">
