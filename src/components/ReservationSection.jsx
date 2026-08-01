@@ -140,7 +140,10 @@ Please confirm my reservation. Thank you!`;
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Full Name */}
                   <div>
-                    <label className="text-[10px] font-mono text-text-secondary tracking-wider block mb-2 uppercase">
+                    <label
+                      htmlFor="input-res-name"
+                      className="text-[10px] font-mono text-text-secondary tracking-wider block mb-2 uppercase"
+                    >
                       {t("fullName")}
                     </label>
                     <div className="relative">
@@ -163,7 +166,10 @@ Please confirm my reservation. Thank you!`;
 
                   {/* Email */}
                   <div>
-                    <label className="text-[10px] font-mono text-text-secondary tracking-wider block mb-2 uppercase">
+                    <label
+                      htmlFor="input-res-email"
+                      className="text-[10px] font-mono text-text-secondary tracking-wider block mb-2 uppercase"
+                    >
                       {t("emailAddress")}
                     </label>
                     <div className="relative">
@@ -188,7 +194,10 @@ Please confirm my reservation. Thank you!`;
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   {/* Reservation Date */}
                   <div>
-                    <label className="text-[10px] font-mono text-text-secondary tracking-wider block mb-2 uppercase">
+                    <label
+                      htmlFor="input-res-date"
+                      className="text-[10px] font-mono text-text-secondary tracking-wider block mb-2 uppercase"
+                    >
                       {t("arrivalDate")}
                     </label>
                     <div className="relative">
@@ -210,7 +219,10 @@ Please confirm my reservation. Thank you!`;
 
                   {/* Reservation Time */}
                   <div>
-                    <label className="text-[10px] font-mono text-text-secondary tracking-wider block mb-2 uppercase">
+                    <label
+                      htmlFor="input-res-time"
+                      className="text-[10px] font-mono text-text-secondary tracking-wider block mb-2 uppercase"
+                    >
                       {t("timeSlot")}
                     </label>
                     <div className="relative">
@@ -233,7 +245,10 @@ Please confirm my reservation. Thank you!`;
                   {/* Guests size Slider */}
                   <div>
                     <div className="flex justify-between items-center mb-2">
-                      <label className="text-[10px] font-mono text-text-secondary tracking-wider block uppercase">
+                      <label
+                        htmlFor="input-res-guests"
+                        className="text-[10px] font-mono text-text-secondary tracking-wider block uppercase"
+                      >
                         {t("guestNumber")}
                       </label>
                       <span className="font-mono text-xs font-bold text-brand-gold">
@@ -271,7 +286,10 @@ Please confirm my reservation. Thank you!`;
 
                 {/* Special Requests */}
                 <div>
-                  <label className="text-[10px] font-mono text-text-secondary tracking-wider block mb-2 uppercase">
+                  <label
+                    htmlFor="input-res-requests"
+                    className="text-[10px] font-mono text-text-secondary tracking-wider block mb-2 uppercase"
+                  >
                     {isRtl
                       ? "طلبات خاصة (اختياري)"
                       : "SPECIAL REQUESTS (OPTIONAL)"}

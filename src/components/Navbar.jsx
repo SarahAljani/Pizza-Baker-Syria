@@ -102,6 +102,8 @@ export default function Navbar({
                 <img
                   src={navbarLogo}
                   alt="Pizza Baker Logo"
+                  width={658}
+                  height={145}
                   className="h-10 sm:h-12 w-auto object-contain"
                 />
               </button>

@@ -30,11 +30,11 @@ const CUSTOM_PIZZA_FILE_NAMES = {
   23: "23 Chorizo.jpeg",
   24: "24 Hot Chicken.jpeg",
   25: "25 Chorizo.jpeg",
-  26: "26.png",
+  26: "26.jpg",
   27: "27 Moby Tuna.jpeg",
   28: "28 Greek Special.jpeg",
   29: "29 Tropicana.jpeg",
-  30: "30.png",
+  30: "30.jpg",
 };
 
 function PizzaCardImage({ pizza, altText }) {
@@ -42,7 +42,7 @@ function PizzaCardImage({ pizza, altText }) {
     CUSTOM_PIZZA_FILE_NAMES[pizza.number] ||
     `${pizza.number} ${pizza.name}.jpeg`;
   const defaultPath = `/pizza_images/${customFileName}`;
-  const hoverPath = `/pizza_images/${pizza.number}.png`;
+  const hoverPath = `/pizza_images/${pizza.number}.jpg`;
 
   const [mainAttempt, setMainAttempt] = useState(0); // 0: primary name, 1: .jpg variant, 2: fallback image
   const [hoverAttempt, setHoverAttempt] = useState(0); // 0: .png, 1: fallback to main image

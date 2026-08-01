@@ -51,12 +51,7 @@ export default function Hero({ onNavigate, onOpenReservation }) {
         </motion.p>
 
         {/* Big Heading */}
-        <motion.h1
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, delay: 0.5 }}
-          className="font-serif text-4xl sm:text-7xl md:text-8xl lg:text-9xl text-white font-normal tracking-tight mb-6 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] leading-none uppercase"
-        >
+        <h1 className="font-serif text-4xl sm:text-7xl md:text-8xl lg:text-9xl text-white font-normal tracking-tight mb-6 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] leading-none uppercase">
           {language === "ar" ? (
             <span>{t("heroTitle")}</span>
           ) : (
@@ -66,7 +61,7 @@ export default function Hero({ onNavigate, onOpenReservation }) {
               {/* <span className="italic text-brand-soft-yellow">JOURNEY</span> */}
             </>
           )}
-        </motion.h1>
+        </h1>
 
         {/* Elegant divider */}
         <motion.div
