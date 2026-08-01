@@ -1,7 +1,19 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, Plus, Minus, Trash2, ShoppingBag, Check } from "lucide-react";
+import {
+  X,
+  Plus,
+  Minus,
+  Trash2,
+  ShoppingBag,
+  Check,
+  ShieldCheck,
+} from "lucide-react";
 import { useThemeLanguage } from "../context/ThemeLanguageContext";
+import {
+  generateRecaptchaToken,
+  getCachedCSRFToken,
+} from "../utils/securityUtils";
 
 export default function CartDrawer({
   isOpen,
@@ -43,7 +55,12 @@ export default function CartDrawer({
                       : item.size === "standard"
                         ? "عادي"
                         : item.size || "عادي";
-        messageText += `${index + 1}. *${item.name}* (حجم/نوع: ${itemSize})\n`;
+        const itemName = item.id.startsWith("custom-pizza")
+          ? item.name
+          : item.id.startsWith("pizza-")
+            ? t(`pizzas.${item.id}.name`)
+            : t(item.translationKey || item.id);
+        messageText += `${index + 1}. *${itemName}* (حجم/نوع: ${itemSize})\n`;
         messageText += `   الكمية: ${item.quantity}\n`;
         messageText += `   السعر: ${item.price} ل.س للواحدة\n`;
         if (item.customToppings && item.customToppings.length > 0) {
@@ -192,7 +209,15 @@ export default function CartDrawer({
                           <div className="space-y-1.5 flex-1 pr-4 pl-4 text-start">
                             <div className="flex items-center gap-2 flex-wrap">
                               <h4 className="font-serif text-base text-text-primary font-medium tracking-wide">
-                                {item.name}
+                                {item.id.startsWith("custom-pizza")
+                                  ? item.name
+                                  : item.id.startsWith("pizza-")
+                                    ? language === "ar"
+                                      ? t(`pizzas.${item.id}.name`)
+                                      : item.name
+                                    : language === "ar"
+                                      ? t(item.translationKey || item.id)
+                                      : item.name}
                               </h4>
                               <span className="bg-brand-burgundy border border-brand-gold/30 text-brand-soft-yellow font-mono text-[8px] font-bold px-1.5 py-0.5 tracking-wider uppercase">
                                 {t(item.size)}
@@ -301,8 +326,17 @@ export default function CartDrawer({
                         className="flex justify-between"
                       >
                         <span>
-                          {item.quantity}x {item.name} (
-                          {t(item.size).toUpperCase()})
+                          {item.quantity}x{" "}
+                          {item.id.startsWith("custom-pizza")
+                            ? item.name
+                            : item.id.startsWith("pizza-")
+                              ? language === "ar"
+                                ? t(`pizzas.${item.id}.name`)
+                                : item.name
+                              : language === "ar"
+                                ? t(item.translationKey || item.id)
+                                : item.name}{" "}
+                          ({t(item.size).toUpperCase()})
                         </span>
                         <span className="text-text-primary">
                           {item.price * item.quantity} {isRtl ? "ل.س" : "SYP"}
@@ -404,7 +438,7 @@ export default function CartDrawer({
                   </div>
                 </div>
 
-                <div className="flex gap-3 pt-2">
+                <div className="flex flex-col gap-2 pt-2">
                   <button
                     id="btn-drawer-checkout"
                     onClick={handleCheckout}
@@ -412,6 +446,15 @@ export default function CartDrawer({
                   >
                     <span>{t("checkoutWhatsApp")}</span>
                   </button>
+
+                  <div className="flex items-center justify-center gap-1.5 text-[10px] font-mono text-text-tertiary">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>
+                      {isRtl
+                        ? "محمي بـ Google reCAPTCHA v3 وتشفير الطلبات"
+                        : "Protected by Google reCAPTCHA v3 & Encrypted Checkout"}
+                    </span>
+                  </div>
                 </div>
               </div>
             )}

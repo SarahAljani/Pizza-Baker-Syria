@@ -8,28 +8,52 @@ import ReservationSection from "./components/ReservationSection";
 import ReviewsSection from "./components/ReviewsSection";
 import CartDrawer from "./components/CartDrawer";
 import Footer from "./components/Footer";
+import SecurityShieldModal from "./components/SecurityShieldModal";
+import SEOHead from "./components/SEOHead";
+import { SecurityErrorBoundary } from "./components/SecurityErrorBoundary";
+import {
+  secureStorage,
+  initConsoleSecurityWarning,
+  enforceFrameSecurity,
+  fetchCSRFToken,
+} from "./utils/securityUtils";
 
 export default function App() {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isSecurityOpen, setIsSecurityOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
 
-  // Load cart from local storage on mount
+  // Initialize Client-Side Security Layer on Mount
   useEffect(() => {
-    const savedCart = localStorage.getItem("pizzabaker_cart");
-    if (savedCart) {
-      try {
-        setCart(JSON.parse(savedCart));
-      } catch (e) {
-        console.error("Failed to parse cart storage", e);
+    initConsoleSecurityWarning();
+    enforceFrameSecurity();
+    fetchCSRFToken();
+
+    // Load encrypted cart from secure storage
+    const savedCart = secureStorage.getItem("pizzabaker_cart");
+    if (savedCart && Array.isArray(savedCart)) {
+      setCart(savedCart);
+    } else {
+      // Backward compatibility check for plain local storage
+      const plainSaved = localStorage.getItem("pizzabaker_cart");
+      if (plainSaved) {
+        try {
+          const parsed = JSON.parse(plainSaved);
+          setCart(parsed);
+          secureStorage.setItem("pizzabaker_cart", parsed);
+          localStorage.removeItem("pizzabaker_cart");
+        } catch (e) {
+          console.warn("[Security] Could not migrate legacy cart storage");
+        }
       }
     }
   }, []);
 
-  // Save cart changes
+  // Save cart changes securely
   const saveCart = (updatedCart) => {
     setCart(updatedCart);
-    localStorage.setItem("pizzabaker_cart", JSON.stringify(updatedCart));
+    secureStorage.setItem("pizzabaker_cart", updatedCart);
   };
 
   // Add standard menu item to cart
@@ -150,55 +174,67 @@ export default function App() {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-bg-primary text-text-primary font-sans selection:bg-brand-gold selection:text-black transition-colors duration-300">
-      {/* Premium Translucent Header Navbar */}
-      <Navbar
-        cart={cart}
-        onOpenCart={() => setIsCartOpen(true)}
-        activeSection={activeSection}
-        onNavigate={handleNavigate}
-        onOpenReservation={() => handleNavigate("reservation")}
-      />
+    <SecurityErrorBoundary>
+      {/* Dynamic SEO Head Manager */}
+      <SEOHead activeSection={activeSection} />
 
-      {/* Main Sections */}
-      <main>
-        {/* Hero Section */}
-        <Hero
+      <div className="relative min-h-screen bg-bg-primary text-text-primary font-sans selection:bg-brand-gold selection:text-black transition-colors duration-300">
+        {/* Premium Translucent Header Navbar */}
+        <Navbar
+          cart={cart}
+          onOpenCart={() => setIsCartOpen(true)}
+          activeSection={activeSection}
           onNavigate={handleNavigate}
           onOpenReservation={() => handleNavigate("reservation")}
         />
 
-        {/* Pizza Menu Section */}
-        <PizzaMenu onAddToCart={handleAddToCart} cart={cart} />
+        {/* Main Sections */}
+        <main>
+          {/* Hero Section */}
+          <Hero
+            onNavigate={handleNavigate}
+            onOpenReservation={() => handleNavigate("reservation")}
+          />
 
-        {/* Snacks & Dessert Section */}
-        <ExtrasMenu onAddToCart={handleAddToCart} cart={cart} />
+          {/* Pizza Menu Section */}
+          <PizzaMenu onAddToCart={handleAddToCart} cart={cart} />
 
-        {/* Visual Pizza Builder */}
-        <PizzaBuilder onAddCustomToCart={handleAddCustomToCart} />
+          {/* Snacks & Dessert Section */}
+          <ExtrasMenu onAddToCart={handleAddToCart} cart={cart} />
 
-        {/* Table Reservation Desk */}
-        <ReservationSection />
+          {/* Visual Pizza Builder */}
+          <PizzaBuilder onAddCustomToCart={handleAddCustomToCart} />
 
-        {/* Reviews Explorer with persistence */}
-        <ReviewsSection />
-      </main>
+          {/* Table Reservation Desk */}
+          <ReservationSection />
 
-      {/* Footer */}
-      <Footer
-        onNavigate={handleNavigate}
-        onOpenReservation={() => handleNavigate("reservation")}
-      />
+          {/* Reviews Explorer with persistence */}
+          <ReviewsSection />
+        </main>
 
-      {/* Sliding Cart Drawer */}
-      <CartDrawer
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        cart={cart}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemoveItem={handleRemoveItem}
-        onClearCart={handleClearCart}
-      />
-    </div>
+        {/* Footer */}
+        <Footer
+          onNavigate={handleNavigate}
+          onOpenReservation={() => handleNavigate("reservation")}
+          onOpenSecurity={() => setIsSecurityOpen(true)}
+        />
+
+        {/* Sliding Cart Drawer */}
+        <CartDrawer
+          isOpen={isCartOpen}
+          onClose={() => setIsCartOpen(false)}
+          cart={cart}
+          onUpdateQuantity={handleUpdateQuantity}
+          onRemoveItem={handleRemoveItem}
+          onClearCart={handleClearCart}
+        />
+
+        {/* Interactive Comprehensive Security Shield Modal */}
+        <SecurityShieldModal
+          isOpen={isSecurityOpen}
+          onClose={() => setIsSecurityOpen(false)}
+        />
+      </div>
+    </SecurityErrorBoundary>
   );
 }

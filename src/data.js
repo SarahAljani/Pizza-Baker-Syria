@@ -1,4 +1,4 @@
-import heroImage from "./assets/images/bistro_hero_1783274357884.jpg";
+import heroImage from "./assets/images/bistro_hero_1783274357884.png";
 import margheritaImage from "./assets/images/margherita_pizza_1783274371968.jpg";
 import burrataImage from "./assets/images/burrata_pizza_1783274387992.jpg";
 import footerBgImage from "./assets/images/footer_ingredients_1783274399702.jpg";
