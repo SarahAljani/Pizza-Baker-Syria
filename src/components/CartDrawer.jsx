@@ -162,13 +162,14 @@ export default function CartDrawer({
             <div className="bg-bg-primary border-b border-border-primary p-5 flex items-center justify-between transition-colors duration-300">
               <div className="flex items-center gap-2.5">
                 <ShoppingBag className="w-5 h-5 text-brand-gold" />
-                <span className="font-mono text-xs font-bold tracking-widest text-text-primary uppercase">
+                <h2 className="font-mono text-xs font-bold tracking-widest text-text-primary uppercase">
                   {checkoutStep === "cart" && t("yourBasket")}
                   {checkoutStep === "success" && t("orderCompleted")}
-                </span>
+                </h2>
               </div>
               <button
                 id="btn-close-cart"
+                aria-label="Close Basket"
                 onClick={onClose}
                 className="p-2 text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
               >
@@ -185,9 +186,9 @@ export default function CartDrawer({
                       <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center text-text-tertiary border border-border-primary">
                         <ShoppingBag className="w-6 h-6" />
                       </div>
-                      <h4 className="font-serif text-lg text-text-primary font-medium">
+                      <h3 className="font-serif text-lg text-text-primary font-medium">
                         {t("basketIsEmpty")}
-                      </h4>
+                      </h3>
                       <p className="text-xs text-text-secondary max-w-xs font-sans leading-relaxed">
                         {t("basketEmptyDesc")}
                       </p>
@@ -208,7 +209,7 @@ export default function CartDrawer({
                         >
                           <div className="space-y-1.5 flex-1 pr-4 pl-4 text-start">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <h4 className="font-serif text-base text-text-primary font-medium tracking-wide">
+                              <h3 className="font-serif text-base text-text-primary font-medium tracking-wide">
                                 {item.id.startsWith("custom-pizza")
                                   ? item.name
                                   : item.id.startsWith("pizza-")
@@ -218,7 +219,7 @@ export default function CartDrawer({
                                     : language === "ar"
                                       ? t(item.translationKey || item.id)
                                       : item.name}
-                              </h4>
+                              </h3>
                               <span className="bg-brand-burgundy border border-brand-gold/30 text-brand-soft-yellow font-mono text-[8px] font-bold px-1.5 py-0.5 tracking-wider uppercase">
                                 {t(item.size)}
                               </span>
@@ -254,6 +255,7 @@ export default function CartDrawer({
                             <div className="flex items-center border border-border-primary bg-bg-primary transition-colors">
                               <button
                                 id={`btn-cart-minus-${item.id}-${item.size}`}
+                                aria-label="Decrease quantity"
                                 onClick={() =>
                                   onUpdateQuantity(item.id, item.size, -1)
                                 }
@@ -266,6 +268,7 @@ export default function CartDrawer({
                               </span>
                               <button
                                 id={`btn-cart-plus-${item.id}-${item.size}`}
+                                aria-label="Increase quantity"
                                 onClick={() =>
                                   onUpdateQuantity(item.id, item.size, 1)
                                 }
@@ -299,9 +302,9 @@ export default function CartDrawer({
                   </div>
 
                   <div className="space-y-1">
-                    <h4 className="font-serif text-2xl text-text-primary font-normal uppercase">
+                    <h3 className="font-serif text-2xl text-text-primary font-normal uppercase">
                       {t("whatsappInitiated")}
-                    </h4>
+                    </h3>
                     <p className="text-[10px] font-mono text-brand-gold tracking-widest uppercase">
                       {t("preparingInOven")}
                     </p>

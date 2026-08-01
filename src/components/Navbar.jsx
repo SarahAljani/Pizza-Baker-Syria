@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useThemeLanguage } from "../context/ThemeLanguageContext";
+import navbarLogo from "../assets/images/navbar_logo.png";
 
 export default function Navbar({
   cart,
@@ -94,13 +95,13 @@ export default function Navbar({
             <div className="flex-1 md:flex-none text-center">
               <button
                 id="navbar-logo"
+                aria-label="Pizza Baker Home"
                 onClick={() => handleLinkClick("hero")}
                 className="inline-block cursor-pointer transition-transform duration-300 hover:scale-105"
               >
                 <img
-                  src="https://i.ibb.co/MynDPF0d/Frame-252.png"
+                  src={navbarLogo}
                   alt="Pizza Baker Logo"
-                  referrerPolicy="no-referrer"
                   className="h-10 sm:h-12 w-auto object-contain"
                 />
               </button>
@@ -141,6 +142,7 @@ export default function Navbar({
                   id="header-social-fb"
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="Facebook"
                   className="p-1 text-text-secondary hover:text-brand-gold transition-colors duration-300 cursor-pointer"
                   title="Facebook"
                 >
@@ -151,6 +153,7 @@ export default function Navbar({
                   id="header-social-ig"
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="Instagram"
                   className="p-1 text-text-secondary hover:text-brand-gold transition-colors duration-300 cursor-pointer"
                   title="Instagram"
                 >
@@ -162,6 +165,7 @@ export default function Navbar({
               <button
                 id="btn-nav-theme"
                 onClick={toggleTheme}
+                aria-label={theme === "dark" ? t("lightMode") : t("darkMode")}
                 className="p-2 text-text-secondary hover:text-brand-gold transition-colors duration-300 cursor-pointer"
                 title={theme === "dark" ? t("lightMode") : t("darkMode")}
               >
@@ -176,6 +180,7 @@ export default function Navbar({
               <button
                 id="btn-nav-lang"
                 onClick={toggleLanguage}
+                aria-label="Switch Language"
                 className="p-2 text-text-secondary hover:text-brand-gold transition-colors duration-300 flex items-center gap-1 cursor-pointer font-mono font-bold text-[11px]"
                 title="Switch Language"
               >
@@ -187,6 +192,7 @@ export default function Navbar({
               <button
                 id="btn-nav-cart"
                 onClick={onOpenCart}
+                aria-label="Open Shopping Cart"
                 className="relative p-2 text-text-secondary hover:text-brand-gold transition-colors duration-300 cursor-pointer"
               >
                 <ShoppingBag className="w-5 h-5" />
@@ -213,6 +219,7 @@ export default function Navbar({
               <button
                 id="btn-nav-theme-mobile"
                 onClick={toggleTheme}
+                aria-label={theme === "dark" ? t("lightMode") : t("darkMode")}
                 className="p-2 text-text-secondary hover:text-brand-gold transition-colors duration-300 cursor-pointer"
                 title={theme === "dark" ? t("lightMode") : t("darkMode")}
               >
@@ -227,6 +234,7 @@ export default function Navbar({
               <button
                 id="btn-nav-lang-mobile"
                 onClick={toggleLanguage}
+                aria-label="Switch Language"
                 className="p-2 text-text-secondary hover:text-brand-gold transition-colors duration-300 flex items-center gap-1 cursor-pointer font-mono font-bold text-[11px]"
               >
                 <Globe className="w-4 h-4 text-brand-gold" />
@@ -237,6 +245,7 @@ export default function Navbar({
               <button
                 id="btn-nav-cart-mobile"
                 onClick={onOpenCart}
+                aria-label="Open Shopping Cart"
                 className="relative p-2 text-text-secondary hover:text-brand-gold transition-colors duration-300"
               >
                 <ShoppingBag className="w-5 h-5" />
@@ -251,6 +260,7 @@ export default function Navbar({
               <button
                 id="btn-mobile-menu-toggle"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label="Toggle Mobile Menu"
                 className="p-2 text-text-secondary hover:text-brand-gold transition-colors duration-300"
               >
                 {isMobileMenuOpen ? (
@@ -297,6 +307,7 @@ export default function Navbar({
                   href="https://facebook.com"
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="Facebook"
                   className="w-9 h-9 bg-text-primary hover:bg-brand-gold text-bg-primary rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer"
                 >
                   <Facebook
@@ -308,6 +319,7 @@ export default function Navbar({
                   href="https://instagram.com"
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="Instagram"
                   className="w-9 h-9 bg-text-primary hover:bg-brand-gold text-bg-primary rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer"
                 >
                   <Instagram className="w-4.5 h-4.5" />

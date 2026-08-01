@@ -255,6 +255,7 @@ Please confirm my reservation. Thank you!`;
                         min="1"
                         max="12"
                         id="input-res-guests"
+                        aria-label="Number of guests"
                         value={formData.guests}
                         onChange={(e) =>
                           setFormData({

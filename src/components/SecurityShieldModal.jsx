@@ -195,7 +195,8 @@ export default function SecurityShieldModal({ isOpen, onClose }) {
 
           <button
             onClick={onClose}
-            className="p-2 text-text-secondary hover:text-text-primary hover:bg-bg-primary rounded-xl transition-colors"
+            aria-label="Close Security Shield Modal"
+            className="p-2 text-text-secondary hover:text-text-primary hover:bg-bg-primary rounded-xl transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>

@@ -128,9 +128,9 @@ export default function ReviewsSection() {
 
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h4 className="font-sans text-sm font-semibold text-text-primary tracking-wide">
+                      <h3 className="font-sans text-sm font-semibold text-text-primary tracking-wide">
                         {t(review.name)}
-                      </h4>
+                      </h3>
                       <span className="text-[10px] font-mono text-text-secondary">
                         {t(review.date)}
                       </span>
@@ -190,6 +190,7 @@ export default function ReviewsSection() {
                         type="button"
                         key={i}
                         id={`btn-star-select-${ratingValue}`}
+                        aria-label={`Rate ${ratingValue} out of 5 stars`}
                         onClick={() =>
                           setNewReview({ ...newReview, rating: ratingValue })
                         }

@@ -76,6 +76,7 @@ export default function Footer({
             id="footer-social-fb"
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="Facebook"
             className="w-9 h-9 bg-text-primary hover:bg-brand-gold text-bg-primary rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-110 shadow-sm"
           >
             <Facebook className="w-4 h-4 fill-current" strokeWidth={0} />
@@ -85,6 +86,7 @@ export default function Footer({
             id="footer-social-ig"
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="Instagram"
             className="w-9 h-9 bg-text-primary hover:bg-brand-gold text-bg-primary rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-110 shadow-sm"
           >
             <Instagram className="w-4 h-4" />
@@ -94,6 +96,7 @@ export default function Footer({
             id="footer-social-wa"
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="WhatsApp"
             className="w-9 h-9 bg-text-primary hover:bg-brand-gold text-bg-primary rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-110 shadow-sm"
             title="WhatsApp"
           >
