@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useThemeLanguage } from "../context/ThemeLanguageContext";
-import navbarLogo from "../assets/images/navbar_logo.png";
 
 export default function Navbar({
   cart,
@@ -23,6 +22,7 @@ export default function Navbar({
 }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [logoError, setLogoError] = useState(false);
   const { theme, language, t, toggleTheme, toggleLanguage, isRtl } =
     useThemeLanguage();
 
@@ -62,81 +62,69 @@ export default function Navbar({
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
-            {/* Left Nav (Desktop) */}
-            <div className="hidden md:flex items-center gap-6 text-xs font-mono tracking-widest text-text-secondary">
-              {navLinks.slice(0, 3).map((link) => (
-                <button
-                  key={link.id}
-                  id={`nav-link-${link.id}`}
-                  onClick={() => handleLinkClick(link.id)}
-                  className={`hover:text-brand-gold transition-all duration-300 relative py-1 cursor-pointer ${
-                    activeSection === link.id
-                      ? "text-brand-gold font-semibold"
-                      : ""
-                  }`}
-                >
-                  {link.label}
-                  {activeSection === link.id && (
-                    <motion.div
-                      layoutId="activeIndicator"
-                      className="absolute -bottom-1 left-0 right-0 h-[1.5px] bg-brand-gold"
-                      transition={{
-                        type: "spring",
-                        stiffness: 380,
-                        damping: 30,
-                      }}
-                    />
-                  )}
-                </button>
-              ))}
-            </div>
-
-            {/* Logo */}
-            <div className="flex-1 md:flex-none text-center">
+            {/* Logo (Outside Left) */}
+            <div className="flex items-center gap-6 lg:gap-8">
               <button
                 id="navbar-logo"
                 aria-label="Pizza Baker Home"
                 onClick={() => handleLinkClick("hero")}
-                className="inline-block cursor-pointer transition-transform duration-300 hover:scale-105"
+                className="inline-block cursor-pointer transition-transform duration-300 hover:scale-105 flex-shrink-0"
               >
-                <img
-                  src={navbarLogo}
-                  alt="Pizza Baker Logo"
-                  width={658}
-                  height={145}
-                  className="h-10 sm:h-12 w-auto object-contain"
-                />
+                {!logoError ? (
+                  <img
+                    src="https://i.ibb.co/MynDPF0d/Frame-252.png"
+                    alt="Pizza Baker Logo"
+                    referrerPolicy="no-referrer"
+                    onError={() => setLogoError(true)}
+                    className="h-10 sm:h-12 w-auto object-contain"
+                  />
+                ) : (
+                  <div className="flex items-center gap-2.5 px-3 py-1 rounded-xl bg-brand-burgundy/80 border border-brand-gold/40 shadow-md">
+                    <span className="text-2xl">🍕</span>
+                    <div className="text-start">
+                      <span className="block font-serif font-bold text-sm text-brand-gold tracking-wider leading-none">
+                        PIZZA BAKER
+                      </span>
+                      <span className="block font-mono text-[8px] text-brand-soft-yellow tracking-widest uppercase mt-0.5">
+                        SYRIA • بيتزا بيكر
+                      </span>
+                    </div>
+                  </div>
+                )}
               </button>
+
+              {/* All Nav Links Together (Desktop) */}
+              <div className="hidden md:flex items-center gap-4 lg:gap-6 text-xs font-mono tracking-widest text-text-secondary">
+                {navLinks.map((link) => (
+                  <button
+                    key={link.id}
+                    id={`nav-link-${link.id}`}
+                    onClick={() => handleLinkClick(link.id)}
+                    className={`hover:text-brand-gold transition-all duration-300 relative py-1 cursor-pointer whitespace-nowrap ${
+                      activeSection === link.id
+                        ? "text-brand-gold font-semibold"
+                        : ""
+                    }`}
+                  >
+                    {link.label}
+                    {activeSection === link.id && (
+                      <motion.div
+                        layoutId="activeIndicator"
+                        className="absolute -bottom-1 left-0 right-0 h-[1.5px] bg-brand-gold"
+                        transition={{
+                          type: "spring",
+                          stiffness: 380,
+                          damping: 30,
+                        }}
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Right Nav (Desktop) */}
-            <div className="hidden md:flex items-center gap-6 text-xs font-mono tracking-widest text-text-secondary">
-              {navLinks.slice(3).map((link) => (
-                <button
-                  key={link.id}
-                  id={`nav-link-${link.id}`}
-                  onClick={() => handleLinkClick(link.id)}
-                  className={`hover:text-brand-gold transition-all duration-300 relative py-1 cursor-pointer ${
-                    activeSection === link.id
-                      ? "text-brand-gold font-semibold"
-                      : ""
-                  }`}
-                >
-                  {link.label}
-                  {activeSection === link.id && (
-                    <motion.div
-                      layoutId="activeIndicator"
-                      className="absolute -bottom-1 left-0 right-0 h-[1.5px] bg-brand-gold"
-                      transition={{
-                        type: "spring",
-                        stiffness: 380,
-                        damping: 30,
-                      }}
-                    />
-                  )}
-                </button>
-              ))}
-
+            {/* Right Controls (Desktop) */}
+            <div className="hidden md:flex items-center gap-5 text-xs font-mono tracking-widest text-text-secondary">
               {/* Social Media Links */}
               <div className="flex items-center gap-3 border-l border-border-primary pl-4">
                 <a

@@ -92,7 +92,7 @@ export default function Footer({
             <Instagram className="w-4 h-4" />
           </a>
           <a
-            href="https://wa.me/963939333189"
+            href="https://wa.me/963983923768"
             id="footer-social-wa"
             target="_blank"
             rel="noopener noreferrer"

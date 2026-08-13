@@ -16,19 +16,19 @@ export const translations = {
     languageName: "العربية",
 
     // Hero
-    heroSubtitle: "PREMIUM INGREDIENTS & ARTISANAL SAUCES",
+    heroSubtitle: "FRESH INGREDIENTS & CONTINUOUS OVEN CRAFT",
     heroTitle: "PIZZA BAKER",
     heroDesc:
-      "Experience the incredible pizza journey from nothing to everything. Hand-stretched dough, rich signature sauces, and premium Syrian ingredients.",
+      "Step into the authentic European pizzeria vibe right here in Damascus! Watch your pizza enter raw into our continuous gas oven and emerge from the other side piping hot—crafted with ultra-fresh ingredients layered with absolute precision and mastery.",
     heroDiscover: "DISCOVER MENU",
     heroBook: "BOOK A TABLE",
-    heroBadge: "WORLD-CLASS CRAFT",
+    heroBadge: "EUROPEAN VIBE IN DAMASCUS",
 
     // Menu
     menuPreTitle: "OUR SIGNATURE RECIPES",
     menuTitle: "PIZZA ARCHIVE",
     menuDesc:
-      "EXPLORE OUR RICH 30 SIGNATURE RECIPES, SOURCED WITH PREMIUM INGREDIENTS AND EXQUISITE SAUCES.",
+      "EXPLORE OUR 30 SIGNATURE RECIPES, CRAFTED WITH ULTRA-FRESH INGREDIENTS OF BOLD FLAVOR, LAYERED WITH MASTERFUL PRECISION.",
     searchPlaceholder: "Search by number or name...",
     allRecipes: "All Recipes",
     addToBasket: "ADD TO BASKET",
@@ -46,7 +46,7 @@ export const translations = {
     builderPreTitle: "THE ARTISANAL DESIGNER",
     builderTitle: "CUSTOM PIZZA BUILDER",
     builderDesc:
-      "SELECT YOUR BASE SIZE AND LAYER PREMIUM TOPPINGS TO DISCOVER YOUR PIZZA JOURNEY.",
+      "SELECT YOUR BASE SIZE AND LAYER ULTRA-FRESH INGREDIENTS WITH PRECISION, WATCHING YOUR PIZZA EMERGE PIPING HOT FROM OUR CONTINUOUS OVEN.",
     selectSize: "1. SELECT SIZE",
     layerToppings: "2. LAYER TOPPINGS",
     customNameLabel: "CUSTOM PIZZA NAME",
@@ -195,7 +195,7 @@ export const translations = {
     // Footer
     footerFeedback: "Tell us how we're doing.",
     footerDesc:
-      "Pizza Baker is a locally-owned place for delicious, made-from-scratch pizzas with premium ingredients and rich sauces, served in an upscale, comfortable, family friendly environment.",
+      "Pizza Baker brings the authentic European pizzeria experience right to Damascus. Watch your pizza enter raw into our continuous gas oven and emerge piping hot from the other side, loaded with ultra-fresh ingredients layered with perfection and precision.",
     footerCopyright: "© 2026 PIZZA BAKER. ALL RIGHTS RESERVED.",
 
     // Custom Toppings (English)
@@ -225,6 +225,16 @@ export const translations = {
     Chili: "Chili",
     "Marinated beef": "Marinated beef",
     Chicken: "Chicken",
+    "Chicken pieces": "Chicken pieces",
+    Salami: "Salami",
+    "Beef bacon cut": "Beef bacon cut",
+    "Marinated beef slices": "Marinated beef slices",
+    "Minced beef": "Minced beef",
+    "Beef chorizo": "Beef chorizo",
+    "Beef bacon slices": "Beef bacon slices",
+    "Curry spice": "Curry spice",
+    "Bell pepper": "Bell pepper",
+    "Fresh tomato slices": "Fresh tomato slices",
     Corn: "Corn",
     "Pepper beef": "Pepper beef",
     Tacosauce: "Taco sauce",
@@ -248,6 +258,12 @@ export const translations = {
     "Red peppers": "Red peppers",
     Pork: "Pork",
     Salmon: "Salmon",
+    animalProducts: "1. Animal Products",
+    vegetarianIngredients: "2. Vegetarian Ingredients",
+    selectBasePizza: "Select Base Pizza",
+    baseIngredients: "Base Ingredients",
+    extraIngredientsTitle: "Extra Ingredients & Pricing",
+    extraIngredientsSubtitle: "Customize with Official Pizzabaker Extras",
 
     // Pizza specific Names/Descriptions
     pizzas: {
@@ -390,19 +406,19 @@ export const translations = {
     languageName: "English",
 
     // Hero
-    heroSubtitle: "مكونات فاخرة وصلصات غنية ومبتكرة",
+    heroSubtitle: "مكونات فريش وطازجة ومخبوزات فرن الغاز المستمر",
     heroTitle: "بيتزا بيكر",
     heroDesc:
-      "عش معنا تجربة رحلة البيتزا المذهلة من لا شيء إلى كل شيء في دمشق. عجينة ممدودة يدوياً، صلصات مبتكرة متبلة، ومكونات سورية طازجة وفاخرة.",
+      "عيش تجربة أرقى مطاعم البيتزا في أوروبا وأنت قاعد بالشام! شاهد بيتزا أحلامك تدخل نية إلى فرن الغاز وتخرج من الجهة الأخرى مخبوزة وسخنة نار أمام عينيك، بمكونات فريش وطازجة ذات نكهة قوية مضافة بكل دقة وإتقان.",
     heroDiscover: "اكتشف القائمة",
     heroBook: "احجز طاولة الآن",
-    heroBadge: "حرفة بمستوى عالمي",
+    heroBadge: "أجواء أوروبية في قلب الشام",
 
     // Menu
     menuPreTitle: "وصفاتنا المتميزة والمبتكرة",
     menuTitle: "أرشيف البيتزا والوصفات",
     menuDesc:
-      "اكتشف تشكيلتنا الغنية المكونة من 30 وصفة بيتزا محضرة بمكونات سورية طازجة وفاخرة وصلصات مميزة.",
+      "اكتشف تشكيلتنا المكونة من 30 وصفة مميزة، المحضرة بمكونات فريش وطازجة ذات نكهة قوية، والموزعة على البيتزا بكل دقة وإتقان.",
     searchPlaceholder: "ابحث عن البيتزا باسمها أو رقمها...",
     allRecipes: "كل الوصفات",
     addToBasket: "إضافة إلى السلة",
@@ -420,7 +436,7 @@ export const translations = {
     builderPreTitle: "مُصمم البيتزا الحرفي",
     builderTitle: "صانع البيتزا التفاعلي",
     builderDesc:
-      "اختر مقاس العجين وطبقات المكونات الفاخرة لتبدأ رحلتك الخاصة وتصنع بيتزا أحلامك من الصفر.",
+      "اختر مقاس البيتزا وزّع المكونات الطازجة ذات النكهة القوية بكل دقة وإتقان، وشاهدها تدخل نية وتخرج من الفرن مخبوزة وسخنة نار أمام عينيك.",
     selectSize: "١. اختر مقاس البيتزا",
     layerToppings: "٢. وزّع المكونات الفاخرة",
     customNameLabel: "اسم بيتزا أحلامك",
@@ -484,7 +500,9 @@ export const translations = {
     commentPlaceholder:
       "شاركنا تفاصيل تجربتك، نكهة الصلصات الاستثنائية، المكونات الطازجة، قوام العجين الرائع...",
     dispatchReview: "إرسال التقييم بأمان",
-    opinionCommitted: "تم ",
+    opinionCommitted: "تم تسجيل تقييمك بنجاح!",
+
+    // Sizes
     small: "صغير",
     medium: "وسط",
     large: "كبير",
@@ -594,7 +612,7 @@ export const translations = {
     // Footer
     footerFeedback: "شاركونا ملاحظاتكم وتجاربكم القيمة.",
     footerDesc:
-      "بيتزا بيكر هو مشروع محلي لتقديم ألذ بيتزا مصنوعة من الصفر يدوياً وبحب بتركيز تام على جودة المكونات والصلصات المبتكرة ورحلة نكهات استثنائية تناسب الجميع.",
+      "بيتزا بيكر ينقلك مباشرة إلى قلب مطاعم البيتزا في أوروبا وأنت قاعد بالشام. شاهد بيتزاك تدخل نية إلى فرن الغاز وتخرج من الجهة الأخرى مخبوزة وسخنة نار أمام عينيك، بمكونات فريش وطازجة ونكهات قوية مضافة بدقة وإتقان.",
     footerCopyright: "© 2026 بيتزا بيكر. جميع الحقوق محفوظة.",
 
     // Custom Toppings (Arabic)
@@ -624,6 +642,16 @@ export const translations = {
     Chili: "فلفل حار حاد",
     "Marinated beef": "لحم بقري متبل فاخر",
     Chicken: "قطع دجاج",
+    "Chicken pieces": "قطع دجاج",
+    Salami: "سلامي",
+    "Beef bacon cut": "بيكن بقري مقطع",
+    "Marinated beef slices": "شرائح لحم بقري",
+    "Minced beef": "لحم بقري مفروم",
+    "Beef chorizo": "شوريزو بقري",
+    "Beef bacon slices": "شرائح بيكن بقري",
+    "Curry spice": "بهار كاري",
+    "Bell pepper": "فليفلة",
+    "Fresh tomato slices": "شرائح بندورة فريش",
     Corn: "حبات ذرة حلوة",
     "Pepper beef": "لحم بقري بالفلفل الأسود",
     Tacosauce: "صلصة تاكو مكسيكية",
@@ -647,6 +675,12 @@ export const translations = {
     "Red peppers": "فلفل أحمر طازج",
     Pork: "لحم بقري مقدد غني",
     Salmon: "شرائح سلمون نرويجي مدخن",
+    animalProducts: "١. منتجات حيوانية",
+    vegetarianIngredients: "٢. منتجات نباتية",
+    selectBasePizza: "اختر بيتزا كقاعدة",
+    baseIngredients: "المكونات الأساسية للبيتزا",
+    extraIngredientsTitle: "الإضافات والأسعار",
+    extraIngredientsSubtitle: "أضف مكونات إضافية من قائمة بيتزا بيكر الرسمية",
 
     // Pizza specific Names/Descriptions
     pizzas: {

@@ -4,306 +4,132 @@ import {
   ShoppingCart,
   Check,
   RefreshCw,
+  Search,
+  ChevronRight,
+  ChevronLeft,
   Sparkles,
-  TrendingDown,
-  Percent,
-  Zap,
+  Plus,
+  Minus,
 } from "lucide-react";
-import { CUSTOM_TOPPINGS, INITIAL_MENU } from "../data";
+import {
+  CUSTOM_TOPPINGS,
+  INITIAL_MENU,
+  getToppingPrice,
+  getToppingWeight,
+} from "../data";
 import { useThemeLanguage } from "../context/ThemeLanguageContext";
 
-// Ingredient matching mappings to link custom builder state with original database menu records
-const TOPPING_TO_INGREDIENT_MAP = {
-  "topping-cheese": "Cheese",
-  "topping-ham": "Ham",
-  "topping-mush": "Mushroom",
-  "topping-minced": "Minced meat",
-  "topping-pepper": "Red pepper",
-  "topping-onion": "Onion",
-  "topping-baconcut": "Baconcut",
-  "topping-pineapple": "Pineapple",
-  "topping-pep": "Pepperoni",
-  "topping-garlic": "Garlic",
-  "topping-nacho": "Nacho chips",
-  "topping-chili": "Chili",
-  "topping-marinated-beef": "Marinated beef",
-  "topping-chicken": "Chicken",
-  "topping-corn": "Corn",
-  "topping-pepper-beef": "Pepper beef",
-  "topping-jalapeno": "Jalapeño",
-  "topping-marinated-chicken": "Marinated chicken",
-  "topping-luxury-bacon": "Luxury bacon",
-  "topping-tomato": "Tomato",
-  "topping-pesto": "Pesto",
-  "topping-kebab": "Kebab meat",
-  "topping-red-onion": "Red onion",
-  "topping-oregano": "Oregano",
-  "topping-chorizo": "Chorizo",
-  "topping-hot-chicken": "Hot chicken",
-  "topping-squash": "Squash",
-  "topping-feta": "Feta cheese",
-  "topping-pork": "Pork",
+const CUSTOM_PIZZA_FILE_NAMES = {
+  1: "1 The Classic Margherita.jpeg",
+  2: "2 The Salami One.jpeg",
+  3: "3 My Dream.jpeg",
+  4: "4 Pizzabaker Special.jpeg",
+  5: "5 Hawaii.jpeg",
+  6: "6 Pepperoni.jpeg",
+  7: "7 Mexicano.jpeg",
+  8: "8 Meat Lover.jpeg",
+  9: "9 The Marinated.jpeg",
+  10: "10 Hot Pepper Beef.jpeg",
+  11: "11 The Flame.jpeg",
+  12: "12 Taco Chicken.jpeg",
+  13: "13 Master Chicken.jpeg",
+  14: "14 Master Favourite.jpeg",
+  15: "15 Spark Baker.jpeg",
+  16: "16 Chicken Deluxe.jpeg",
+  17: "17 Pesto Chicken.jpeg",
+  18: "18 Vegan.jpeg",
+  19: "19 Kebab Pizza.jpeg",
+  20: "20 Mr. Mix.jpeg",
+  21: "21 Mr. X.jpeg",
+  22: "22 The Double Decker.jpeg",
+  23: "23 Chorizo.jpeg",
+  24: "24 Hot Chicken.jpeg",
+  25: "25 Chorizo.jpeg",
+  26: "26.png",
+  27: "27 Moby Tuna.jpeg",
+  28: "28 Greek Special.jpeg",
+  29: "29 Tropicana.jpeg",
+  30: "30.png",
 };
 
-const CRUST_TO_INGREDIENTS = {
-  "Classic Neapolitan": ["Cheese", "Sauce"],
-  "Crispy Thin": ["Cheese", "Sauce", "Oregano"],
-  "Gluten-Free": ["Cheese", "Sauce"],
-  "Garlic Butter Crust": ["Cheese", "Sauce", "Garlic"],
-};
+function PizzaBuilderImage({
+  pizza,
+  altText,
+  className = "w-full h-full object-cover",
+}) {
+  const customFileName =
+    CUSTOM_PIZZA_FILE_NAMES[pizza.number] ||
+    `${pizza.number} ${pizza.name}.jpeg`;
+  const defaultPath = `/pizza_images/${customFileName}`;
+  const [attempt, setAttempt] = useState(0);
 
-const SAUCE_TO_INGREDIENTS = {
-  "San Marzano Tomato": ["Sauce"],
-  "White Truffle Cream": ["Cheese"],
-  "Herb Pesto": ["Pesto"],
-  "Spicy Diavola": ["Chili"],
-};
+  let src = defaultPath;
+  if (attempt === 1) {
+    src = defaultPath.replace(/\.jpeg$/i, ".jpg");
+  } else if (attempt >= 2) {
+    src = pizza.image;
+  }
+
+  return (
+    <img
+      src={src}
+      alt={altText || pizza.name}
+      className={className}
+      onError={() => {
+        if (attempt < 2) setAttempt(attempt + 1);
+      }}
+    />
+  );
+}
 
 export default function PizzaBuilder({ onAddCustomToCart }) {
-  const [size, setSize] = useState("medium");
-  const [crust, setCrust] = useState("Classic Neapolitan");
-  const [sauce, setSauce] = useState("San Marzano Tomato");
+  // State 1: Base Pizza selection (Default to Pizza #1 The Classic Margherita)
+  const [selectedPizza, setSelectedPizza] = useState(INITIAL_MENU[0]);
+  const [searchPizzaQuery, setSearchPizzaQuery] = useState("");
+  const [pizzaCategoryFilter, setPizzaCategoryFilter] = useState("all");
+
+  // State 2: Selected size
+  const [size, setSize] = useState("medium"); // 'small' (20cm), 'medium' (30cm), 'large' (40cm), 'thin'
+
+  // State 3: Selected extra toppings (IDs array)
   const [selectedToppings, setSelectedToppings] = useState([]);
   const [isSuccess, setIsSuccess] = useState(false);
+
   const { t, isRtl, language } = useThemeLanguage();
 
-  const crustTranslations = {
-    "Classic Neapolitan": { en: "Classic Neapolitan", ar: "نابولي كلاسيكية" },
-    "Crispy Thin": { en: "Crispy Thin", ar: "رقيقة مقرمشة" },
-    "Gluten-Free": { en: "Gluten-Free", ar: "خالية من الغلوتين" },
-    "Garlic Butter Crust": {
-      en: "Garlic Butter Crust",
-      ar: "عجينة بالثوم والزبدة",
-    },
-  };
+  // Filter base pizzas list
+  const filteredPizzas = INITIAL_MENU.filter((pizza) => {
+    if (
+      pizzaCategoryFilter !== "all" &&
+      pizza.category !== pizzaCategoryFilter
+    ) {
+      return false;
+    }
+    if (!searchPizzaQuery) return true;
+    const q = searchPizzaQuery.toLowerCase();
+    const numStr = pizza.number.toString();
+    const nameEng = pizza.name.toLowerCase();
+    const nameAr = t(`pizzas.${pizza.id}.name`).toLowerCase();
+    return numStr.includes(q) || nameEng.includes(q) || nameAr.includes(q);
+  });
 
-  const sauceTranslations = {
-    "San Marzano Tomato": { en: "San Marzano Tomato", ar: "طماطم سان مارزانو" },
-    "White Truffle Cream": {
-      en: "White Truffle Cream",
-      ar: "كريمة الترفل البيضاء",
-    },
-    "Herb Pesto": { en: "Herb Pesto", ar: "بيستو الأعشاب" },
-    "Spicy Diavola": { en: "Spicy Diavola", ar: "ديافولا حارة" },
-  };
+  // Calculate pricing
+  const basePrice = selectedPizza
+    ? selectedPizza.prices[size] || selectedPizza.prices.medium
+    : 900;
 
-  // Custom base prices matched with Margherita from INITIAL_MENU in Syrian Pounds
-  const getBasePrice = (sz) => {
-    if (sz === "small") return 450;
-    if (sz === "medium") return 900;
-    if (sz === "large") return 1400;
-    if (sz === "thin") return 900;
-    return 900;
-  };
-
-  const getToppingMultiplier = (sz) => {
-    if (sz === "small") return 0.5;
-    if (sz === "medium" || sz === "thin") return 1.0;
-    if (sz === "large") return 1.5;
-    return 1.0;
-  };
-
-  const basePrice = getBasePrice(size);
-  const toppingMultiplier = getToppingMultiplier(size);
-  const toppingsCost = selectedToppings.reduce((sum, toppingId) => {
+  const extraToppingsCost = selectedToppings.reduce((sum, toppingId) => {
     const topping = CUSTOM_TOPPINGS.find((t) => t.id === toppingId);
-    return sum + (topping ? Math.round(topping.price * toppingMultiplier) : 0);
+    return sum + (topping ? getToppingPrice(topping, size) : 0);
   }, 0);
 
-  // 1. Get all equivalent ingredients from user's custom pizza
-  const getCustomIngredientsList = () => {
-    const list = [];
-    const crustIngs = CRUST_TO_INGREDIENTS[crust] || ["Cheese", "Sauce"];
-    const sauceIngs = SAUCE_TO_INGREDIENTS[sauce] || ["Sauce"];
+  const totalPrice = basePrice + extraToppingsCost;
 
-    crustIngs.forEach((ing) => {
-      if (!list.includes(ing)) list.push(ing);
-    });
-    sauceIngs.forEach((ing) => {
-      if (!list.includes(ing)) list.push(ing);
-    });
-
-    selectedToppings.forEach((tId) => {
-      const ingName = TOPPING_TO_INGREDIENT_MAP[tId];
-      if (ingName && !list.includes(ingName)) {
-        list.push(ingName);
-      }
-    });
-
-    return list;
-  };
-
-  const customIngredients = getCustomIngredientsList();
-
-  // 2. Compute closest matching menu pizza and its similarity
-  const findClosestMenuPizza = () => {
-    let bestMatch = null;
-    let highestSim = 0;
-
-    INITIAL_MENU.forEach((pizza) => {
-      const pizzaIngs = pizza.ingredients || [];
-      if (pizzaIngs.length === 0) return;
-
-      const intersect = pizzaIngs.filter((ing) =>
-        customIngredients.includes(ing),
-      );
-
-      const matchScore =
-        intersect.length / Math.max(pizzaIngs.length, customIngredients.length);
-
-      if (matchScore > highestSim) {
-        highestSim = matchScore;
-        bestMatch = pizza;
-      }
-    });
-
-    if (!bestMatch || selectedToppings.length === 0) {
-      return {
-        pizza: INITIAL_MENU[0], // Margherita
-        similarity: selectedToppings.length === 0 ? 100 : 40,
-      };
-    }
-
-    return {
-      pizza: bestMatch,
-      similarity: Math.round(highestSim * 100),
-    };
-  };
-
-  const { pizza: closestPizza, similarity: matchSimilarity } =
-    findClosestMenuPizza();
-
-  // If the built pizza matches 100% one of the menu pizzas, use the real menu price of that pizza.
-  const totalPrice =
-    matchSimilarity === 100 && closestPizza
-      ? closestPizza.prices[size] || basePrice + toppingsCost
-      : basePrice + toppingsCost;
-
-  // 3. Precise price prediction based on matching menu pizza and adjustments
-  const getPredictedMenuPrice = (sz) => {
-    if (!closestPizza) return getBasePrice(sz);
-
-    const baseRetail = closestPizza.prices[sz] || getBasePrice(sz);
-    const mult = getToppingMultiplier(sz);
-
-    const pizzaIngs = closestPizza.ingredients || [];
-    const extraIngredients = customIngredients.filter(
-      (ing) => !pizzaIngs.includes(ing),
-    );
-    const missingIngredients = pizzaIngs.filter(
-      (ing) => !customIngredients.includes(ing),
-    );
-
-    let extraCost = 0;
-    extraIngredients.forEach((ingName) => {
-      const toppingId = Object.keys(TOPPING_TO_INGREDIENT_MAP).find(
-        (key) => TOPPING_TO_INGREDIENT_MAP[key] === ingName,
-      );
-      if (toppingId) {
-        const topping = CUSTOM_TOPPINGS.find((t) => t.id === toppingId);
-        if (topping) {
-          extraCost += topping.price * mult;
-        }
-      } else {
-        extraCost += 60 * mult;
-      }
-    });
-
-    let missingCost = 0;
-    missingIngredients.forEach((ingName) => {
-      const toppingId = Object.keys(TOPPING_TO_INGREDIENT_MAP).find(
-        (key) => TOPPING_TO_INGREDIENT_MAP[key] === ingName,
-      );
-      if (toppingId) {
-        const topping = CUSTOM_TOPPINGS.find((t) => t.id === toppingId);
-        if (topping) {
-          missingCost += topping.price * mult;
-        }
-      } else {
-        missingCost += 60 * mult;
-      }
-    });
-
-    let adjustedRetail = baseRetail + extraCost - missingCost;
-    const minPrice = getBasePrice(sz);
-    return Math.max(minPrice, Math.round(adjustedRetail));
-  };
-
-  // 4. Taste Profile Live Analytics
-  const getFlavorProfile = () => {
-    let cheesy = 25;
-    let meaty = 0;
-    let veggie = 0;
-    let spicy = 0;
-    let herbaceous = 0;
-
-    if (crust === "Garlic Butter Crust") {
-      cheesy += 15;
-      herbaceous += 10;
-    }
-    if (sauce === "White Truffle Cream") {
-      cheesy += 20;
-    }
-    if (sauce === "Herb Pesto") {
-      herbaceous += 35;
-    }
-    if (sauce === "Spicy Diavola") {
-      spicy += 40;
-    }
-
-    selectedToppings.forEach((tId) => {
-      if (tId === "topping-cheese" || tId === "topping-feta") cheesy += 35;
-      if (
-        tId.includes("meat") ||
-        tId === "topping-ham" ||
-        tId.includes("chicken") ||
-        tId.includes("beef") ||
-        tId === "topping-pep" ||
-        tId === "topping-chorizo" ||
-        tId === "topping-pork" ||
-        tId === "topping-baconcut" ||
-        tId === "topping-luxury-bacon"
-      ) {
-        meaty += 50;
-        if (
-          tId.includes("hot") ||
-          tId.includes("chili") ||
-          tId.includes("jalapeno") ||
-          tId.includes("chorizo") ||
-          tId === "topping-pep"
-        ) {
-          spicy += 25;
-        }
-      }
-      if (
-        tId === "topping-mush" ||
-        tId === "topping-pepper" ||
-        tId.includes("onion") ||
-        tId === "topping-corn" ||
-        tId === "topping-tomato" ||
-        tId === "topping-squash" ||
-        tId === "topping-pineapple"
-      ) {
-        veggie += 30;
-      }
-      if (tId === "topping-chili" || tId === "topping-jalapeno") {
-        spicy += 40;
-      }
-      if (tId === "topping-pesto" || tId === "topping-oregano") {
-        herbaceous += 35;
-      }
-    });
-
-    return {
-      cheesy: Math.min(100, cheesy),
-      meaty: Math.min(100, meaty),
-      veggie: Math.min(100, veggie),
-      spicy: Math.min(100, spicy),
-      herbaceous: Math.min(100, herbaceous),
-    };
-  };
-
-  const flavor = getFlavorProfile();
+  // Split extra toppings into Animal vs Vegetarian
+  const animalToppings = CUSTOM_TOPPINGS.filter((t) => t.type === "animal");
+  const vegetarianToppings = CUSTOM_TOPPINGS.filter(
+    (t) => t.type === "vegetarian",
+  );
 
   const handleToppingToggle = (toppingId) => {
     if (selectedToppings.includes(toppingId)) {
@@ -315,159 +141,127 @@ export default function PizzaBuilder({ onAddCustomToCart }) {
 
   const handleReset = () => {
     setSelectedToppings([]);
-    setCrust("Classic Neapolitan");
-    setSauce("San Marzano Tomato");
-    setSize("medium");
   };
 
   const handleAddToCart = () => {
-    const translatedToppings = selectedToppings
+    const extraToppingNames = selectedToppings
       .map((id) => {
         const tObj = CUSTOM_TOPPINGS.find((to) => to.id === id);
-        return tObj ? t(tObj.name) : "";
+        if (!tObj) return "";
+        const name = language === "ar" ? tObj.arabicName : t(tObj.name);
+        const weight = getToppingWeight(tObj, size);
+        return weight ? `${name} (${weight})` : name;
       })
       .filter(Boolean);
 
-    const name =
-      language === "ar"
-        ? `بيتزا مبتكرة - حجم ${size === "small" ? "صغير" : size === "medium" ? "وسط" : size === "large" ? "كبير" : "رقيقة"}`
-        : `Custom ${size === "small" ? "Small" : size === "medium" ? "Medium" : size === "large" ? "Large" : "Thin"} Pizza`;
+    const pizzaNameTranslated = t(`pizzas.${selectedPizza.id}.name`);
+    const sizeLabel =
+      size === "small"
+        ? "20cm"
+        : size === "medium"
+          ? "30cm"
+          : size === "large"
+            ? "40cm"
+            : "Thin";
+
+    const customName =
+      extraToppingNames.length > 0
+        ? `${pizzaNameTranslated} (#${selectedPizza.number}) [${sizeLabel}] + ${extraToppingNames.join(", ")}`
+        : `${pizzaNameTranslated} (#${selectedPizza.number}) [${sizeLabel}]`;
 
     onAddCustomToCart({
-      name,
+      name: customName,
       size,
       price: totalPrice,
-      toppings: [...translatedToppings],
+      toppings: extraToppingNames,
+      basePizzaId: selectedPizza.id,
+      basePizzaNumber: selectedPizza.number,
     });
 
     setIsSuccess(true);
     setTimeout(() => setIsSuccess(false), 2500);
   };
 
-  const crustOptions = [
-    "Classic Neapolitan",
-    "Crispy Thin",
-    "Gluten-Free",
-    "Garlic Butter Crust",
-  ];
-  const sauceOptions = [
-    "San Marzano Tomato",
-    "White Truffle Cream",
-    "Herb Pesto",
-    "Spicy Diavola",
-  ];
-
-  // Dynamic visual coordinates resolver for live canvas rendering
+  // Helper coordinate mapping for scatter icons over pizza preview canvas
   const getToppingCoordinates = (toppingId) => {
-    const specificMap = {
+    const map = {
       "topping-cheese": [
         { top: "35%", left: "30%", rotate: "15deg" },
         { top: "25%", left: "55%", rotate: "-10deg" },
         { top: "60%", left: "40%", rotate: "45deg" },
         { top: "50%", left: "65%", rotate: "120deg" },
-        { top: "45%", left: "20%", rotate: "-40deg" },
       ],
-      "topping-feta": [
-        { top: "20%", left: "40%", rotate: "0deg" },
-        { top: "55%", left: "25%", rotate: "30deg" },
-        { top: "50%", left: "55%", rotate: "-20deg" },
+      "topping-chicken": [
+        { top: "25%", left: "35%", rotate: "10deg" },
+        { top: "55%", left: "50%", rotate: "-30deg" },
+        { top: "40%", left: "65%", rotate: "75deg" },
+      ],
+      "topping-nacho": [
+        { top: "30%", left: "40%", rotate: "20deg" },
+        { top: "60%", left: "30%", rotate: "-45deg" },
+      ],
+      "topping-mush": [
+        { top: "28%", left: "38%", rotate: "20deg" },
+        { top: "48%", left: "32%", rotate: "80deg" },
+        { top: "38%", left: "58%", rotate: "-45deg" },
       ],
       "topping-pep": [
         { top: "22%", left: "25%", rotate: "45deg" },
         { top: "42%", left: "48%", rotate: "12deg" },
         { top: "30%", left: "65%", rotate: "-35deg" },
         { top: "65%", left: "35%", rotate: "70deg" },
-        { top: "58%", left: "58%", rotate: "110deg" },
-        { top: "50%", left: "18%", rotate: "-15deg" },
       ],
-      "topping-mush": [
-        { top: "28%", left: "38%", rotate: "20deg" },
-        { top: "48%", left: "32%", rotate: "80deg" },
-        { top: "38%", left: "58%", rotate: "-45deg" },
-        { top: "62%", left: "48%", rotate: "140deg" },
+      "topping-salami": [
+        { top: "28%", left: "30%", rotate: "0deg" },
+        { top: "50%", left: "55%", rotate: "30deg" },
       ],
-      "topping-pepper": [
+      "topping-baconcut": [
+        { top: "32%", left: "45%", rotate: "15deg" },
+        { top: "58%", left: "35%", rotate: "-60deg" },
+      ],
+      "topping-onion": [
+        { top: "20%", left: "45%", rotate: "10deg" },
+        { top: "52%", left: "28%", rotate: "75deg" },
+        { top: "45%", left: "62%", rotate: "-80deg" },
+      ],
+      "topping-pineapple": [
+        { top: "25%", left: "32%", rotate: "0deg" },
+        { top: "55%", left: "58%", rotate: "15deg" },
+      ],
+      "topping-corn": [
+        { top: "35%", left: "50%", rotate: "0deg" },
+        { top: "60%", left: "45%", rotate: "0deg" },
+      ],
+      "topping-jalapeno": [
+        { top: "20%", left: "50%", rotate: "-15deg" },
+        { top: "45%", left: "35%", rotate: "40deg" },
+        { top: "65%", left: "55%", rotate: "-20deg" },
+      ],
+      "topping-pesto": [
+        { top: "18%", left: "22%", rotate: "0deg" },
+        { top: "48%", left: "52%", rotate: "45deg" },
+      ],
+      "topping-curry": [
+        { top: "30%", left: "35%", rotate: "0deg" },
+        { top: "50%", left: "50%", rotate: "0deg" },
+      ],
+      "topping-bell-pepper": [
         { top: "18%", left: "32%", rotate: "10deg" },
         { top: "32%", left: "22%", rotate: "50deg" },
         { top: "40%", left: "42%", rotate: "-30deg" },
-        { top: "28%", left: "52%", rotate: "100deg" },
-        { top: "58%", left: "28%", rotate: "75deg" },
-        { top: "52%", left: "62%", rotate: "-80deg" },
-        { top: "68%", left: "45%", rotate: "15deg" },
       ],
-      "topping-oregano": [
-        { top: "30%", left: "45%", rotate: "-15deg" },
-        { top: "50%", left: "38%", rotate: "40deg" },
-        { top: "42%", left: "55%", rotate: "95deg" },
-      ],
-      "topping-pesto": [
-        { top: "15%", left: "15%", rotate: "0deg" },
-        { top: "50%", left: "50%", rotate: "45deg" },
-        { top: "75%", left: "35%", rotate: "-30deg" },
-        { top: "35%", left: "70%", rotate: "120deg" },
-      ],
-      "topping-olive": [
-        { top: "26%", left: "28%", rotate: "0deg" },
-        { top: "34%", left: "48%", rotate: "0deg" },
-        { top: "44%", left: "24%", rotate: "0deg" },
-        { top: "58%", left: "52%", rotate: "0deg" },
-        { top: "48%", left: "68%", rotate: "0deg" },
-      ],
-      "topping-tomato": [
+      "topping-tomato-slices": [
         { top: "20%", left: "48%", rotate: "10deg" },
-        { top: "40%", left: "35%", rotate: "-50deg" },
         { top: "54%", left: "48%", rotate: "30deg" },
-        { top: "38%", left: "65%", rotate: "115deg" },
       ],
     };
 
-    if (specificMap[toppingId]) {
-      return specificMap[toppingId];
-    }
-
-    // Smart fallback categories to ensure visually distinct placements for all 29 toppings
-    if (
-      toppingId.includes("pep") ||
-      toppingId.includes("meat") ||
-      toppingId.includes("chicken") ||
-      toppingId.includes("beef") ||
-      toppingId.includes("ham") ||
-      toppingId.includes("bacon") ||
-      toppingId.includes("chorizo") ||
-      toppingId.includes("pork") ||
-      toppingId.includes("minced")
-    ) {
-      return specificMap["topping-pep"];
-    }
-    if (
-      toppingId.includes("onion") ||
-      toppingId.includes("chili") ||
-      toppingId.includes("jalapeno") ||
-      toppingId.includes("garlic") ||
-      toppingId.includes("corn") ||
-      toppingId.includes("nacho")
-    ) {
-      return specificMap["topping-olive"];
-    }
-    if (
-      toppingId.includes("tomato") ||
-      toppingId.includes("squash") ||
-      toppingId.includes("pineapple") ||
-      toppingId.includes("mush")
-    ) {
-      return specificMap["topping-tomato"];
-    }
-    if (
-      toppingId.includes("pesto") ||
-      toppingId.includes("oregano") ||
-      toppingId.includes("basil") ||
-      toppingId.includes("arugula") ||
-      toppingId.includes("pepper")
-    ) {
-      return specificMap["topping-pepper"];
-    }
-
-    return specificMap["topping-cheese"];
+    return (
+      map[toppingId] || [
+        { top: "35%", left: "35%", rotate: "0deg" },
+        { top: "55%", left: "55%", rotate: "20deg" },
+      ]
+    );
   };
 
   return (
@@ -476,35 +270,29 @@ export default function PizzaBuilder({ onAddCustomToCart }) {
       className="relative bg-bg-primary py-24 sm:py-32 overflow-hidden border-b border-border-primary transition-colors duration-300"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Section Title */}
+        {/* Section Header */}
         <div className="text-center mb-16">
           <p className="text-[10px] font-mono tracking-[0.4em] text-brand-gold font-bold uppercase mb-2">
-            {t("builderPreTitle")}
+            {isRtl ? "مُبتكر البيتزا الخاص بيكر" : "PIZZABAKER CUSTOMIZER"}
           </p>
           <h2 className="font-serif text-3xl sm:text-5xl text-text-primary font-normal tracking-wide uppercase mb-3">
-            {t("builderTitle")}
+            {isRtl ? "تخصيص بيتزا مع إضافات" : "CUSTOMIZE YOUR PIZZA"}
           </h2>
-          <p className="text-xs text-text-secondary font-mono tracking-widest max-w-lg mx-auto leading-relaxed">
-            {t("builderDesc")}
+          <p className="text-xs text-text-secondary font-mono tracking-widest max-w-xl mx-auto leading-relaxed uppercase">
+            {isRtl
+              ? "اختر البيتزا الأساسية من قائمتنا الـ 30 ثم أضف المكونات الإضافية الرسمية بالوزن الدقيق"
+              : "SELECT ANY OF OUR 30 PIZZAS AS A BASE AND ADD OFFICIAL PIZZABAKER EXTRA INGREDIENTS"}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start max-w-6xl mx-auto">
-          {/* LEFT PANEL: Interactive Visual Pizza Canvas */}
-          <div className="lg:col-span-6 flex flex-col items-center justify-center bg-bg-secondary border border-border-primary p-8 sm:p-12 relative transition-all">
-            {/* Visual Pizza Canvas container */}
-            <div className="relative w-72 h-72 sm:w-96 sm:h-96 rounded-full flex items-center justify-center shadow-2xl overflow-hidden bg-orange-950/20 border-4 border-dashed border-border-primary p-2">
-              {/* Dough Base */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start max-w-6xl mx-auto">
+          {/* LEFT PANEL: Visual Canvas & Real-time Bill Breakdown */}
+          <div className="lg:col-span-5 flex flex-col items-center bg-bg-secondary border border-border-primary p-6 sm:p-8 relative transition-all sticky top-24">
+            {/* Visual Canvas */}
+            <div className="relative w-64 h-64 sm:w-80 sm:h-80 rounded-full flex items-center justify-center shadow-2xl overflow-hidden bg-black/40 border-4 border-dashed border-border-primary p-2">
+              {/* Dough / Base Pizza Image */}
               <motion.div
-                className={`absolute w-[92%] h-[92%] rounded-full shadow-[inset_0_0_40px_rgba(0,0,0,0.8),0_10px_30px_rgba(0,0,0,0.6)] border-[12px] transition-all duration-500 ${
-                  crust === "Garlic Butter Crust"
-                    ? "border-[#caa759] bg-[#e6ce9e]"
-                    : crust === "Crispy Thin"
-                      ? "border-[#a37e42] bg-[#d7bf95]"
-                      : crust === "Gluten-Free"
-                        ? "border-[#be9d60] bg-[#e1cbad]"
-                        : "border-[#bc903b] bg-[#e8dbb2]" // Neapolitan
-                }`}
+                className="relative w-full h-full rounded-full overflow-hidden"
                 animate={{
                   scale:
                     size === "medium" || size === "thin"
@@ -513,22 +301,18 @@ export default function PizzaBuilder({ onAddCustomToCart }) {
                         ? 0.88
                         : 1.08,
                 }}
+                transition={{ type: "spring", stiffness: 200, damping: 20 }}
               >
-                {/* Sauce Layer */}
-                <motion.div
-                  className={`absolute inset-4 rounded-full transition-all duration-500 ${
-                    sauce === "San Marzano Tomato"
-                      ? "bg-red-800 shadow-[inset_0_0_20px_rgba(0,0,0,0.6)]"
-                      : sauce === "White Truffle Cream"
-                        ? "bg-yellow-50/90 shadow-[inset_0_0_20px_rgba(0,0,0,0.4)]"
-                        : sauce === "Herb Pesto"
-                          ? "bg-emerald-900/90 shadow-[inset_0_0_20px_rgba(0,0,0,0.6)]"
-                          : "bg-red-950 shadow-[inset_0_0_25px_rgba(0,0,0,0.8)]" // Spicy Diavola
-                  }`}
+                <PizzaBuilderImage
+                  key={selectedPizza.id}
+                  pizza={selectedPizza}
+                  altText={selectedPizza.name}
+                  className="w-full h-full object-cover"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
 
-                {/* Scattered Toppings Canvas */}
-                <div className="absolute inset-4 rounded-full overflow-hidden pointer-events-none">
+                {/* Overlaid Extra Toppings Scatter Canvas */}
+                <div className="absolute inset-0 pointer-events-none">
                   <AnimatePresence>
                     {selectedToppings.map((toppingId) => {
                       const coordinates = getToppingCoordinates(toppingId);
@@ -536,19 +320,19 @@ export default function PizzaBuilder({ onAddCustomToCart }) {
                         (t) => t.id === toppingId,
                       );
 
-                      return coordinates.map((coord, index) => (
+                      return coordinates.map((coord, idx) => (
                         <motion.div
-                          key={`${toppingId}-${index}`}
-                          initial={{ opacity: 0, scale: 2, y: -50 }}
+                          key={`${toppingId}-${idx}`}
+                          initial={{ opacity: 0, scale: 2, y: -40 }}
                           animate={{ opacity: 1, scale: 1, y: 0 }}
                           exit={{ opacity: 0, scale: 0.5 }}
                           transition={{
                             type: "spring",
-                            stiffness: 120,
-                            damping: 10,
-                            delay: index * 0.05,
+                            stiffness: 150,
+                            damping: 12,
+                            delay: idx * 0.05,
                           }}
-                          className="absolute text-2xl sm:text-3xl select-none"
+                          className="absolute text-2xl select-none filter drop-shadow-md"
                           style={{
                             top: coord.top,
                             left: coord.left,
@@ -564,409 +348,391 @@ export default function PizzaBuilder({ onAddCustomToCart }) {
               </motion.div>
             </div>
 
-            {/* Price display tag */}
-            <div className="mt-8 flex items-center justify-between w-full border-t border-border-primary pt-6">
-              <div className="text-left">
-                <span className="text-[10px] font-mono text-text-secondary block uppercase">
-                  {t("totalComp")}
+            {/* Selected Base Pizza Badge */}
+            <div className="mt-6 text-center space-y-1 w-full border-t border-border-primary/60 pt-4">
+              <span className="inline-block bg-brand-burgundy text-white font-mono text-[9px] font-bold px-2 py-0.5 tracking-wider uppercase mb-1">
+                {isRtl
+                  ? `البيتزا رقم ${selectedPizza.number}`
+                  : `BASE PIZZA Nr ${selectedPizza.number}`}
+              </span>
+              <h3 className="font-serif text-xl text-text-primary font-medium uppercase block">
+                {t(`pizzas.${selectedPizza.id}.name`)}
+              </h3>
+              <p className="text-[10px] text-text-secondary font-serif italic max-w-xs mx-auto">
+                {t(`pizzas.${selectedPizza.id}.desc`)}
+              </p>
+            </div>
+
+            {/* Price Breakdown Matrix */}
+            <div className="mt-6 w-full bg-bg-primary/60 border border-border-primary p-4 space-y-2.5">
+              <div className="flex justify-between items-center text-xs font-mono">
+                <span className="text-text-secondary">
+                  {isRtl ? "سعر البيتزا الأساسية:" : "Base Pizza Price:"}
                 </span>
-                <span className="font-mono text-3xl text-text-primary font-bold block mt-1">
-                  {totalPrice.toFixed(2)}{" "}
-                  <span className="text-sm font-semibold text-brand-gold">
+                <span className="text-text-primary font-bold">
+                  {basePrice} {isRtl ? "ل.س" : "SYP"}
+                </span>
+              </div>
+
+              {selectedToppings.length > 0 && (
+                <div className="flex justify-between items-center text-xs font-mono text-brand-gold">
+                  <span>
+                    {isRtl
+                      ? `الإضافات (${selectedToppings.length}):`
+                      : `Extra Ingredients (${selectedToppings.length}):`}
+                  </span>
+                  <span className="font-bold">
+                    +{extraToppingsCost} {isRtl ? "ل.س" : "SYP"}
+                  </span>
+                </div>
+              )}
+
+              <div className="border-t border-border-primary pt-2.5 flex justify-between items-baseline">
+                <span className="text-xs font-mono font-bold text-text-primary uppercase">
+                  {isRtl ? "الإجمالي:" : "TOTAL PRICE:"}
+                </span>
+                <span className="font-mono text-2xl font-bold text-brand-gold">
+                  {totalPrice}{" "}
+                  <span className="text-xs text-text-primary font-normal">
                     {isRtl ? "ل.س" : "SYP"}
                   </span>
                 </span>
               </div>
-
-              <button
-                id="btn-builder-reset"
-                onClick={handleReset}
-                className="flex items-center gap-2 text-xs font-mono text-text-secondary hover:text-brand-gold transition-colors cursor-pointer"
-              >
-                <RefreshCw className="w-3.5 h-3.5" />
-                <span>{isRtl ? "إعادة البدء" : "START OVER"}</span>
-              </button>
             </div>
 
-            {/* AI Smart Price Predictor Deck */}
-            <div className="mt-6 w-full border-t border-border-primary/60 pt-6 space-y-5">
-              {/* Header */}
-              <div className="flex items-center gap-2 text-[10px] font-mono tracking-widest text-brand-gold font-bold uppercase">
-                <Sparkles className="w-4 h-4 text-brand-gold animate-pulse" />
-                <span>{t("pricePredictor")}</span>
-              </div>
+            {/* Reset Extras Button */}
+            {selectedToppings.length > 0 && (
+              <button
+                id="btn-builder-reset-extras"
+                onClick={handleReset}
+                className="mt-4 flex items-center gap-1.5 text-[10px] font-mono text-text-secondary hover:text-brand-gold transition-colors cursor-pointer uppercase"
+              >
+                <RefreshCw className="w-3 h-3" />
+                <span>{isRtl ? "إلغاء الإضافات" : "CLEAR EXTRAS"}</span>
+              </button>
+            )}
 
-              {/* Recipe Similarity Match Card */}
-              <div className="bg-white/[0.02] border border-border-primary p-4 space-y-3 relative overflow-hidden">
-                <div className="absolute right-3 top-3 opacity-10">
-                  <Percent className="w-12 h-12 text-brand-gold" />
+            {/* Add To Cart Button */}
+            <button
+              id="btn-add-builder-custom-cart"
+              onClick={handleAddToCart}
+              className="w-full mt-6 py-4 bg-brand-gold hover:bg-yellow-500 text-black font-mono text-xs font-bold tracking-widest transition-all rounded-none flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-98"
+            >
+              {isSuccess ? (
+                <>
+                  <Check className="w-4 h-4" />
+                  <span>
+                    {isRtl ? "تمت الإضافة للسلة!" : "ADDED TO BASKET!"}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="w-4 h-4" />
+                  <span>
+                    {isRtl
+                      ? `أضف للسلة (${totalPrice} ل.س)`
+                      : `ADD TO BASKET (${totalPrice} SYP)`}
+                  </span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* RIGHT PANEL: Pizza Customization Steps */}
+          <div className="lg:col-span-7 space-y-10">
+            {/* STEP 1: Select Base Pizza */}
+            <div className="bg-bg-secondary border border-border-primary p-5 sm:p-6 space-y-4">
+              <div className="flex items-center justify-between border-b border-border-primary pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-brand-gold text-black text-[10px] font-mono font-bold flex items-center justify-center">
+                    1
+                  </span>
+                  <h3 className="font-mono text-xs font-bold text-text-primary uppercase tracking-wider">
+                    {isRtl
+                      ? "اختر البيتزا الأساسية (من 30 نوع)"
+                      : "SELECT BASE PIZZA (1 - 30)"}
+                  </h3>
                 </div>
-
-                <div className="flex justify-between items-start">
-                  <div>
-                    <span className="text-[9px] font-mono text-text-secondary uppercase tracking-wider block">
-                      {t("closestMatch")}
-                    </span>
-                    <span className="text-sm font-serif text-text-primary block font-medium mt-1">
-                      {closestPizza
-                        ? t(`pizzas.${closestPizza.id}.name`)
-                        : t("customPizzaDefaultName")}
-                    </span>
-                  </div>
-
-                  <div className="text-right">
-                    <span className="text-[9px] font-mono text-text-secondary uppercase tracking-wider block">
-                      {t("similarity")}
-                    </span>
-                    <span className="text-sm font-mono text-brand-gold font-bold block mt-1">
-                      {matchSimilarity}%
-                    </span>
-                  </div>
-                </div>
-
-                {/* Similarity meter progress bar */}
-                <div className="w-full bg-border-primary/40 h-1.5 rounded-full overflow-hidden">
-                  <motion.div
-                    className="bg-brand-gold h-full rounded-full"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${matchSimilarity}%` }}
-                    transition={{ duration: 0.5, ease: "easeOut" }}
-                  />
-                </div>
-
-                {/* Savings Indicator */}
-                {selectedToppings.length > 0 && matchSimilarity < 100 && (
-                  <div className="flex items-center gap-2 text-[10px] font-mono text-emerald-400 bg-emerald-950/20 px-2.5 py-1.5 border border-emerald-500/10">
-                    <TrendingDown className="w-3.5 h-3.5" />
-                    <span>
-                      {t("saveSyp").replace(
-                        "{amount}",
-                        getPredictedMenuPrice(size) - totalPrice > 0
-                          ? (getPredictedMenuPrice(size) - totalPrice).toFixed(
-                              2,
-                            )
-                          : "0.00",
-                      )}{" "}
-                      ({t("customSavingsDesc")})
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Dynamic Estimated Prices Matrix */}
-              <div className="space-y-2.5">
-                <span className="text-[9px] font-mono text-text-secondary uppercase tracking-widest block">
-                  {t("predictForSizes")}
+                <span className="text-[10px] font-mono text-brand-gold font-bold">
+                  {selectedPizza.name} (# {selectedPizza.number})
                 </span>
+              </div>
 
-                <div className="grid grid-cols-4 gap-2">
-                  {["small", "medium", "large", "thin"].map((sz) => {
-                    const estMenuValue = getPredictedMenuPrice(sz);
-                    const bPrice =
-                      matchSimilarity === 100 && closestPizza
-                        ? closestPizza.prices[sz] ||
-                          getBasePrice(sz) + toppingsCost
-                        : getBasePrice(sz) + toppingsCost;
-                    const isCurrentSize = size === sz;
+              {/* Pizza Search Input */}
+              <div className="relative">
+                <Search
+                  className={`absolute ${isRtl ? "right-3" : "left-3"} top-2.5 w-4 h-4 text-text-tertiary`}
+                />
+                <input
+                  type="text"
+                  value={searchPizzaQuery}
+                  onChange={(e) => setSearchPizzaQuery(e.target.value)}
+                  placeholder={
+                    isRtl
+                      ? "ابحث برقم البيتزا أو الاسم (مثلاً: 4 أو بيبروني)..."
+                      : "Search by Pizza number or name (e.g. 4 or Pepperoni)..."
+                  }
+                  className={`w-full bg-bg-primary border border-border-primary p-2 text-xs text-text-primary placeholder-text-tertiary focus:outline-none focus:border-brand-gold ${isRtl ? "pr-9 pl-3 text-right" : "pl-9 pr-3 text-left"}`}
+                />
+              </div>
 
+              {/* Pizza Selection Grid */}
+              <div className="max-h-60 overflow-y-auto pr-1 space-y-2 scrollbar-thin scrollbar-thumb-brand-gold/20">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {filteredPizzas.map((pizza) => {
+                    const isSelected = selectedPizza.id === pizza.id;
                     return (
-                      <div
-                        key={sz}
-                        className={`p-2 border transition-all text-left flex flex-col justify-between ${
-                          isCurrentSize
-                            ? "border-brand-gold bg-brand-gold/[0.04]"
-                            : "border-border-primary/40 bg-white/[0.01]"
+                      <button
+                        key={pizza.id}
+                        onClick={() => setSelectedPizza(pizza)}
+                        className={`p-2 border text-left flex items-center gap-2.5 transition-all cursor-pointer ${
+                          isSelected
+                            ? "border-brand-gold bg-brand-gold/10"
+                            : "border-border-primary hover:border-white/20 bg-bg-primary/40"
                         }`}
                       >
-                        <span className="text-[8px] font-mono text-text-secondary uppercase font-bold block">
-                          {t(sz)}
-                        </span>
-
-                        <div className="mt-1.5 leading-none">
-                          <span className="text-[11px] font-mono font-bold text-text-primary block">
-                            {bPrice.toFixed(2)}
-                            <span className="text-[8px] text-text-secondary ml-0.5">
-                              {isRtl ? "ل.س" : "SYP"}
-                            </span>
+                        <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-border-primary/60 bg-black/40">
+                          <PizzaBuilderImage
+                            key={pizza.id}
+                            pizza={pizza}
+                            altText={pizza.name}
+                            className="w-full h-full object-cover"
+                          />
+                          <span className="absolute bottom-0 right-0 bg-brand-burgundy text-white font-mono text-[8px] font-bold px-1 py-0.2 rounded-tl">
+                            #{pizza.number}
                           </span>
-                          {matchSimilarity < 100 && (
-                            <span className="text-[8px] font-mono text-brand-gold line-through block mt-0.5 opacity-70">
-                              {estMenuValue.toFixed(2)} {isRtl ? "ل.س" : "SYP"}
-                            </span>
-                          )}
                         </div>
-                      </div>
+                        <div className="flex-1 min-w-0 leading-tight">
+                          <span className="block text-xs font-serif font-medium text-text-primary truncate">
+                            {t(`pizzas.${pizza.id}.name`)}
+                          </span>
+                          <span className="block text-[9px] font-mono text-brand-gold mt-0.5">
+                            {pizza.prices[size] || pizza.prices.medium}{" "}
+                            {isRtl ? "ل.س" : "SYP"}
+                          </span>
+                        </div>
+                        {isSelected && (
+                          <Check className="w-4 h-4 text-brand-gold flex-shrink-0 ml-auto" />
+                        )}
+                      </button>
                     );
                   })}
                 </div>
               </div>
-
-              {/* Taste Profile Live Analytics */}
-              <div className="space-y-3 bg-white/[0.01] border border-border-primary/40 p-4">
-                <span className="text-[9px] font-mono text-text-secondary uppercase tracking-widest block">
-                  {t("tasteProfile")}
-                </span>
-
-                <div className="space-y-2">
-                  {/* Cheesy */}
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-[9px] font-mono text-text-secondary">
-                      <span>{t("cheesy")}</span>
-                      <span>{flavor.cheesy}%</span>
-                    </div>
-                    <div className="w-full bg-border-primary/20 h-1">
-                      <motion.div
-                        className="bg-amber-400 h-full"
-                        animate={{ width: `${flavor.cheesy}%` }}
-                        transition={{ duration: 0.3 }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Meaty */}
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-[9px] font-mono text-text-secondary">
-                      <span>{t("meaty")}</span>
-                      <span>{flavor.meaty}%</span>
-                    </div>
-                    <div className="w-full bg-border-primary/20 h-1">
-                      <motion.div
-                        className="bg-red-500 h-full"
-                        animate={{ width: `${flavor.meaty}%` }}
-                        transition={{ duration: 0.3 }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Veggie */}
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-[9px] font-mono text-text-secondary">
-                      <span>{t("veggie")}</span>
-                      <span>{flavor.veggie}%</span>
-                    </div>
-                    <div className="w-full bg-border-primary/20 h-1">
-                      <motion.div
-                        className="bg-emerald-500 h-full"
-                        animate={{ width: `${flavor.veggie}%` }}
-                        transition={{ duration: 0.3 }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Spicy */}
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-[9px] font-mono text-text-secondary">
-                      <span>{t("spicy")}</span>
-                      <span>{flavor.spicy}%</span>
-                    </div>
-                    <div className="w-full bg-border-primary/20 h-1">
-                      <motion.div
-                        className="bg-orange-500 h-full"
-                        animate={{ width: `${flavor.spicy}%` }}
-                        transition={{ duration: 0.3 }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Herbaceous */}
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-[9px] font-mono text-text-secondary">
-                      <span>{t("herbaceous")}</span>
-                      <span>{flavor.herbaceous}%</span>
-                    </div>
-                    <div className="w-full bg-border-primary/20 h-1">
-                      <motion.div
-                        className="bg-teal-500 h-full"
-                        animate={{ width: `${flavor.herbaceous}%` }}
-                        transition={{ duration: 0.3 }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
-          </div>
 
-          {/* RIGHT PANEL: Customizable ingredients selectors */}
-          <div className="lg:col-span-6 space-y-8">
-            {/* Step 1: Select Size */}
-            <div>
-              <label className="text-[10px] font-mono text-brand-gold tracking-widest uppercase block mb-3 font-bold">
-                {t("selectSize")}
-              </label>
+            {/* STEP 2: Select Diameter Size */}
+            <div className="bg-bg-secondary border border-border-primary p-5 sm:p-6 space-y-4">
+              <div className="flex items-center gap-2 border-b border-border-primary pb-3">
+                <span className="w-5 h-5 rounded-full bg-brand-gold text-black text-[10px] font-mono font-bold flex items-center justify-center">
+                  2
+                </span>
+                <h3 className="font-mono text-xs font-bold text-text-primary uppercase tracking-wider">
+                  {isRtl ? "اختر الحجم (حجم البيتزا)" : "SELECT PIZZA SIZE"}
+                </h3>
+              </div>
+
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                <button
-                  id="btn-size-builder-small"
-                  onClick={() => setSize("small")}
-                  className={`border p-2.5 text-left transition-all cursor-pointer ${
-                    size === "small"
-                      ? "border-brand-gold bg-brand-gold/10 text-text-primary"
-                      : "border-border-primary hover:border-white/10 text-text-secondary hover:text-text-primary"
-                  }`}
-                >
-                  <span className="block font-mono text-[8px] tracking-widest uppercase font-bold text-text-secondary">
-                    {t("small").toUpperCase()} (20CM)
-                  </span>
-                  <span className="block font-mono text-xs font-bold mt-1">
-                    {getBasePrice("small").toFixed(2)}{" "}
-                    <span className="text-[9px] text-brand-gold font-semibold">
-                      {isRtl ? "ل.س" : "SYP"}
-                    </span>
-                  </span>
-                </button>
-
-                <button
-                  id="btn-size-builder-medium"
-                  onClick={() => setSize("medium")}
-                  className={`border p-2.5 text-left transition-all cursor-pointer ${
-                    size === "medium"
-                      ? "border-brand-gold bg-brand-gold/10 text-text-primary"
-                      : "border-border-primary hover:border-white/10 text-text-secondary hover:text-text-primary"
-                  }`}
-                >
-                  <span className="block font-mono text-[8px] tracking-widest uppercase font-bold text-text-secondary">
-                    {t("medium").toUpperCase()} (30CM)
-                  </span>
-                  <span className="block font-mono text-xs font-bold mt-1">
-                    {getBasePrice("medium").toFixed(2)}{" "}
-                    <span className="text-[9px] text-brand-gold font-semibold">
-                      {isRtl ? "ل.س" : "SYP"}
-                    </span>
-                  </span>
-                </button>
-
-                <button
-                  id="btn-size-builder-large"
-                  onClick={() => setSize("large")}
-                  className={`border p-2.5 text-left transition-all cursor-pointer ${
-                    size === "large"
-                      ? "border-brand-gold bg-brand-gold/10 text-text-primary"
-                      : "border-border-primary hover:border-white/10 text-text-secondary hover:text-text-primary"
-                  }`}
-                >
-                  <span className="block font-mono text-[8px] tracking-widest uppercase font-bold text-text-secondary">
-                    {t("large").toUpperCase()} (40CM)
-                  </span>
-                  <span className="block font-mono text-xs font-bold mt-1">
-                    {getBasePrice("large").toFixed(2)}{" "}
-                    <span className="text-[9px] text-brand-gold font-semibold">
-                      {isRtl ? "ل.س" : "SYP"}
-                    </span>
-                  </span>
-                </button>
-
-                <button
-                  id="btn-size-builder-thin"
-                  onClick={() => setSize("thin")}
-                  className={`border p-2.5 text-left transition-all cursor-pointer ${
-                    size === "thin"
-                      ? "border-brand-gold bg-brand-gold/10 text-text-primary"
-                      : "border-border-primary hover:border-white/10 text-text-secondary hover:text-text-primary"
-                  }`}
-                >
-                  <span className="block font-mono text-[8px] tracking-widest uppercase font-bold text-text-secondary">
-                    {t("thin").toUpperCase()} (CRISPY)
-                  </span>
-                  <span className="block font-mono text-xs font-bold mt-1">
-                    {getBasePrice("thin").toFixed(2)}{" "}
-                    <span className="text-[9px] text-brand-gold font-semibold">
-                      {isRtl ? "ل.س" : "SYP"}
-                    </span>
-                  </span>
-                </button>
-              </div>
-            </div>
-
-            {/* Step 4: Toggle Premium Toppings */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <label className="text-[10px] font-mono text-brand-gold tracking-widest uppercase block font-bold">
-                  {t("layerToppings")}
-                </label>
-                <span className="text-[10px] font-mono text-text-secondary">
-                  {selectedToppings.length} {isRtl ? "مُختارة" : "SELECTED"}
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                {CUSTOM_TOPPINGS.map((topping) => {
-                  const isSelected = selectedToppings.includes(topping.id);
+                {[
+                  { id: "small", label: "20cm", sub: isRtl ? "صغير" : "Small" },
+                  {
+                    id: "medium",
+                    label: "30cm",
+                    sub: isRtl ? "وسط" : "Medium",
+                  },
+                  { id: "large", label: "40cm", sub: isRtl ? "كبير" : "Large" },
+                  {
+                    id: "thin",
+                    label: "Thin",
+                    sub: isRtl ? "رقيقة" : "Crispy",
+                  },
+                ].map((sz) => {
+                  const isSelected = size === sz.id;
+                  const price = selectedPizza.prices[sz.id];
                   return (
                     <button
-                      key={topping.id}
-                      id={`btn-topping-${topping.id}`}
-                      onClick={() => handleToppingToggle(topping.id)}
-                      className={`border p-3 flex items-center justify-between transition-all cursor-pointer text-left ${
+                      key={sz.id}
+                      onClick={() => setSize(sz.id)}
+                      className={`p-3 border transition-all text-left cursor-pointer ${
                         isSelected
-                          ? "border-brand-gold bg-brand-gold/10 text-text-primary font-semibold"
-                          : "border-border-primary hover:border-white/10 text-text-secondary hover:text-text-primary"
+                          ? "border-brand-gold bg-brand-gold/10 text-text-primary"
+                          : "border-border-primary hover:border-white/20 text-text-secondary"
                       }`}
                     >
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm">{topping.icon}</span>
-                        <div className="leading-tight">
-                          <span className="block text-[10px] font-sans tracking-wide">
-                            {t(topping.name)}
-                          </span>
-                          <span className="block text-[9px] font-mono text-brand-gold font-bold">
-                            +
-                            {Math.round(
-                              topping.price * toppingMultiplier,
-                            ).toFixed(2)}{" "}
-                            {isRtl ? "ل.س" : "SYP"}
-                          </span>
-                        </div>
-                      </div>
-
-                      {isSelected && (
-                        <Check className="w-3.5 h-3.5 text-brand-gold flex-shrink-0 ml-1" />
-                      )}
+                      <span className="block font-mono text-[10px] font-bold uppercase text-brand-gold">
+                        {sz.label} ({sz.sub})
+                      </span>
+                      <span className="block font-mono text-xs font-bold text-text-primary mt-1">
+                        {price}{" "}
+                        <span className="text-[9px] text-text-secondary">
+                          {isRtl ? "ل.س" : "SYP"}
+                        </span>
+                      </span>
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* Final checkout custom order CTA */}
-            <div className="pt-4">
-              <button
-                id="btn-add-builder-to-cart"
-                onClick={handleAddToCart}
-                disabled={selectedToppings.length === 0}
-                className={`w-full py-4 font-mono text-xs font-bold tracking-widest transition-all duration-300 rounded-none flex items-center justify-center gap-2.5 cursor-pointer ${
-                  selectedToppings.length === 0
-                    ? "bg-white/5 border border-border-primary text-text-tertiary cursor-not-allowed"
-                    : "bg-brand-gold hover:bg-yellow-500 text-black shadow-lg shadow-brand-gold/5"
-                }`}
-              >
-                {isSuccess ? (
-                  <>
-                    <Check className="w-4 h-4" />
-                    <span>
-                      {isRtl
-                        ? "تمت الإضافة للسلة بنجاح!"
-                        : "CUSTOM PIZZA ADDED TO CART!"}
+            {/* STEP 3: Extra Ingredients & Pricing (Page 7 Official Items) */}
+            <div className="bg-bg-secondary border border-border-primary p-5 sm:p-6 space-y-6">
+              <div className="border-b border-border-primary pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-brand-gold text-black text-[10px] font-mono font-bold flex items-center justify-center">
+                      3
                     </span>
-                  </>
-                ) : (
-                  <>
-                    <ShoppingCart className="w-4 h-4" />
-                    <span>
+                    <h3 className="font-mono text-xs font-bold text-text-primary uppercase tracking-wider">
                       {isRtl
-                        ? `أضف بيتزا مبتكرة بسعر (${totalPrice.toFixed(2)} ل.س)`
-                        : `ADD CUSTOM PIZZA (${totalPrice.toFixed(2)} SYP)`}
-                    </span>
-                  </>
-                )}
-              </button>
+                        ? "الإضافات والأسعار (قائمة بيتزا بيكر الرسمية)"
+                        : "EXTRA INGREDIENTS & PRICING"}
+                    </h3>
+                  </div>
+                  <span className="text-[10px] font-mono text-brand-gold font-bold">
+                    {selectedToppings.length} {isRtl ? "مُختارة" : "SELECTED"}
+                  </span>
+                </div>
+              </div>
 
-              {selectedToppings.length === 0 && (
-                <span className="text-[10px] font-sans text-text-secondary block text-center mt-2.5">
-                  {isRtl
-                    ? "الرجاء اختيار مكون إضافي واحد على الأقل للبدء بالخبز."
-                    : "Select at least one ingredient toppings to enable baking."}
-                </span>
-              )}
+              {/* 1. Animal Products Section */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center bg-bg-primary/80 px-3 py-1.5 border-l-2 border-brand-gold">
+                  <span className="font-mono text-[11px] font-bold text-text-primary uppercase">
+                    {isRtl ? "١. منتجات حيوانية" : "1. Animal Products"}
+                  </span>
+                  <span className="font-mono text-[10px] text-brand-gold font-bold">
+                    +{getToppingPrice({ type: "animal" }, size)}{" "}
+                    {isRtl ? "ل.س / المكون" : "SYP / item"}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {animalToppings.map((topping) => {
+                    const isSelected = selectedToppings.includes(topping.id);
+                    const weight = getToppingWeight(topping, size);
+                    const price = getToppingPrice(topping, size);
+
+                    return (
+                      <button
+                        key={topping.id}
+                        onClick={() => handleToppingToggle(topping.id)}
+                        className={`p-2.5 border flex items-center justify-between transition-all cursor-pointer ${
+                          isSelected
+                            ? "border-brand-gold bg-brand-gold/15 text-text-primary"
+                            : "border-border-primary hover:border-white/20 bg-bg-primary/30 text-text-secondary"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-base flex-shrink-0">
+                            {topping.icon}
+                          </span>
+                          <div className="leading-tight text-left">
+                            <span className="block text-xs font-sans font-medium text-text-primary truncate">
+                              {language === "ar"
+                                ? topping.arabicName
+                                : t(topping.name)}
+                            </span>
+                            {weight && (
+                              <span className="block text-[9px] font-mono text-text-tertiary">
+                                {isRtl
+                                  ? `الوزن: ${weight}`
+                                  : `Weight: ${weight}`}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                          <span className="text-[10px] font-mono font-bold text-brand-gold">
+                            +{price} {isRtl ? "ل.س" : "SYP"}
+                          </span>
+                          <div
+                            className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                              isSelected
+                                ? "border-brand-gold bg-brand-gold text-black"
+                                : "border-border-primary"
+                            }`}
+                          >
+                            {isSelected && (
+                              <Check className="w-3 h-3 stroke-[3]" />
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 2. Vegetarian Ingredients Section */}
+              <div className="space-y-3 pt-4 border-t border-border-primary/60">
+                <div className="flex justify-between items-center bg-bg-primary/80 px-3 py-1.5 border-l-2 border-emerald-500">
+                  <span className="font-mono text-[11px] font-bold text-text-primary uppercase">
+                    {isRtl ? "٢. منتجات نباتية" : "2. Vegetarian Ingredients"}
+                  </span>
+                  <span className="font-mono text-[10px] text-emerald-400 font-bold">
+                    +{getToppingPrice({ type: "vegetarian" }, size)}{" "}
+                    {isRtl ? "ل.س / المكون" : "SYP / item"}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {vegetarianToppings.map((topping) => {
+                    const isSelected = selectedToppings.includes(topping.id);
+                    const weight = getToppingWeight(topping, size);
+                    const price = getToppingPrice(topping, size);
+
+                    return (
+                      <button
+                        key={topping.id}
+                        onClick={() => handleToppingToggle(topping.id)}
+                        className={`p-2.5 border flex items-center justify-between transition-all cursor-pointer ${
+                          isSelected
+                            ? "border-emerald-500 bg-emerald-500/15 text-text-primary"
+                            : "border-border-primary hover:border-white/20 bg-bg-primary/30 text-text-secondary"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-base flex-shrink-0">
+                            {topping.icon}
+                          </span>
+                          <div className="leading-tight text-left">
+                            <span className="block text-xs font-sans font-medium text-text-primary truncate">
+                              {language === "ar"
+                                ? topping.arabicName
+                                : t(topping.name)}
+                            </span>
+                            {weight && (
+                              <span className="block text-[9px] font-mono text-text-tertiary">
+                                {isRtl
+                                  ? `الوزن: ${weight}`
+                                  : `Weight: ${weight}`}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                          <span className="text-[10px] font-mono font-bold text-emerald-400">
+                            +{price} {isRtl ? "ل.س" : "SYP"}
+                          </span>
+                          <div
+                            className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                              isSelected
+                                ? "border-emerald-500 bg-emerald-500 text-black"
+                                : "border-border-primary"
+                            }`}
+                          >
+                            {isSelected && (
+                              <Check className="w-3 h-3 stroke-[3]" />
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -335,7 +335,7 @@ export default function PizzaMenu({ onAddToCart, cart }) {
                       </p>
 
                       {/* Ingredients tags list */}
-                      <div className="flex flex-wrap gap-1.5 pt-1">
+                      {/* <div className="flex flex-wrap gap-1.5 pt-1">
                         {pizza.ingredients.map((ing, idx) => (
                           <span
                             key={idx}
@@ -344,13 +344,13 @@ export default function PizzaMenu({ onAddToCart, cart }) {
                             {t(ing)}
                           </span>
                         ))}
-                      </div>
+                      </div> */}
                     </div>
 
                     {/* Interactive Diameter Sizes Selection */}
                     <div className="space-y-3 pt-3 border-t border-border-primary">
                       <span className="text-[9px] font-mono tracking-widest text-brand-gold block font-bold uppercase">
-                        {isRtl ? "قطر البيتزا" : "DIAMETER SIZE"}
+                        {isRtl ? "حجم البيتزا" : "DIAMETER SIZE"}
                       </span>
                       <div className="grid grid-cols-4 gap-0.5 sm:gap-1">
                         <button

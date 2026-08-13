@@ -208,8 +208,8 @@ export default function App() {
           {/* Table Reservation Desk */}
           <ReservationSection />
 
-          {/* Reviews Explorer with persistence */}
-          <ReviewsSection />
+          {/* Reviews Explorer with persistence
+          <ReviewsSection /> */}
         </main>
 
         {/* Footer */}

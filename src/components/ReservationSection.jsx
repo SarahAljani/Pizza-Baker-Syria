@@ -140,10 +140,7 @@ Please confirm my reservation. Thank you!`;
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Full Name */}
                   <div>
-                    <label
-                      htmlFor="input-res-name"
-                      className="text-[10px] font-mono text-text-secondary tracking-wider block mb-2 uppercase"
-                    >
+                    <label className="text-[10px] font-mono text-text-secondary tracking-wider block mb-2 uppercase">
                       {t("fullName")}
                     </label>
                     <div className="relative">
@@ -166,10 +163,7 @@ Please confirm my reservation. Thank you!`;
 
                   {/* Email */}
                   <div>
-                    <label
-                      htmlFor="input-res-email"
-                      className="text-[10px] font-mono text-text-secondary tracking-wider block mb-2 uppercase"
-                    >
+                    <label className="text-[10px] font-mono text-text-secondary tracking-wider block mb-2 uppercase">
                       {t("emailAddress")}
                     </label>
                     <div className="relative">
@@ -194,10 +188,7 @@ Please confirm my reservation. Thank you!`;
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   {/* Reservation Date */}
                   <div>
-                    <label
-                      htmlFor="input-res-date"
-                      className="text-[10px] font-mono text-text-secondary tracking-wider block mb-2 uppercase"
-                    >
+                    <label className="text-[10px] font-mono text-text-secondary tracking-wider block mb-2 uppercase">
                       {t("arrivalDate")}
                     </label>
                     <div className="relative">
@@ -219,10 +210,7 @@ Please confirm my reservation. Thank you!`;
 
                   {/* Reservation Time */}
                   <div>
-                    <label
-                      htmlFor="input-res-time"
-                      className="text-[10px] font-mono text-text-secondary tracking-wider block mb-2 uppercase"
-                    >
+                    <label className="text-[10px] font-mono text-text-secondary tracking-wider block mb-2 uppercase">
                       {t("timeSlot")}
                     </label>
                     <div className="relative">
@@ -245,10 +233,7 @@ Please confirm my reservation. Thank you!`;
                   {/* Guests size Slider */}
                   <div>
                     <div className="flex justify-between items-center mb-2">
-                      <label
-                        htmlFor="input-res-guests"
-                        className="text-[10px] font-mono text-text-secondary tracking-wider block uppercase"
-                      >
+                      <label className="text-[10px] font-mono text-text-secondary tracking-wider block uppercase">
                         {t("guestNumber")}
                       </label>
                       <span className="font-mono text-xs font-bold text-brand-gold">
@@ -286,10 +271,7 @@ Please confirm my reservation. Thank you!`;
 
                 {/* Special Requests */}
                 <div>
-                  <label
-                    htmlFor="input-res-requests"
-                    className="text-[10px] font-mono text-text-secondary tracking-wider block mb-2 uppercase"
-                  >
+                  <label className="text-[10px] font-mono text-text-secondary tracking-wider block mb-2 uppercase">
                     {isRtl
                       ? "طلبات خاصة (اختياري)"
                       : "SPECIAL REQUESTS (OPTIONAL)"}
@@ -306,8 +288,8 @@ Please confirm my reservation. Thank you!`;
                     }
                     placeholder={
                       isRtl
-                        ? "مثال: طاولة قرب الفرن الحجري، إطلالة على الشارع، ملاحظات الحساسية..."
-                        : "E.g. Table near the woodfired brick oven, window view, allergy notes..."
+                        ? "مثال: طاولة بقرب الفرن لمشاهدة البيتزا وهي تخبز طازجة، إطلالة على الشارع، ملاحظات الحساسية..."
+                        : "E.g. Table with direct view of the baking oven, window view, allergy notes..."
                     }
                     className="w-full bg-bg-primary border border-border-primary hover:border-white/20 focus:border-brand-gold p-3.5 text-sm text-text-primary focus:outline-none focus:ring-0 placeholder-text-tertiary rounded-none transition-colors resize-none"
                   />

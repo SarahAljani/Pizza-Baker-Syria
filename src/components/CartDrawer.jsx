@@ -121,7 +121,7 @@ export default function CartDrawer({
 
     const encodedText = encodeURIComponent(messageText);
     // Syrian WhatsApp number provided: 0939333189 -> International format: 963939333189
-    const whatsappUrl = `https://api.whatsapp.com/send?phone=963939333189&text=${encodedText}`;
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=963983923768&text=${encodedText}`;
 
     // Switch step to success
     setCheckoutStep("success");
