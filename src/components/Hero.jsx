@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { ChevronDown, Sparkles, ChefHat } from "lucide-react";
-import { IMAGES } from "../data";
+import { SITE_SETTINGS } from "../data";
 import { useThemeLanguage } from "../context/ThemeLanguageContext";
 
 export default function Hero({ onNavigate, onOpenReservation }) {
@@ -14,7 +14,7 @@ export default function Hero({ onNavigate, onOpenReservation }) {
       {/* Background Image Container */}
       <div className="absolute inset-0 z-0">
         <img
-          src={IMAGES.hero}
+          src={SITE_SETTINGS.heroImage}
           alt="Pizza Baker Journey"
           className="w-full h-full object-cover object-center scale-105"
           referrerPolicy="no-referrer"

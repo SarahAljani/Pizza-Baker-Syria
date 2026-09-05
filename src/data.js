@@ -10,6 +10,7 @@ export const IMAGES = {
 // Site-wide settings editable from the dashboard: social links, the WhatsApp
 // number used for ordering, which sections are shown, and default SEO text.
 export const SITE_SETTINGS = {
+  heroImage: IMAGES.hero,
   socialLinks: {
     facebook: "https://facebook.com",
     instagram: "https://instagram.com",
@@ -45,6 +46,9 @@ export const DEFAULT_SETTINGS = structuredClone(SITE_SETTINGS);
 
 export function applySettingsOverride(settings) {
   if (!settings) return;
+  if (typeof settings.heroImage === "string" && settings.heroImage) {
+    SITE_SETTINGS.heroImage = settings.heroImage;
+  }
   if (settings.socialLinks) {
     Object.assign(SITE_SETTINGS.socialLinks, settings.socialLinks);
   }

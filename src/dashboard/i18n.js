@@ -126,6 +126,9 @@ export const dashboardTranslations = {
 
     // Site Info tab
     siteInfoTitle: "Site Info",
+    heroSectionTitle: "Homepage Hero Image",
+    heroSectionSubtitle: "The large background photo behind the homepage title",
+    heroImageField: "Hero Background Image",
     contactSocialTitle: "Contact & Social",
     contactSocialSubtitle: "WhatsApp ordering number and social media links",
     whatsappNumberLabel: "WhatsApp Number",
@@ -296,6 +299,9 @@ export const dashboardTranslations = {
 
     // Site Info tab
     siteInfoTitle: "معلومات الموقع",
+    heroSectionTitle: "صورة قسم البداية",
+    heroSectionSubtitle: "الصورة الخلفية الكبيرة خلف عنوان الصفحة الرئيسية",
+    heroImageField: "صورة خلفية القسم الرئيسي",
     contactSocialTitle: "التواصل والتواصل الاجتماعي",
     contactSocialSubtitle: "رقم الواتساب للطلبات وروابط التواصل الاجتماعي",
     whatsappNumberLabel: "رقم الواتساب",

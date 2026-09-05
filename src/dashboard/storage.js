@@ -58,6 +58,9 @@ export async function loadAllContent() {
 
 function mergeSettingsWithDefaults(settings) {
   const merged = structuredClone(DEFAULT_SETTINGS);
+  if (typeof settings?.heroImage === "string" && settings.heroImage) {
+    merged.heroImage = settings.heroImage;
+  }
   if (settings?.socialLinks) Object.assign(merged.socialLinks, settings.socialLinks);
   if (typeof settings?.whatsappNumber === "string" && settings.whatsappNumber) {
     merged.whatsappNumber = settings.whatsappNumber;

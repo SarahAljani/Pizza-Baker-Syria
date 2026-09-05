@@ -78,6 +78,19 @@ export default function SiteInfoTab() {
     }
   };
 
+  const setHeroImage = (value) => {
+    set({ heroImage: value });
+  };
+
+  const handleHeroImageFile = async (file) => {
+    try {
+      const dataUrl = await fileToCompressedDataUrl(file, 1600, 0.8);
+      setHeroImage(dataUrl);
+    } catch {
+      toast(t("couldntReadImage"), "error");
+    }
+  };
+
   const saveAll = async () => {
     setSaving(true);
     try {
@@ -130,6 +143,19 @@ export default function SiteInfoTab() {
 
   return (
     <div className="space-y-6">
+      <SectionCard
+        title={t("heroSectionTitle")}
+        subtitle={t("heroSectionSubtitle")}
+        actions={actions}
+      >
+        <ImagePicker
+          label={t("heroImageField")}
+          value={settings.heroImage}
+          onChange={setHeroImage}
+          onFile={handleHeroImageFile}
+        />
+      </SectionCard>
+
       <SectionCard
         title={t("contactSocialTitle")}
         subtitle={t("contactSocialSubtitle")}
