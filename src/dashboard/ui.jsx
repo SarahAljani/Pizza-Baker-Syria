@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback } from "react";
 import { X, CheckCircle2, AlertTriangle } from "lucide-react";
+import { useDashboardLanguage } from "./DashboardLanguageContext";
 
 // ---- Basic form atoms, styled to match the public site's visual identity ----
 
@@ -75,8 +76,10 @@ export function Button({
 // ---- Modal ----
 
 export function Modal({ title, onClose, children, wide }) {
+  const { t, isRtl } = useDashboardLanguage();
   return (
     <div
+      dir={isRtl ? "rtl" : "ltr"}
       className="fixed inset-0 z-[100] flex items-start sm:items-center justify-center bg-black/70 backdrop-blur-sm p-3 sm:p-6 overflow-y-auto"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose?.();
@@ -92,7 +95,7 @@ export function Modal({ title, onClose, children, wide }) {
           <button
             onClick={onClose}
             className="text-text-secondary hover:text-brand-gold transition-colors cursor-pointer"
-            aria-label="Close"
+            aria-label={t("close")}
           >
             <X className="w-5 h-5" />
           </button>
@@ -104,15 +107,16 @@ export function Modal({ title, onClose, children, wide }) {
 }
 
 export function ConfirmDialog({ title, message, confirmLabel, onConfirm, onCancel, danger }) {
+  const { t } = useDashboardLanguage();
   return (
     <Modal title={title} onClose={onCancel}>
       <p className="text-sm text-text-secondary mb-6 leading-relaxed">{message}</p>
       <div className="flex justify-end gap-3">
         <Button variant="secondary" onClick={onCancel}>
-          Cancel
+          {t("cancel")}
         </Button>
         <Button variant={danger ? "danger" : "primary"} onClick={onConfirm}>
-          {confirmLabel || "Confirm"}
+          {confirmLabel || t("confirm")}
         </Button>
       </div>
     </Modal>
@@ -187,24 +191,25 @@ export function SectionCard({ title, subtitle, actions, children }) {
   );
 }
 
-export function ImagePicker({ value, onChange, onFile, label = "Image" }) {
+export function ImagePicker({ value, onChange, onFile, label }) {
+  const { t } = useDashboardLanguage();
   return (
     <div>
-      <Label>{label}</Label>
+      <Label>{label ?? t("imageLabel")}</Label>
       <div className="flex items-start gap-3">
         <div className="w-20 h-20 flex-shrink-0 bg-bg-primary border border-border-primary overflow-hidden">
           {value ? (
             <img src={value} alt="" className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-text-tertiary text-[9px] font-mono uppercase">
-              No image
+              {t("noImage")}
             </div>
           )}
         </div>
         <div className="flex-1 space-y-2">
           <input
             className={inputClasses}
-            placeholder="Paste an image URL..."
+            placeholder={t("pasteImageUrl")}
             value={value?.startsWith("data:") ? "" : value || ""}
             onChange={(e) => onChange(e.target.value)}
           />
@@ -219,7 +224,7 @@ export function ImagePicker({ value, onChange, onFile, label = "Image" }) {
                 e.target.value = "";
               }}
             />
-            Or upload a photo (stored in this browser)
+            {t("uploadPhotoHint")}
           </label>
         </div>
       </div>

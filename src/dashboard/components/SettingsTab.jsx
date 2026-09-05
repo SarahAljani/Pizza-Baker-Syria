@@ -2,8 +2,10 @@ import { useRef, useState } from "react";
 import { Download, Upload, RotateCcw, AlertTriangle, Loader2 } from "lucide-react";
 import { downloadBackup, importBackup, resetAllDashboardData, loadAllContent } from "../storage";
 import { Button, SectionCard, ConfirmDialog, useToast } from "../ui";
+import { useDashboardLanguage } from "../DashboardLanguageContext";
 
 export default function SettingsTab() {
+  const { t } = useDashboardLanguage();
   const fileInputRef = useRef(null);
   const [confirmReset, setConfirmReset] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -15,7 +17,7 @@ export default function SettingsTab() {
       const content = await loadAllContent();
       downloadBackup(content);
     } catch (err) {
-      toast(err.message || "Couldn't build a backup.", "error");
+      toast(err.message || t("couldntBuildBackup"), "error");
     } finally {
       setBusy(false);
     }
@@ -30,9 +32,9 @@ export default function SettingsTab() {
       const text = await file.text();
       const json = JSON.parse(text);
       await importBackup(json);
-      toast("Backup imported — live on the site now.");
+      toast(t("backupImported"));
     } catch (err) {
-      toast(err.message || "That file isn't a valid backup.", "error");
+      toast(err.message || t("invalidBackupFile"), "error");
     } finally {
       setBusy(false);
     }
@@ -43,9 +45,9 @@ export default function SettingsTab() {
     try {
       await resetAllDashboardData();
       setConfirmReset(false);
-      toast("All edits reset to defaults.");
+      toast(t("resetDone"));
     } catch (err) {
-      toast(err.message || "Couldn't reset.", "error");
+      toast(err.message || t("couldntReset"), "error");
     } finally {
       setBusy(false);
     }
@@ -53,27 +55,19 @@ export default function SettingsTab() {
 
   return (
     <div className="space-y-6">
-      <SectionCard
-        title="Storage & Backups"
-        subtitle="Every visitor sees the same data, stored in Vercel Blob storage"
-      >
+      <SectionCard title={t("storageBackupsTitle")} subtitle={t("storageBackupsSubtitle")}>
         <div className="flex items-start gap-3 bg-brand-burgundy/10 border border-brand-gold/20 px-4 py-3 mb-6 text-sm text-text-secondary">
           <AlertTriangle className="w-4 h-4 text-brand-gold flex-shrink-0 mt-0.5" />
-          <p>
-            Content is saved centrally — every visitor and every device sees
-            the same menu and page text. There's still no traditional
-            database to browse or restore from directly, so download a
-            backup regularly and keep it somewhere safe.
-          </p>
+          <p>{t("storageBackupsNote")}</p>
         </div>
 
         <div className="flex flex-wrap gap-3">
           <Button onClick={handleDownload} disabled={busy}>
             {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
-            Download Backup
+            {t("downloadBackup")}
           </Button>
           <Button variant="secondary" onClick={() => fileInputRef.current?.click()} disabled={busy}>
-            <Upload className="w-3.5 h-3.5" /> Import Backup
+            <Upload className="w-3.5 h-3.5" /> {t("importBackup")}
           </Button>
           <input
             ref={fileInputRef}
@@ -85,17 +79,17 @@ export default function SettingsTab() {
         </div>
       </SectionCard>
 
-      <SectionCard title="Reset" subtitle="Discard every dashboard edit and restore the original site content">
+      <SectionCard title={t("resetTitle")} subtitle={t("resetSubtitle")}>
         <Button variant="danger" onClick={() => setConfirmReset(true)} disabled={busy}>
-          <RotateCcw className="w-3.5 h-3.5" /> Reset Everything to Default
+          <RotateCcw className="w-3.5 h-3.5" /> {t("resetEverything")}
         </Button>
       </SectionCard>
 
       {confirmReset && (
         <ConfirmDialog
-          title="Reset All Content"
-          message="This permanently removes every pizza, sides & desserts, and page-content edit made from this dashboard for every visitor, restoring the site's original defaults. This cannot be undone unless you have a backup."
-          confirmLabel="Reset Everything"
+          title={t("resetAllContentTitle")}
+          message={t("resetAllContentMessage")}
+          confirmLabel={t("resetEverything")}
           danger
           onConfirm={handleReset}
           onCancel={() => setConfirmReset(false)}

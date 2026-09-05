@@ -18,6 +18,7 @@ import {
   ImagePicker,
   useToast,
 } from "../ui";
+import { useDashboardLanguage } from "../DashboardLanguageContext";
 
 function slugify(name) {
   return (
@@ -61,6 +62,7 @@ function emptyItem(category, nextNumber) {
 }
 
 function ItemGrid({ title, items, onAdd, onEdit, onDelete }) {
+  const { t } = useDashboardLanguage();
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
@@ -68,7 +70,7 @@ function ItemGrid({ title, items, onAdd, onEdit, onDelete }) {
           {title}
         </h3>
         <Button onClick={onAdd}>
-          <Plus className="w-3.5 h-3.5" /> Add
+          <Plus className="w-3.5 h-3.5" /> {t("add")}
         </Button>
       </div>
       <div className="space-y-2">
@@ -84,7 +86,7 @@ function ItemGrid({ title, items, onAdd, onEdit, onDelete }) {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm text-text-primary font-medium truncate">
-                {item.nameEn || <span className="italic text-text-tertiary">Untitled</span>}
+                {item.nameEn || <span className="italic text-text-tertiary">{t("untitled")}</span>}
               </p>
               <p className="text-[10px] font-mono text-text-secondary">
                 {item.prices.map((p) => `${p.size}: ${p.price}`).join(" · ")} SYP
@@ -93,14 +95,14 @@ function ItemGrid({ title, items, onAdd, onEdit, onDelete }) {
             <button
               onClick={() => onEdit(item)}
               className="p-1.5 text-text-secondary hover:text-brand-gold transition-colors cursor-pointer"
-              aria-label="Edit"
+              aria-label={t("edit")}
             >
               <Pencil className="w-4 h-4" />
             </button>
             <button
               onClick={() => onDelete(item)}
               className="p-1.5 text-text-secondary hover:text-red-400 transition-colors cursor-pointer"
-              aria-label="Delete"
+              aria-label={t("delete")}
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -108,7 +110,7 @@ function ItemGrid({ title, items, onAdd, onEdit, onDelete }) {
         ))}
         {items.length === 0 && (
           <p className="text-sm text-text-tertiary italic py-4 text-center">
-            No items yet.
+            {t("noItemsYet")}
           </p>
         )}
       </div>
@@ -117,6 +119,7 @@ function ItemGrid({ title, items, onAdd, onEdit, onDelete }) {
 }
 
 export default function ExtrasTab() {
+  const { t } = useDashboardLanguage();
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
   const [extras, setExtras] = useState({ snacks: [], desserts: [] });
@@ -221,9 +224,9 @@ export default function ExtrasTab() {
       await saveTranslationOverrides(latest);
 
       setDirty(false);
-      toast("Sides & desserts saved — live on the site now.");
+      toast(t("extrasSaved"));
     } catch (err) {
-      toast(err.message || "Couldn't save. Try again.", "error");
+      toast(err.message || t("couldntSave"), "error");
     } finally {
       setSaving(false);
     }
@@ -231,9 +234,9 @@ export default function ExtrasTab() {
 
   if (loading) {
     return (
-      <SectionCard title="Sides & Desserts" subtitle="Loading...">
+      <SectionCard title={t("extrasTitle")} subtitle={t("loading")}>
         <div className="flex items-center justify-center py-16 text-text-secondary gap-2">
-          <Loader2 className="w-4 h-4 animate-spin" /> Loading...
+          <Loader2 className="w-4 h-4 animate-spin" /> {t("loading")}
         </div>
       </SectionCard>
     );
@@ -241,11 +244,11 @@ export default function ExtrasTab() {
 
   if (loadError) {
     return (
-      <SectionCard title="Sides & Desserts" subtitle="Couldn't load data">
+      <SectionCard title={t("extrasTitle")} subtitle={t("couldntLoad")}>
         <div className="text-center py-16">
           <p className="text-red-400 text-sm mb-4">{loadError}</p>
           <Button onClick={load}>
-            <RotateCcw className="w-3.5 h-3.5" /> Retry
+            <RotateCcw className="w-3.5 h-3.5" /> {t("retry")}
           </Button>
         </div>
       </SectionCard>
@@ -254,32 +257,32 @@ export default function ExtrasTab() {
 
   return (
     <SectionCard
-      title="Sides & Desserts"
-      subtitle="Snacks and pizza desserts shown alongside the menu"
+      title={t("extrasTitle")}
+      subtitle={t("extrasSubtitle")}
       actions={
         <>
           {dirty && (
             <Button variant="ghost" onClick={load} disabled={saving}>
-              <RotateCcw className="w-3.5 h-3.5" /> Discard
+              <RotateCcw className="w-3.5 h-3.5" /> {t("discard")}
             </Button>
           )}
           <Button variant={dirty ? "primary" : "secondary"} onClick={saveAll} disabled={!dirty || saving}>
             {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-            Save Changes
+            {t("saveChanges")}
           </Button>
         </>
       }
     >
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         <ItemGrid
-          title="Snacks"
+          title={t("snacksTitle")}
           items={extras.snacks}
           onAdd={() => openAdd("snacks")}
           onEdit={(item) => openEdit("snacks", item)}
           onDelete={(item) => setDeleteTarget({ category: "snacks", id: item.id })}
         />
         <ItemGrid
-          title="Desserts"
+          title={t("dessertsTitle")}
           items={extras.desserts}
           onAdd={() => openAdd("desserts")}
           onEdit={(item) => openEdit("desserts", item)}
@@ -299,9 +302,9 @@ export default function ExtrasTab() {
 
       {deleteTarget && (
         <ConfirmDialog
-          title="Delete Item"
-          message="Remove this item? This only takes effect once you click Save Changes."
-          confirmLabel="Delete"
+          title={t("deleteItemTitle")}
+          message={t("deleteItemMessage")}
+          confirmLabel={t("delete")}
           danger
           onConfirm={confirmDelete}
           onCancel={() => setDeleteTarget(null)}
@@ -312,6 +315,7 @@ export default function ExtrasTab() {
 }
 
 function ExtraFormModal({ category, model, isNew, onClose, onSave }) {
+  const { t } = useDashboardLanguage();
   const [form, setForm] = useState(() => ({
     ...model,
     translationKey: model.translationKey || "",
@@ -337,32 +341,38 @@ function ExtraFormModal({ category, model, isNew, onClose, onSave }) {
       const dataUrl = await compressImage(file);
       set({ image: dataUrl });
     } catch {
-      toast("Could not read that image file.", "error");
+      toast(t("couldntReadImage"), "error");
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.nameEn.trim()) {
-      toast("English name is required.", "error");
+      toast(t("nameEnRequired"), "error");
       return;
     }
     const key = form.translationKey.trim() || slugify(form.nameEn);
     onSave({ ...form, translationKey: key });
   };
 
+  const modalTitle = isNew
+    ? category === "snacks"
+      ? t("addSnackModalTitle")
+      : t("addDessertModalTitle")
+    : t("editItemModalTitle");
+
   return (
-    <Modal title={isNew ? `Add ${category === "snacks" ? "Snack" : "Dessert"}` : "Edit Item"} onClose={onClose} wide>
+    <Modal title={modalTitle} onClose={onClose} wide>
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field
-            label="Name (English)"
+            label={t("nameEnglish")}
             value={form.nameEn}
             onChange={(e) => set({ nameEn: e.target.value })}
             required
           />
           <Field
-            label="Name (Arabic)"
+            label={t("nameArabic")}
             dir="rtl"
             value={form.nameAr}
             onChange={(e) => set({ nameAr: e.target.value })}
@@ -371,13 +381,13 @@ function ExtraFormModal({ category, model, isNew, onClose, onSave }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <TextArea
-            label="Description (English)"
+            label={t("descEnglish")}
             rows={2}
             value={form.descEn}
             onChange={(e) => set({ descEn: e.target.value })}
           />
           <TextArea
-            label="Description (Arabic)"
+            label={t("descArabic")}
             dir="rtl"
             rows={2}
             value={form.descAr}
@@ -386,7 +396,7 @@ function ExtraFormModal({ category, model, isNew, onClose, onSave }) {
         </div>
 
         <Field
-          label="Menu Number"
+          label={t("menuNumber")}
           type="number"
           value={form.number}
           onChange={(e) => set({ number: e.target.value })}
@@ -394,25 +404,22 @@ function ExtraFormModal({ category, model, isNew, onClose, onSave }) {
 
         <div>
           <p className="text-[10px] font-mono tracking-widest text-brand-gold font-bold uppercase mb-1.5">
-            Prices (SYP)
+            {t("pricesLabel")}
           </p>
-          <p className="text-[10px] text-text-tertiary mb-2">
-            Add one row for a single price (e.g. "standard"), or several rows
-            for size options (e.g. "small" / "large").
-          </p>
+          <p className="text-[10px] text-text-tertiary mb-2">{t("pricesRowHint")}</p>
           <div className="space-y-2">
             {form.prices.map((row, idx) => (
               <div key={idx} className="flex items-center gap-2">
                 <input
                   className="flex-1 bg-bg-primary border border-border-primary focus:border-brand-gold text-text-primary text-sm px-3 py-2 focus:outline-none rounded-none"
-                  placeholder="size key, e.g. standard"
+                  placeholder={t("sizeKeyPlaceholder")}
                   value={row.size}
                   onChange={(e) => setPriceRow(idx, { size: e.target.value })}
                 />
                 <input
                   type="number"
                   className="w-28 bg-bg-primary border border-border-primary focus:border-brand-gold text-text-primary text-sm px-3 py-2 focus:outline-none rounded-none"
-                  placeholder="price"
+                  placeholder={t("pricePlaceholder")}
                   value={row.price}
                   onChange={(e) => setPriceRow(idx, { price: e.target.value })}
                 />
@@ -420,7 +427,7 @@ function ExtraFormModal({ category, model, isNew, onClose, onSave }) {
                   type="button"
                   onClick={() => removePriceRow(idx)}
                   className="p-2 text-text-secondary hover:text-red-400 cursor-pointer"
-                  aria-label="Remove size"
+                  aria-label={t("removeSize")}
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -428,7 +435,7 @@ function ExtraFormModal({ category, model, isNew, onClose, onSave }) {
             ))}
           </div>
           <Button type="button" variant="ghost" className="mt-2" onClick={addPriceRow}>
-            <Plus className="w-3.5 h-3.5" /> Add size option
+            <Plus className="w-3.5 h-3.5" /> {t("addSizeOption")}
           </Button>
         </div>
 
@@ -436,9 +443,9 @@ function ExtraFormModal({ category, model, isNew, onClose, onSave }) {
 
         <div className="flex justify-end gap-3 pt-2">
           <Button type="button" variant="secondary" onClick={onClose}>
-            Cancel
+            {t("cancel")}
           </Button>
-          <Button type="submit">Apply</Button>
+          <Button type="submit">{t("apply")}</Button>
         </div>
       </form>
     </Modal>

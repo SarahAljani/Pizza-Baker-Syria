@@ -2,16 +2,18 @@ import { useEffect, useState } from "react";
 import { Save, RotateCcw, Loader2 } from "lucide-react";
 import { loadAllContent, saveSettings, fileToCompressedDataUrl } from "../storage";
 import { Button, Field, TextArea, SectionCard, ImagePicker, useToast } from "../ui";
+import { useDashboardLanguage } from "../DashboardLanguageContext";
 
-const SECTION_LABELS = {
-  menu: "Pizza Menu",
-  extras: "Sides & Desserts",
-  builder: "Pizza Builder",
-  reservation: "Reservations",
-  reviews: "Reviews",
+const SECTION_KEYS = {
+  menu: "sectionMenu",
+  extras: "sectionExtras",
+  builder: "sectionBuilder",
+  reservation: "sectionReservation",
+  reviews: "sectionReviews",
 };
 
 export default function SiteInfoTab() {
+  const { t } = useDashboardLanguage();
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
   const [settings, setSettings] = useState(null);
@@ -72,7 +74,7 @@ export default function SiteInfoTab() {
       const dataUrl = await fileToCompressedDataUrl(file, 1200, 0.8);
       setOgImage(dataUrl);
     } catch {
-      toast("Could not read that image file.", "error");
+      toast(t("couldntReadImage"), "error");
     }
   };
 
@@ -81,9 +83,9 @@ export default function SiteInfoTab() {
     try {
       await saveSettings(settings);
       setDirty(false);
-      toast("Site info saved — live on the site now.");
+      toast(t("siteInfoSaved"));
     } catch (err) {
-      toast(err.message || "Couldn't save. Try again.", "error");
+      toast(err.message || t("couldntSave"), "error");
     } finally {
       setSaving(false);
     }
@@ -91,9 +93,9 @@ export default function SiteInfoTab() {
 
   if (loading) {
     return (
-      <SectionCard title="Site Info" subtitle="Loading...">
+      <SectionCard title={t("siteInfoTitle")} subtitle={t("loading")}>
         <div className="flex items-center justify-center py-16 text-text-secondary gap-2">
-          <Loader2 className="w-4 h-4 animate-spin" /> Loading...
+          <Loader2 className="w-4 h-4 animate-spin" /> {t("loading")}
         </div>
       </SectionCard>
     );
@@ -101,11 +103,11 @@ export default function SiteInfoTab() {
 
   if (loadError) {
     return (
-      <SectionCard title="Site Info" subtitle="Couldn't load data">
+      <SectionCard title={t("siteInfoTitle")} subtitle={t("couldntLoad")}>
         <div className="text-center py-16">
           <p className="text-red-400 text-sm mb-4">{loadError}</p>
           <Button onClick={load}>
-            <RotateCcw className="w-3.5 h-3.5" /> Retry
+            <RotateCcw className="w-3.5 h-3.5" /> {t("retry")}
           </Button>
         </div>
       </SectionCard>
@@ -116,12 +118,12 @@ export default function SiteInfoTab() {
     <>
       {dirty && (
         <Button variant="ghost" onClick={load} disabled={saving}>
-          <RotateCcw className="w-3.5 h-3.5" /> Discard
+          <RotateCcw className="w-3.5 h-3.5" /> {t("discard")}
         </Button>
       )}
       <Button variant={dirty ? "primary" : "secondary"} onClick={saveAll} disabled={!dirty || saving}>
         {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-        Save Changes
+        {t("saveChanges")}
       </Button>
     </>
   );
@@ -129,24 +131,24 @@ export default function SiteInfoTab() {
   return (
     <div className="space-y-6">
       <SectionCard
-        title="Contact & Social"
-        subtitle="WhatsApp ordering number and social media links"
+        title={t("contactSocialTitle")}
+        subtitle={t("contactSocialSubtitle")}
         actions={actions}
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field
-            label="WhatsApp Number"
-            hint="International format, digits only, no + or spaces (e.g. 963983923768)"
+            label={t("whatsappNumberLabel")}
+            hint={t("whatsappNumberHint")}
             value={settings.whatsappNumber}
             onChange={(e) => set({ whatsappNumber: e.target.value.replace(/[^0-9]/g, "") })}
           />
           <Field
-            label="Facebook URL"
+            label={t("facebookUrl")}
             value={settings.socialLinks.facebook}
             onChange={(e) => setSocial("facebook", e.target.value)}
           />
           <Field
-            label="Instagram URL"
+            label={t("instagramUrl")}
             value={settings.socialLinks.instagram}
             onChange={(e) => setSocial("instagram", e.target.value)}
           />
@@ -154,17 +156,17 @@ export default function SiteInfoTab() {
       </SectionCard>
 
       <SectionCard
-        title="Section Visibility"
-        subtitle="Show or hide entire sections of the site"
+        title={t("sectionVisibilityTitle")}
+        subtitle={t("sectionVisibilitySubtitle")}
         actions={actions}
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {Object.entries(SECTION_LABELS).map(([key, label]) => (
+          {Object.entries(SECTION_KEYS).map(([key, labelKey]) => (
             <label
               key={key}
               className="flex items-center justify-between gap-3 bg-bg-primary border border-border-primary px-4 py-3 cursor-pointer"
             >
-              <span className="text-sm text-text-primary">{label}</span>
+              <span className="text-sm text-text-primary">{t(labelKey)}</span>
               <input
                 type="checkbox"
                 checked={settings.sectionVisibility[key]}
@@ -174,36 +176,34 @@ export default function SiteInfoTab() {
             </label>
           ))}
         </div>
-        <p className="text-[10px] text-text-tertiary mt-3">
-          The Home/Hero section and Footer are always shown.
-        </p>
+        <p className="text-[10px] text-text-tertiary mt-3">{t("sectionVisibilityNote")}</p>
       </SectionCard>
 
       <SectionCard
-        title="Default SEO"
-        subtitle="Title and description used for search engines and link previews on the home page"
+        title={t("defaultSeoTitle")}
+        subtitle={t("defaultSeoSubtitle")}
         actions={actions}
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field
-            label="Title (EN)"
+            label={t("titleEn")}
             value={settings.seo.en.title}
             onChange={(e) => setSeo("en", "title", e.target.value)}
           />
           <Field
-            label="Title (AR)"
+            label={t("titleAr")}
             dir="rtl"
             value={settings.seo.ar.title}
             onChange={(e) => setSeo("ar", "title", e.target.value)}
           />
           <TextArea
-            label="Description (EN)"
+            label={t("descriptionEn")}
             rows={3}
             value={settings.seo.en.description}
             onChange={(e) => setSeo("en", "description", e.target.value)}
           />
           <TextArea
-            label="Description (AR)"
+            label={t("descriptionAr")}
             dir="rtl"
             rows={3}
             value={settings.seo.ar.description}
@@ -213,17 +213,12 @@ export default function SiteInfoTab() {
 
         <div className="mt-5">
           <ImagePicker
-            label="Share / Social Preview Image"
+            label={t("shareImageLabel")}
             value={settings.seo.ogImage}
             onChange={setOgImage}
             onFile={handleOgImageFile}
           />
-          <p className="text-[10px] text-text-tertiary mt-2">
-            Shown as the thumbnail when the site link is shared. Updates
-            instantly for Google. WhatsApp, Facebook, and Twitter cache link
-            previews and only refresh them on the next deploy — a small delay
-            for those specifically is expected.
-          </p>
+          <p className="text-[10px] text-text-tertiary mt-2">{t("shareImageHint")}</p>
         </div>
       </SectionCard>
     </div>

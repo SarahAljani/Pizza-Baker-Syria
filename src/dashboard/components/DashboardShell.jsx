@@ -5,21 +5,23 @@ import ExtrasTab from "./ExtrasTab";
 import ContentTab from "./ContentTab";
 import SiteInfoTab from "./SiteInfoTab";
 import SettingsTab from "./SettingsTab";
-
-const TABS = [
-  { id: "pizzas", label: "Pizzas", icon: Pizza, Component: PizzasTab },
-  { id: "extras", label: "Sides & Desserts", icon: IceCreamCone, Component: ExtrasTab },
-  { id: "content", label: "Page Content", icon: FileText, Component: ContentTab },
-  { id: "siteInfo", label: "Site Info", icon: Globe, Component: SiteInfoTab },
-  { id: "settings", label: "Settings", icon: Settings, Component: SettingsTab },
-];
+import { useDashboardLanguage } from "../DashboardLanguageContext";
 
 export default function DashboardShell({ onLogout }) {
+  const { t, language, toggleLanguage, isRtl } = useDashboardLanguage();
   const [activeTab, setActiveTab] = useState("pizzas");
-  const Active = TABS.find((t) => t.id === activeTab)?.Component;
+
+  const TABS = [
+    { id: "pizzas", label: t("navPizzas"), icon: Pizza, Component: PizzasTab },
+    { id: "extras", label: t("navExtras"), icon: IceCreamCone, Component: ExtrasTab },
+    { id: "content", label: t("navContent"), icon: FileText, Component: ContentTab },
+    { id: "siteInfo", label: t("navSiteInfo"), icon: Globe, Component: SiteInfoTab },
+    { id: "settings", label: t("navSettings"), icon: Settings, Component: SettingsTab },
+  ];
+  const Active = TABS.find((tab) => tab.id === activeTab)?.Component;
 
   return (
-    <div className="min-h-screen bg-bg-primary flex flex-col lg:flex-row">
+    <div dir={isRtl ? "rtl" : "ltr"} className="min-h-screen bg-bg-primary flex flex-col lg:flex-row">
       {/* Sidebar */}
       <aside className="lg:w-64 flex-shrink-0 bg-bg-secondary border-b lg:border-b-0 lg:border-r border-border-primary flex flex-col">
         <div className="flex items-center gap-3 px-5 py-5 border-b border-border-primary">
@@ -28,10 +30,10 @@ export default function DashboardShell({ onLogout }) {
           </div>
           <div className="min-w-0">
             <p className="font-serif text-sm text-text-primary uppercase tracking-wide truncate">
-              Pizza Baker
+              {t("brandName")}
             </p>
             <p className="text-[9px] font-mono text-brand-gold uppercase tracking-widest">
-              Dashboard
+              {t("dashboardLabel")}
             </p>
           </div>
         </div>
@@ -58,17 +60,24 @@ export default function DashboardShell({ onLogout }) {
         </nav>
 
         <div className="p-3 border-t border-border-primary space-y-1">
+          <button
+            onClick={toggleLanguage}
+            className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-mono font-bold tracking-wide uppercase text-text-secondary hover:text-brand-gold transition-colors cursor-pointer"
+          >
+            <Globe className="w-4 h-4" />
+            {language === "en" ? "العربية" : "English"}
+          </button>
           <a
             href="/"
             className="flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-mono font-bold tracking-wide uppercase text-text-secondary hover:text-brand-gold transition-colors"
           >
-            <ExternalLink className="w-4 h-4" /> View Site
+            <ExternalLink className="w-4 h-4" /> {t("viewSite")}
           </a>
           <button
             onClick={onLogout}
             className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-mono font-bold tracking-wide uppercase text-text-secondary hover:text-red-400 transition-colors cursor-pointer"
           >
-            <LogOut className="w-4 h-4" /> Log Out
+            <LogOut className="w-4 h-4" /> {t("logOut")}
           </button>
         </div>
       </aside>

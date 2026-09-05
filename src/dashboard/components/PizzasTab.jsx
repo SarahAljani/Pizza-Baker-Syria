@@ -19,14 +19,22 @@ import {
   ImagePicker,
   useToast,
 } from "../ui";
+import { useDashboardLanguage } from "../DashboardLanguageContext";
 
 const CATEGORIES = [
-  "classic",
-  "specialty",
-  "chicken",
-  "meat",
-  "spicy",
-  "vegetarian",
+  { value: "classic", labelKey: "categoryClassic" },
+  { value: "specialty", labelKey: "categorySpecialty" },
+  { value: "chicken", labelKey: "categoryChicken" },
+  { value: "meat", labelKey: "categoryMeat" },
+  { value: "spicy", labelKey: "categorySpicy" },
+  { value: "vegetarian", labelKey: "categoryVegetarian" },
+];
+
+const SIZES = [
+  { value: "small", labelKey: "sizeSmall" },
+  { value: "medium", labelKey: "sizeMedium" },
+  { value: "large", labelKey: "sizeLarge" },
+  { value: "thin", labelKey: "sizeThin" },
 ];
 
 function buildEditModel(pizza, translationOverrides) {
@@ -64,6 +72,7 @@ function emptyPizza(nextNumber) {
 }
 
 export default function PizzasTab() {
+  const { t } = useDashboardLanguage();
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
   const [translationOverrides, setTranslationOverrides] = useState(null);
@@ -168,9 +177,9 @@ export default function PizzasTab() {
 
       setTranslationOverrides(latest);
       setDirty(false);
-      toast("Pizzas saved — live on the site now.");
+      toast(t("pizzasSaved"));
     } catch (err) {
-      toast(err.message || "Couldn't save. Try again.", "error");
+      toast(err.message || t("couldntSave"), "error");
     } finally {
       setSaving(false);
     }
@@ -178,9 +187,9 @@ export default function PizzasTab() {
 
   if (loading) {
     return (
-      <SectionCard title="Pizzas" subtitle="Loading...">
+      <SectionCard title={t("pizzasTitle")} subtitle={t("loading")}>
         <div className="flex items-center justify-center py-16 text-text-secondary gap-2">
-          <Loader2 className="w-4 h-4 animate-spin" /> Loading pizzas...
+          <Loader2 className="w-4 h-4 animate-spin" /> {t("loadingPizzas")}
         </div>
       </SectionCard>
     );
@@ -188,11 +197,11 @@ export default function PizzasTab() {
 
   if (loadError) {
     return (
-      <SectionCard title="Pizzas" subtitle="Couldn't load data">
+      <SectionCard title={t("pizzasTitle")} subtitle={t("couldntLoad")}>
         <div className="text-center py-16">
           <p className="text-red-400 text-sm mb-4">{loadError}</p>
           <Button onClick={load}>
-            <RotateCcw className="w-3.5 h-3.5" /> Retry
+            <RotateCcw className="w-3.5 h-3.5" /> {t("retry")}
           </Button>
         </div>
       </SectionCard>
@@ -201,13 +210,13 @@ export default function PizzasTab() {
 
   return (
     <SectionCard
-      title="Pizzas"
-      subtitle={`${pizzas.length} recipes in the menu`}
+      title={t("pizzasTitle")}
+      subtitle={t("pizzasSubtitle", { count: pizzas.length })}
       actions={
         <>
           {dirty && (
             <Button variant="ghost" onClick={load} disabled={saving}>
-              <RotateCcw className="w-3.5 h-3.5" /> Discard
+              <RotateCcw className="w-3.5 h-3.5" /> {t("discard")}
             </Button>
           )}
           <Button
@@ -216,10 +225,10 @@ export default function PizzasTab() {
             disabled={!dirty || saving}
           >
             {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-            Save Changes
+            {t("saveChanges")}
           </Button>
           <Button onClick={openAdd} disabled={saving}>
-            <Plus className="w-3.5 h-3.5" /> Add Pizza
+            <Plus className="w-3.5 h-3.5" /> {t("addPizza")}
           </Button>
         </>
       }
@@ -229,7 +238,7 @@ export default function PizzasTab() {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search by name, number or category..."
+          placeholder={t("searchPizzasPlaceholder")}
           className="w-full bg-bg-primary border border-border-primary focus:border-brand-gold text-text-primary text-sm pl-9 pr-3 py-2.5 focus:outline-none placeholder-text-tertiary rounded-none"
         />
       </div>
@@ -238,12 +247,12 @@ export default function PizzasTab() {
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-[10px] font-mono uppercase tracking-widest text-text-tertiary border-b border-border-primary">
-              <th className="py-2 pr-3">#</th>
-              <th className="py-2 pr-3">Image</th>
-              <th className="py-2 pr-3">Name</th>
-              <th className="py-2 pr-3">Category</th>
-              <th className="py-2 pr-3">Medium Price</th>
-              <th className="py-2 pr-3 text-right">Actions</th>
+              <th className="py-2 pr-3">{t("colNumber")}</th>
+              <th className="py-2 pr-3">{t("colImage")}</th>
+              <th className="py-2 pr-3">{t("colName")}</th>
+              <th className="py-2 pr-3">{t("colCategory")}</th>
+              <th className="py-2 pr-3">{t("colMediumPrice")}</th>
+              <th className="py-2 pr-3 text-right">{t("colActions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -267,7 +276,7 @@ export default function PizzasTab() {
                   </div>
                 </td>
                 <td className="py-2.5 pr-3 text-text-primary font-medium">
-                  {p.nameEn || <span className="text-text-tertiary italic">Untitled</span>}
+                  {p.nameEn || <span className="text-text-tertiary italic">{t("untitled")}</span>}
                 </td>
                 <td className="py-2.5 pr-3 text-text-secondary capitalize">
                   {p.category}
@@ -280,14 +289,14 @@ export default function PizzasTab() {
                     <button
                       onClick={() => openEdit(p)}
                       className="p-1.5 text-text-secondary hover:text-brand-gold transition-colors cursor-pointer"
-                      aria-label="Edit"
+                      aria-label={t("edit")}
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => requestDelete(p)}
                       className="p-1.5 text-text-secondary hover:text-red-400 transition-colors cursor-pointer"
-                      aria-label="Delete"
+                      aria-label={t("delete")}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -298,7 +307,7 @@ export default function PizzasTab() {
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={6} className="py-8 text-center text-text-tertiary text-sm">
-                  No pizzas match your search.
+                  {t("noPizzasMatch")}
                 </td>
               </tr>
             )}
@@ -317,9 +326,11 @@ export default function PizzasTab() {
 
       {deleteTarget && (
         <ConfirmDialog
-          title="Delete Pizza"
-          message={`Remove "${deleteTarget.nameEn || "this pizza"}" from the menu? This only takes effect once you click Save Changes.`}
-          confirmLabel="Delete"
+          title={t("deletePizzaTitle")}
+          message={t("deletePizzaMessage", {
+            name: deleteTarget.nameEn || t("thisPizza"),
+          })}
+          confirmLabel={t("delete")}
           danger
           onConfirm={confirmDelete}
           onCancel={() => setDeleteTarget(null)}
@@ -330,6 +341,7 @@ export default function PizzasTab() {
 }
 
 function PizzaFormModal({ model, isNew, onClose, onSave }) {
+  const { t } = useDashboardLanguage();
   const [form, setForm] = useState(model);
   const toast = useToast();
 
@@ -342,7 +354,7 @@ function PizzaFormModal({ model, isNew, onClose, onSave }) {
       const dataUrl = await compressImage(file);
       set({ image: dataUrl });
     } catch {
-      toast("Could not read that image file.", "error");
+      toast(t("couldntReadImage"), "error");
     }
   };
 
@@ -351,31 +363,31 @@ function PizzaFormModal({ model, isNew, onClose, onSave }) {
       const dataUrl = await compressImage(file);
       set({ hoverImage: dataUrl });
     } catch {
-      toast("Could not read that image file.", "error");
+      toast(t("couldntReadImage"), "error");
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.nameEn.trim()) {
-      toast("English name is required.", "error");
+      toast(t("nameEnRequired"), "error");
       return;
     }
     onSave(form);
   };
 
   return (
-    <Modal title={isNew ? "Add Pizza" : "Edit Pizza"} onClose={onClose} wide>
+    <Modal title={isNew ? t("addPizzaModalTitle") : t("editPizzaModalTitle")} onClose={onClose} wide>
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field
-            label="Name (English)"
+            label={t("nameEnglish")}
             value={form.nameEn}
             onChange={(e) => set({ nameEn: e.target.value })}
             required
           />
           <Field
-            label="Name (Arabic)"
+            label={t("nameArabic")}
             dir="rtl"
             value={form.nameAr}
             onChange={(e) => set({ nameAr: e.target.value })}
@@ -384,13 +396,13 @@ function PizzaFormModal({ model, isNew, onClose, onSave }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <TextArea
-            label="Description (English)"
+            label={t("descEnglish")}
             rows={2}
             value={form.descEn}
             onChange={(e) => set({ descEn: e.target.value })}
           />
           <TextArea
-            label="Description (Arabic)"
+            label={t("descArabic")}
             dir="rtl"
             rows={2}
             value={form.descAr}
@@ -400,19 +412,19 @@ function PizzaFormModal({ model, isNew, onClose, onSave }) {
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <Field
-            label="Menu Number"
+            label={t("menuNumber")}
             type="number"
             value={form.number}
             onChange={(e) => set({ number: e.target.value })}
           />
           <Select
-            label="Category"
+            label={t("category")}
             value={form.category}
             onChange={(e) => set({ category: e.target.value })}
           >
             {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
+              <option key={c.value} value={c.value}>
+                {t(c.labelKey)}
               </option>
             ))}
           </Select>
@@ -420,51 +432,48 @@ function PizzaFormModal({ model, isNew, onClose, onSave }) {
 
         <div>
           <p className="text-[10px] font-mono tracking-widest text-brand-gold font-bold uppercase mb-1.5">
-            Prices (SYP)
+            {t("pricesLabel")}
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {["small", "medium", "large", "thin"].map((size) => (
+            {SIZES.map((size) => (
               <Field
-                key={size}
-                label={size}
+                key={size.value}
+                label={t(size.labelKey)}
                 type="number"
-                value={form.prices[size]}
-                onChange={(e) => setPrice(size, e.target.value)}
+                value={form.prices[size.value]}
+                onChange={(e) => setPrice(size.value, e.target.value)}
               />
             ))}
           </div>
         </div>
 
         <Field
-          label="Ingredients"
-          hint="Comma-separated, used internally for matching custom builds"
+          label={t("ingredientsLabel")}
+          hint={t("ingredientsHint")}
           value={form.ingredients}
           onChange={(e) => set({ ingredients: e.target.value })}
         />
 
         <ImagePicker
-          label="Main Image"
+          label={t("mainImage")}
           value={form.image}
           onChange={(url) => set({ image: url })}
           onFile={handleFile}
         />
 
         <ImagePicker
-          label="Hover Image"
+          label={t("hoverImage")}
           value={form.hoverImage}
           onChange={(url) => set({ hoverImage: url })}
           onFile={handleHoverFile}
         />
-        <p className="text-[10px] text-text-tertiary -mt-3">
-          Shown when a visitor hovers over the pizza card. Leave empty to just
-          reuse the main image.
-        </p>
+        <p className="text-[10px] text-text-tertiary -mt-3">{t("hoverImageHint")}</p>
 
         <div className="flex justify-end gap-3 pt-2">
           <Button type="button" variant="secondary" onClick={onClose}>
-            Cancel
+            {t("cancel")}
           </Button>
-          <Button type="submit">Apply</Button>
+          <Button type="submit">{t("apply")}</Button>
         </div>
       </form>
     </Modal>

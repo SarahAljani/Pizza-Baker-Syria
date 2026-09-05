@@ -8,6 +8,7 @@ import {
   mergeLanguagePatch,
 } from "../storage";
 import { Button, TextArea, Field, SectionCard, useToast } from "../ui";
+import { useDashboardLanguage } from "../DashboardLanguageContext";
 
 function buildValues(translationOverrides) {
   const values = {};
@@ -23,6 +24,7 @@ function buildValues(translationOverrides) {
 }
 
 export default function ContentTab() {
+  const { t, language } = useDashboardLanguage();
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
   const [values, setValues] = useState({});
@@ -65,7 +67,8 @@ export default function ContentTab() {
       ...section,
       fields: section.fields.filter(
         (f) =>
-          f.label.toLowerCase().includes(q) ||
+          f.label.en.toLowerCase().includes(q) ||
+          f.label.ar.includes(query) ||
           f.key.toLowerCase().includes(q) ||
           (values[f.key]?.en || "").toLowerCase().includes(q),
       ),
@@ -91,9 +94,9 @@ export default function ContentTab() {
       await saveTranslationOverrides(latest);
 
       setDirty(false);
-      toast("Page content saved — live on the site now.");
+      toast(t("contentSaved"));
     } catch (err) {
-      toast(err.message || "Couldn't save. Try again.", "error");
+      toast(err.message || t("couldntSave"), "error");
     } finally {
       setSaving(false);
     }
@@ -101,9 +104,9 @@ export default function ContentTab() {
 
   if (loading) {
     return (
-      <SectionCard title="Page Content" subtitle="Loading...">
+      <SectionCard title={t("contentTitle")} subtitle={t("loading")}>
         <div className="flex items-center justify-center py-16 text-text-secondary gap-2">
-          <Loader2 className="w-4 h-4 animate-spin" /> Loading page content...
+          <Loader2 className="w-4 h-4 animate-spin" /> {t("loadingContent")}
         </div>
       </SectionCard>
     );
@@ -111,11 +114,11 @@ export default function ContentTab() {
 
   if (loadError) {
     return (
-      <SectionCard title="Page Content" subtitle="Couldn't load data">
+      <SectionCard title={t("contentTitle")} subtitle={t("couldntLoad")}>
         <div className="text-center py-16">
           <p className="text-red-400 text-sm mb-4">{loadError}</p>
           <Button onClick={load}>
-            <RotateCcw className="w-3.5 h-3.5" /> Retry
+            <RotateCcw className="w-3.5 h-3.5" /> {t("retry")}
           </Button>
         </div>
       </SectionCard>
@@ -124,18 +127,18 @@ export default function ContentTab() {
 
   return (
     <SectionCard
-      title="Page Content"
-      subtitle="Text shown across the site, editable in English and Arabic"
+      title={t("contentTitle")}
+      subtitle={t("contentSubtitle")}
       actions={
         <>
           {dirty && (
             <Button variant="ghost" onClick={load} disabled={saving}>
-              <RotateCcw className="w-3.5 h-3.5" /> Discard
+              <RotateCcw className="w-3.5 h-3.5" /> {t("discard")}
             </Button>
           )}
           <Button variant={dirty ? "primary" : "secondary"} onClick={saveAll} disabled={!dirty || saving}>
             {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-            Save Changes
+            {t("saveChanges")}
           </Button>
         </>
       }
@@ -145,7 +148,7 @@ export default function ContentTab() {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search page text..."
+          placeholder={t("searchPageText")}
           className="w-full bg-bg-primary border border-border-primary focus:border-brand-gold text-text-primary text-sm pl-9 pr-3 py-2.5 focus:outline-none placeholder-text-tertiary rounded-none"
         />
       </div>
@@ -161,7 +164,7 @@ export default function ContentTab() {
                 className="w-full flex items-center justify-between px-4 py-3 bg-bg-primary hover:bg-white/[0.02] transition-colors cursor-pointer"
               >
                 <span className="font-serif text-base text-text-primary uppercase tracking-wide">
-                  {section.title}
+                  {section.title[language]}
                 </span>
                 <ChevronDown
                   className={`w-4 h-4 text-brand-gold transition-transform ${isOpen ? "rotate-180" : ""}`}
@@ -177,12 +180,12 @@ export default function ContentTab() {
                         className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-4 border-b border-border-primary/60 last:border-0 last:pb-0"
                       >
                         <Input
-                          label={`${field.label} (EN)`}
+                          label={`${field.label[language]} (EN)`}
                           value={values[field.key]?.en ?? ""}
                           onChange={(e) => setText(field.key, "en", e.target.value)}
                         />
                         <Input
-                          label={`${field.label} (AR)`}
+                          label={`${field.label[language]} (AR)`}
                           dir="rtl"
                           value={values[field.key]?.ar ?? ""}
                           onChange={(e) => setText(field.key, "ar", e.target.value)}
@@ -197,7 +200,7 @@ export default function ContentTab() {
         })}
         {filteredSections.length === 0 && (
           <p className="text-sm text-text-tertiary italic text-center py-8">
-            No matching text found.
+            {t("noMatchingText")}
           </p>
         )}
       </div>
