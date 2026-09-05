@@ -699,6 +699,10 @@ export const CUSTOM_TOPPINGS = [
   },
 ];
 
+// Pristine copies captured before any dashboard overrides are applied below,
+// used by the dashboard's "Reset to Default" and export/import tooling.
+export const DEFAULT_MENU = structuredClone(INITIAL_MENU);
+
 export const EXTRAS_MENU = {
   snacks: [
     {
@@ -843,3 +847,29 @@ export const EXTRAS_MENU = {
     },
   ],
 };
+
+// Pristine copy captured before any dashboard overrides are applied below.
+export const DEFAULT_EXTRAS = structuredClone(EXTRAS_MENU);
+
+// Applies edits saved from the dashboard (fetched from /api/content by
+// main.jsx before the app renders). Mutating the exported arrays/objects in
+// place keeps every existing import of INITIAL_MENU pointed at the same
+// reference, so components don't need to know an override was applied.
+export function applyMenuOverride(menu) {
+  if (Array.isArray(menu) && menu.length) {
+    INITIAL_MENU.length = 0;
+    INITIAL_MENU.push(...menu);
+  }
+}
+
+// Same idea for EXTRAS_MENU (snacks + desserts).
+export function applyExtrasOverride(extras) {
+  if (Array.isArray(extras?.snacks)) {
+    EXTRAS_MENU.snacks.length = 0;
+    EXTRAS_MENU.snacks.push(...extras.snacks);
+  }
+  if (Array.isArray(extras?.desserts)) {
+    EXTRAS_MENU.desserts.length = 0;
+    EXTRAS_MENU.desserts.push(...extras.desserts);
+  }
+}

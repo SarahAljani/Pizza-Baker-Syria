@@ -6,8 +6,7 @@ import { useThemeLanguage } from "../context/ThemeLanguageContext";
 
 export default function ExtrasMenu({ onAddToCart, cart }) {
   const { t, isRtl, language } = useThemeLanguage();
-  const [selectedDrumstickSize, setSelectedDrumstickSize] =
-    useState("three_pcs"); // Default chicken drumsticks size
+  const [selectedSizes, setSelectedSizes] = useState({}); // { [itemId]: sizeKey }
   const [addedAlert, setAddedAlert] = useState(null);
 
   const handleAddClick = (item, size) => {
@@ -20,6 +19,17 @@ export default function ExtrasMenu({ onAddToCart, cart }) {
     const itemInCart = cart.find((c) => c.id === itemId && c.size === size);
     return itemInCart ? itemInCart.quantity : 0;
   };
+
+  // Any item can define an arbitrary set of price sizes (e.g. { standard },
+  // { small, large }, { three_pcs, six_pcs }) — read them from its own prices
+  // object instead of assuming a fixed shape.
+  const getSizeKeys = (item) => Object.keys(item.prices || {});
+  const getCurrentSize = (item) => {
+    const keys = getSizeKeys(item);
+    return selectedSizes[item.id] || keys[0] || "standard";
+  };
+  const setItemSize = (itemId, size) =>
+    setSelectedSizes((prev) => ({ ...prev, [itemId]: size }));
 
   return (
     <section
@@ -81,10 +91,9 @@ export default function ExtrasMenu({ onAddToCart, cart }) {
 
             <div className="grid grid-cols-1 gap-8">
               {EXTRAS_MENU.snacks.map((snack) => {
-                const isDrumsticks = snack.id === "snack-32";
-                const currentSize = isDrumsticks
-                  ? selectedDrumstickSize
-                  : "standard";
+                const sizeKeys = getSizeKeys(snack);
+                const hasMultipleSizes = sizeKeys.length > 1;
+                const currentSize = getCurrentSize(snack);
                 const currentPrice = snack.prices[currentSize];
                 const quantityInCart = getQuantityInCart(snack.id, currentSize);
 
@@ -126,37 +135,31 @@ export default function ExtrasMenu({ onAddToCart, cart }) {
                         </p>
                       </div>
 
-                      {/* If item has custom sizes (Chicken Drumsticks) */}
-                      {isDrumsticks && (
+                      {/* If item defines more than one price size */}
+                      {hasMultipleSizes && (
                         <div className="space-y-2 pt-2 border-t border-border-primary/60 text-start">
                           <span className="text-[9px] font-mono tracking-widest text-brand-gold block font-bold uppercase">
                             {isRtl ? "الكمية والقطع" : "PORTION SIZE"}
                           </span>
-                          <div className="grid grid-cols-2 gap-1.5">
-                            <button
-                              onClick={() =>
-                                setSelectedDrumstickSize("three_pcs")
-                              }
-                              className={`py-1 text-[9px] font-mono tracking-tighter transition-all cursor-pointer ${
-                                selectedDrumstickSize === "three_pcs"
-                                  ? "bg-brand-burgundy border border-brand-gold text-white font-bold"
-                                  : "bg-transparent border border-border-primary text-text-secondary hover:text-text-primary hover:bg-white/5"
-                              }`}
-                            >
-                              {t("three_pcs")} (400 SYP)
-                            </button>
-                            <button
-                              onClick={() =>
-                                setSelectedDrumstickSize("six_pcs")
-                              }
-                              className={`py-1 text-[9px] font-mono tracking-tighter transition-all cursor-pointer ${
-                                selectedDrumstickSize === "six_pcs"
-                                  ? "bg-brand-burgundy border border-brand-gold text-white font-bold"
-                                  : "bg-transparent border border-border-primary text-text-secondary hover:text-text-primary hover:bg-white/5"
-                              }`}
-                            >
-                              {t("six_pcs")} (700 SYP)
-                            </button>
+                          <div
+                            className="grid gap-1.5"
+                            style={{
+                              gridTemplateColumns: `repeat(${sizeKeys.length}, minmax(0, 1fr))`,
+                            }}
+                          >
+                            {sizeKeys.map((sizeKey) => (
+                              <button
+                                key={sizeKey}
+                                onClick={() => setItemSize(snack.id, sizeKey)}
+                                className={`py-1 text-[9px] font-mono tracking-tighter transition-all cursor-pointer ${
+                                  currentSize === sizeKey
+                                    ? "bg-brand-burgundy border border-brand-gold text-white font-bold"
+                                    : "bg-transparent border border-border-primary text-text-secondary hover:text-text-primary hover:bg-white/5"
+                                }`}
+                              >
+                                {t(sizeKey)} ({snack.prices[sizeKey]} SYP)
+                              </button>
+                            ))}
                           </div>
                         </div>
                       )}
@@ -230,7 +233,9 @@ export default function ExtrasMenu({ onAddToCart, cart }) {
 
             <div className="grid grid-cols-1 gap-8">
               {EXTRAS_MENU.desserts.map((dessert) => {
-                const currentSize = "standard";
+                const sizeKeys = getSizeKeys(dessert);
+                const hasMultipleSizes = sizeKeys.length > 1;
+                const currentSize = getCurrentSize(dessert);
                 const currentPrice = dessert.prices[currentSize];
                 const quantityInCart = getQuantityInCart(
                   dessert.id,
@@ -274,6 +279,35 @@ export default function ExtrasMenu({ onAddToCart, cart }) {
                           {t(`${dessert.translationKey}_desc`)}
                         </p>
                       </div>
+
+                      {/* If item defines more than one price size */}
+                      {hasMultipleSizes && (
+                        <div className="space-y-2 pt-2 border-t border-border-primary/60 text-start">
+                          <span className="text-[9px] font-mono tracking-widest text-brand-gold block font-bold uppercase">
+                            {isRtl ? "الكمية والقطع" : "PORTION SIZE"}
+                          </span>
+                          <div
+                            className="grid gap-1.5"
+                            style={{
+                              gridTemplateColumns: `repeat(${sizeKeys.length}, minmax(0, 1fr))`,
+                            }}
+                          >
+                            {sizeKeys.map((sizeKey) => (
+                              <button
+                                key={sizeKey}
+                                onClick={() => setItemSize(dessert.id, sizeKey)}
+                                className={`py-1 text-[9px] font-mono tracking-tighter transition-all cursor-pointer ${
+                                  currentSize === sizeKey
+                                    ? "bg-brand-burgundy border border-brand-gold text-white font-bold"
+                                    : "bg-transparent border border-border-primary text-text-secondary hover:text-text-primary hover:bg-white/5"
+                                }`}
+                              >
+                                {t(sizeKey)} ({dessert.prices[sizeKey]} SYP)
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
                       {/* Footer containing price and CTA */}
                       <div className="flex items-center justify-between pt-3 border-t border-border-primary/60">

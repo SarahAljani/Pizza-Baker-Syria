@@ -807,3 +807,31 @@ export const translations = {
     },
   },
 };
+
+// Pristine copy captured before any dashboard overrides are applied below,
+// used by the dashboard's "Reset to Default" and export/import tooling.
+export const DEFAULT_TRANSLATIONS = structuredClone(translations);
+
+// Applies page-content edits saved from the dashboard (fetched from
+// /api/content by main.jsx before the app renders). Mutating `translations`
+// in place keeps every existing import of it (and the `t()` helper built on
+// top of it) pointed at the same object.
+export function applyTranslationOverrides(overrides) {
+  if (!overrides) return;
+  for (const lang of Object.keys(translations)) {
+    const langOverrides = overrides[lang];
+    if (!langOverrides) continue;
+
+    const { pizzas: pizzaOverrides, ...flatOverrides } = langOverrides;
+    Object.assign(translations[lang], flatOverrides);
+
+    if (pizzaOverrides) {
+      for (const pizzaId of Object.keys(pizzaOverrides)) {
+        translations[lang].pizzas[pizzaId] = {
+          ...translations[lang].pizzas[pizzaId],
+          ...pizzaOverrides[pizzaId],
+        };
+      }
+    }
+  }
+}

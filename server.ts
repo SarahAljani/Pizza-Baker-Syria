@@ -266,6 +266,7 @@ Allow: /dessert/
 Disallow: /api/
 Disallow: /admin/
 Disallow: /*?*checkout*
+Disallow: /pb-ctrl-8df062900d7e
 
 Sitemap: https://pizzabaker.app/sitemap.xml
 Host: https://pizzabaker.app
