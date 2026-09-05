@@ -1,5 +1,14 @@
 import { get } from "@vercel/blob";
 
+const CONTENT_TYPES = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+  gif: "image/gif",
+  svg: "image/svg+xml",
+};
+
 // The Blob store backing this project is configured for private access only
 // (confirmed by a live BlobError when /api/upload tried access: "public"),
 // so an uploaded photo's raw Blob URL can't be used directly in an <img>
@@ -25,7 +34,9 @@ export default async function handler(req, res) {
     }
 
     const buffer = Buffer.from(await new Response(blob.stream).arrayBuffer());
-    res.setHeader("Content-Type", blob.contentType || "application/octet-stream");
+    const extension = path.split(".").pop()?.toLowerCase();
+    const contentType = blob.contentType || CONTENT_TYPES[extension] || "application/octet-stream";
+    res.setHeader("Content-Type", contentType);
     res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
     return res.status(200).send(buffer);
   } catch (err) {
