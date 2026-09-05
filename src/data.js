@@ -35,6 +35,9 @@ export const SITE_SETTINGS = {
       description:
         "المطعم الأرقى للبيتزا الإيطالية الفاخرة في سوريا. استمتع بأكثر من 30 صنف بيتزا حرارية، خبزة الثوم، دبابيس الدجاج، وحلويات نوتيلا فواكه وبستاشيو.",
     },
+    // Shown when the site link is shared (WhatsApp/Facebook/Twitter/Google).
+    ogImage:
+      "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&q=80&w=1200",
   },
 };
 

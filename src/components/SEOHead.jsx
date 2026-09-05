@@ -111,6 +111,16 @@ export default function SEOHead({ activeSection }) {
     let ogDesc = document.querySelector('meta[property="og:description"]');
     if (ogDesc) ogDesc.setAttribute("content", description);
 
+    const ogImageUrl = SITE_SETTINGS.seo.ogImage;
+    let ogImage = document.querySelector('meta[property="og:image"]');
+    if (ogImage) ogImage.setAttribute("content", ogImageUrl);
+    let twitterImage = document.querySelector('meta[name="twitter:image"]');
+    if (twitterImage) twitterImage.setAttribute("content", ogImageUrl);
+    let twitterTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twitterTitle) twitterTitle.setAttribute("content", title);
+    let twitterDesc = document.querySelector('meta[name="twitter:description"]');
+    if (twitterDesc) twitterDesc.setAttribute("content", description);
+
     // 6. Update Canonical URL
     let canonical = document.querySelector('link[rel="canonical"]');
     if (canonical) {

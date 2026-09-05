@@ -65,6 +65,9 @@ function mergeSettingsWithDefaults(settings) {
   if (settings?.sectionVisibility) Object.assign(merged.sectionVisibility, settings.sectionVisibility);
   if (settings?.seo?.en) Object.assign(merged.seo.en, settings.seo.en);
   if (settings?.seo?.ar) Object.assign(merged.seo.ar, settings.seo.ar);
+  if (typeof settings?.seo?.ogImage === "string" && settings.seo.ogImage) {
+    merged.seo.ogImage = settings.seo.ogImage;
+  }
   return merged;
 }
 

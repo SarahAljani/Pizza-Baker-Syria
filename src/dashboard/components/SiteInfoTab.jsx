@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Save, RotateCcw, Loader2 } from "lucide-react";
-import { loadAllContent, saveSettings } from "../storage";
-import { Button, Field, TextArea, SectionCard, useToast } from "../ui";
+import { loadAllContent, saveSettings, fileToCompressedDataUrl } from "../storage";
+import { Button, Field, TextArea, SectionCard, ImagePicker, useToast } from "../ui";
 
 const SECTION_LABELS = {
   menu: "Pizza Menu",
@@ -60,6 +60,20 @@ export default function SiteInfoTab() {
       seo: { ...prev.seo, [lang]: { ...prev.seo[lang], [key]: value } },
     }));
     setDirty(true);
+  };
+
+  const setOgImage = (value) => {
+    setSettings((prev) => ({ ...prev, seo: { ...prev.seo, ogImage: value } }));
+    setDirty(true);
+  };
+
+  const handleOgImageFile = async (file) => {
+    try {
+      const dataUrl = await fileToCompressedDataUrl(file, 1200, 0.8);
+      setOgImage(dataUrl);
+    } catch {
+      toast("Could not read that image file.", "error");
+    }
   };
 
   const saveAll = async () => {
@@ -195,6 +209,21 @@ export default function SiteInfoTab() {
             value={settings.seo.ar.description}
             onChange={(e) => setSeo("ar", "description", e.target.value)}
           />
+        </div>
+
+        <div className="mt-5">
+          <ImagePicker
+            label="Share / Social Preview Image"
+            value={settings.seo.ogImage}
+            onChange={setOgImage}
+            onFile={handleOgImageFile}
+          />
+          <p className="text-[10px] text-text-tertiary mt-2">
+            Shown as the thumbnail when the site link is shared. Updates
+            instantly for Google. WhatsApp, Facebook, and Twitter cache link
+            previews and only refresh them on the next deploy — a small delay
+            for those specifically is expected.
+          </p>
         </div>
       </SectionCard>
     </div>
