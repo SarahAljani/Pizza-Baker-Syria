@@ -7,6 +7,55 @@ export const IMAGES = {
   footerBg: footerBgImage,
 };
 
+// Site-wide settings editable from the dashboard: social links, the WhatsApp
+// number used for ordering, which sections are shown, and default SEO text.
+export const SITE_SETTINGS = {
+  socialLinks: {
+    facebook: "https://facebook.com",
+    instagram: "https://instagram.com",
+  },
+  whatsappNumber: "963983923768",
+  sectionVisibility: {
+    menu: true,
+    extras: true,
+    builder: true,
+    reservation: true,
+    reviews: false,
+  },
+  seo: {
+    en: {
+      title:
+        "Pizza Baker Syria | Premium Italian Oven-Baked Pizza, Snacks & Nutella Desserts",
+      description:
+        "Syria’s premier Italian pizzeria offering over 30 signature pizzas, garlic bread, chicken drumsticks, and Nutella desserts.",
+    },
+    ar: {
+      title:
+        "بيتزا بيكر سوريا | Pizza Baker Syria - أشهى بيتزا إيطالية حرارية ومقبلات وحلويات نوتيلا",
+      description:
+        "المطعم الأرقى للبيتزا الإيطالية الفاخرة في سوريا. استمتع بأكثر من 30 صنف بيتزا حرارية، خبزة الثوم، دبابيس الدجاج، وحلويات نوتيلا فواكه وبستاشيو.",
+    },
+  },
+};
+
+export const DEFAULT_SETTINGS = structuredClone(SITE_SETTINGS);
+
+export function applySettingsOverride(settings) {
+  if (!settings) return;
+  if (settings.socialLinks) {
+    Object.assign(SITE_SETTINGS.socialLinks, settings.socialLinks);
+  }
+  if (typeof settings.whatsappNumber === "string" && settings.whatsappNumber) {
+    SITE_SETTINGS.whatsappNumber = settings.whatsappNumber;
+  }
+  if (settings.sectionVisibility) {
+    Object.assign(SITE_SETTINGS.sectionVisibility, settings.sectionVisibility);
+  }
+  if (settings.seo) {
+    Object.assign(SITE_SETTINGS.seo, settings.seo);
+  }
+}
+
 export const INITIAL_MENU = [
   {
     id: "pizza-1",

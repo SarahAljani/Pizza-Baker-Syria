@@ -2,14 +2,14 @@
 // function backed by Vercel Blob storage — see api/content.js. There's no
 // database: three JSON files (menu, extras, translations) are read/written
 // wholesale. Reads are public; writes require the session token from login.
-import { DEFAULT_MENU, DEFAULT_EXTRAS } from "../data";
+import { DEFAULT_MENU, DEFAULT_EXTRAS, DEFAULT_SETTINGS } from "../data";
 import { DEFAULT_TRANSLATIONS } from "../translations";
 import { getSessionToken } from "./useDashboardAuth";
 
 async function apiGetAll() {
   const res = await fetch("/api/content");
   if (!res.ok) throw new Error(`Failed to load content (${res.status})`);
-  return res.json(); // { menu, extras, translations }
+  return res.json(); // { menu, extras, translations, settings }
 }
 
 async function apiPut(key, value) {
@@ -44,7 +44,7 @@ async function apiDelete(key) {
 // { menu, extras, translationOverrides } — each already falls back to the
 // site's built-in defaults if nothing has been saved yet.
 export async function loadAllContent() {
-  const { menu, extras, translations } = await apiGetAll();
+  const { menu, extras, translations, settings } = await apiGetAll();
   return {
     menu: Array.isArray(menu) && menu.length ? menu : structuredClone(DEFAULT_MENU),
     extras:
@@ -52,7 +52,20 @@ export async function loadAllContent() {
         ? extras
         : structuredClone(DEFAULT_EXTRAS),
     translationOverrides: translations && typeof translations === "object" ? translations : { en: {}, ar: {} },
+    settings: mergeSettingsWithDefaults(settings),
   };
+}
+
+function mergeSettingsWithDefaults(settings) {
+  const merged = structuredClone(DEFAULT_SETTINGS);
+  if (settings?.socialLinks) Object.assign(merged.socialLinks, settings.socialLinks);
+  if (typeof settings?.whatsappNumber === "string" && settings.whatsappNumber) {
+    merged.whatsappNumber = settings.whatsappNumber;
+  }
+  if (settings?.sectionVisibility) Object.assign(merged.sectionVisibility, settings.sectionVisibility);
+  if (settings?.seo?.en) Object.assign(merged.seo.en, settings.seo.en);
+  if (settings?.seo?.ar) Object.assign(merged.seo.ar, settings.seo.ar);
+  return merged;
 }
 
 export async function saveMenu(menuArray) {
@@ -65,6 +78,10 @@ export async function saveExtras(extrasObj) {
 
 export async function saveTranslationOverrides(overrides) {
   await apiPut("translations", overrides);
+}
+
+export async function saveSettings(settingsObj) {
+  await apiPut("settings", settingsObj);
 }
 
 // Pure helpers for reading effective (override-aware) text out of an
@@ -101,12 +118,13 @@ export function mergePizzaPatch(translationOverrides, lang, pizzaId, patch) {
   return translationOverrides;
 }
 
-export function exportBackup({ menu, extras, translationOverrides }) {
+export function exportBackup({ menu, extras, translationOverrides, settings }) {
   return {
     exportedAt: new Date().toISOString(),
     menu,
     extras,
     translations: translationOverrides,
+    settings,
   };
 }
 
@@ -127,10 +145,16 @@ export async function importBackup(json) {
   if (json.menu) await apiPut("menu", json.menu);
   if (json.extras) await apiPut("extras", json.extras);
   if (json.translations) await apiPut("translations", json.translations);
+  if (json.settings) await apiPut("settings", json.settings);
 }
 
 export async function resetAllDashboardData() {
-  await Promise.all([apiDelete("menu"), apiDelete("extras"), apiDelete("translations")]);
+  await Promise.all([
+    apiDelete("menu"),
+    apiDelete("extras"),
+    apiDelete("translations"),
+    apiDelete("settings"),
+  ]);
 }
 
 // Compresses/resizes an uploaded image file client-side and returns a data

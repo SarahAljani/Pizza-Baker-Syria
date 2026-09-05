@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useThemeLanguage } from "../context/ThemeLanguageContext";
+import { SITE_SETTINGS } from "../data";
 
 export default function SEOHead({ activeSection }) {
   const { language, isRtl } = useThemeLanguage();
@@ -47,10 +48,8 @@ export default function SEOHead({ activeSection }) {
             "اقرأ آراء عشاق البيتزا والعملاء في سوريا حول تجربة مطعم بيتزا بيكر وتقييمات الوجبات والخدمة الفائقة.";
           break;
         default:
-          title =
-            "بيتزا بيكر سوريا | Pizza Baker Syria - أشهى بيتزا إيطالية حرارية ومقبلات وحلويات نوتيلا";
-          description =
-            "المطعم الأرقى للبيتزا الإيطالية الفاخرة في سوريا. استمتع بأكثر من 30 صنف بيتزا حرارية، خبزة الثوم، دبابيس الدجاج، وحلويات نوتيلا فواكه وبستاشيو.";
+          title = SITE_SETTINGS.seo.ar.title;
+          description = SITE_SETTINGS.seo.ar.description;
           break;
       }
     } else {
@@ -87,10 +86,8 @@ export default function SEOHead({ activeSection }) {
             "Read verified reviews and testimonials from pizza lovers about our food quality and service.";
           break;
         default:
-          title =
-            "Pizza Baker Syria | Premium Italian Oven-Baked Pizza, Snacks & Nutella Desserts";
-          description =
-            "Syria’s premier Italian pizzeria offering over 30 signature pizzas, garlic bread, chicken drumsticks, and Nutella desserts.";
+          title = SITE_SETTINGS.seo.en.title;
+          description = SITE_SETTINGS.seo.en.description;
           break;
       }
     }

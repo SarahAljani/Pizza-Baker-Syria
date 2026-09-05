@@ -10,6 +10,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useThemeLanguage } from "../context/ThemeLanguageContext";
+import { SITE_SETTINGS } from "../data";
 import {
   generateRecaptchaToken,
   getCachedCSRFToken,
@@ -69,6 +70,9 @@ export default function CartDrawer({
             messageText += `    - ${top}\n`;
           });
         }
+        if (item.excludedIngredients && item.excludedIngredients.length > 0) {
+          messageText += `   بدون: ${item.excludedIngredients.join("، ")}\n`;
+        }
         messageText += `\n`;
       });
       messageText += `*القيمة الإجمالية للطلب:* ${total} ل.س\n`;
@@ -108,6 +112,9 @@ export default function CartDrawer({
             messageText += `    - ${top}\n`;
           });
         }
+        if (item.excludedIngredients && item.excludedIngredients.length > 0) {
+          messageText += `   Without: ${item.excludedIngredients.join(", ")}\n`;
+        }
         messageText += `\n`;
       });
       messageText += `*Total Order Value:* ${total} SYP\n`;
@@ -120,8 +127,7 @@ export default function CartDrawer({
     }
 
     const encodedText = encodeURIComponent(messageText);
-    // Syrian WhatsApp number provided: 0939333189 -> International format: 963939333189
-    const whatsappUrl = `https://api.whatsapp.com/send?phone=963983923768&text=${encodedText}`;
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${SITE_SETTINGS.whatsappNumber}&text=${encodedText}`;
 
     // Switch step to success
     setCheckoutStep("success");
@@ -204,7 +210,7 @@ export default function CartDrawer({
                     <div className="space-y-6">
                       {cart.map((item) => (
                         <div
-                          key={`${item.id}-${item.size}`}
+                          key={item.lineKey}
                           className="flex items-start justify-between border-b border-border-primary pb-5 last:border-0 last:pb-0 transition-colors"
                         >
                           <div className="space-y-1.5 flex-1 pr-4 pl-4 text-start">
@@ -244,6 +250,25 @@ export default function CartDrawer({
                                 </div>
                               )}
 
+                            {/* Removed ingredients for a customized pizza */}
+                            {item.excludedIngredients &&
+                              item.excludedIngredients.length > 0 && (
+                                <div className="bg-bg-primary border border-border-primary p-2 rounded text-[10px] text-text-secondary font-mono space-y-0.5 transition-colors">
+                                  <span className="text-text-tertiary block uppercase font-bold mb-1">
+                                    {isRtl ? "بدون" : "Without"}:
+                                  </span>
+                                  {item.excludedIngredients.map((ing, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="flex items-center gap-1"
+                                    >
+                                      <span className="text-red-400">×</span>
+                                      <span>{ing}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
                             <span className="font-mono text-xs text-brand-gold font-bold block">
                               {item.price} {isRtl ? "ل.س" : "SYP"}{" "}
                               {isRtl ? "للوحدة" : "each"}
@@ -254,10 +279,10 @@ export default function CartDrawer({
                           <div className="flex flex-col items-end gap-2.5">
                             <div className="flex items-center border border-border-primary bg-bg-primary transition-colors">
                               <button
-                                id={`btn-cart-minus-${item.id}-${item.size}`}
+                                id={`btn-cart-minus-${item.lineKey}`}
                                 aria-label="Decrease quantity"
                                 onClick={() =>
-                                  onUpdateQuantity(item.id, item.size, -1)
+                                  onUpdateQuantity(item.lineKey, -1)
                                 }
                                 className="px-2 py-1.5 text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
                               >
@@ -267,10 +292,10 @@ export default function CartDrawer({
                                 {item.quantity}
                               </span>
                               <button
-                                id={`btn-cart-plus-${item.id}-${item.size}`}
+                                id={`btn-cart-plus-${item.lineKey}`}
                                 aria-label="Increase quantity"
                                 onClick={() =>
-                                  onUpdateQuantity(item.id, item.size, 1)
+                                  onUpdateQuantity(item.lineKey, 1)
                                 }
                                 className="px-2 py-1.5 text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
                               >
@@ -279,8 +304,8 @@ export default function CartDrawer({
                             </div>
 
                             <button
-                              id={`btn-cart-remove-${item.id}-${item.size}`}
-                              onClick={() => onRemoveItem(item.id, item.size)}
+                              id={`btn-cart-remove-${item.lineKey}`}
+                              onClick={() => onRemoveItem(item.lineKey)}
                               className="text-[10px] font-mono text-text-tertiary hover:text-red-400 flex items-center gap-1 transition-colors cursor-pointer"
                             >
                               <Trash2 className="w-3 h-3" />
@@ -325,7 +350,7 @@ export default function CartDrawer({
 
                     {cart.map((item) => (
                       <div
-                        key={`${item.id}-${item.size}`}
+                        key={item.lineKey}
                         className="flex justify-between"
                       >
                         <span>

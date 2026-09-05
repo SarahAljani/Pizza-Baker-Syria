@@ -1,5 +1,5 @@
 import { Facebook, Instagram, MessageCircle, ShieldCheck } from "lucide-react";
-import { IMAGES } from "../data";
+import { IMAGES, SITE_SETTINGS } from "../data";
 import { useThemeLanguage } from "../context/ThemeLanguageContext";
 
 export default function Footer({
@@ -8,14 +8,18 @@ export default function Footer({
   onOpenSecurity,
 }) {
   const { t, isRtl } = useThemeLanguage();
+  const { sectionVisibility } = SITE_SETTINGS;
 
   const footerLinks = [
     { labelKey: "home", section: "hero" },
-    { labelKey: "menu", section: "menu" },
-    { labelKey: "builder", section: "builder" },
-    { labelKey: "reviews", section: "reviews" },
-    { labelKey: "bookTable", section: "reservation" },
-  ];
+    sectionVisibility.menu && { labelKey: "menu", section: "menu" },
+    sectionVisibility.builder && { labelKey: "builder", section: "builder" },
+    sectionVisibility.reviews && { labelKey: "reviews", section: "reviews" },
+    sectionVisibility.reservation && {
+      labelKey: "bookTable",
+      section: "reservation",
+    },
+  ].filter(Boolean);
 
   const handleLinkClick = (sectionId) => {
     if (sectionId === "reservation") {
@@ -72,7 +76,7 @@ export default function Footer({
         {/* Social Media icons */}
         <div className="flex items-center justify-center gap-4 mb-8">
           <a
-            href="https://facebook.com"
+            href={SITE_SETTINGS.socialLinks.facebook}
             id="footer-social-fb"
             target="_blank"
             rel="noopener noreferrer"
@@ -82,7 +86,7 @@ export default function Footer({
             <Facebook className="w-4 h-4 fill-current" strokeWidth={0} />
           </a>
           <a
-            href="https://instagram.com"
+            href={SITE_SETTINGS.socialLinks.instagram}
             id="footer-social-ig"
             target="_blank"
             rel="noopener noreferrer"
@@ -92,7 +96,7 @@ export default function Footer({
             <Instagram className="w-4 h-4" />
           </a>
           <a
-            href="https://wa.me/963983923768"
+            href={`https://wa.me/${SITE_SETTINGS.whatsappNumber}`}
             id="footer-social-wa"
             target="_blank"
             rel="noopener noreferrer"

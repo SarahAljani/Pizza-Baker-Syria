@@ -1,14 +1,16 @@
 import { useState } from "react";
-import { Pizza, IceCreamCone, FileText, Settings, LogOut, ExternalLink, ChefHat } from "lucide-react";
+import { Pizza, IceCreamCone, FileText, Globe, Settings, LogOut, ExternalLink, ChefHat } from "lucide-react";
 import PizzasTab from "./PizzasTab";
 import ExtrasTab from "./ExtrasTab";
 import ContentTab from "./ContentTab";
+import SiteInfoTab from "./SiteInfoTab";
 import SettingsTab from "./SettingsTab";
 
 const TABS = [
   { id: "pizzas", label: "Pizzas", icon: Pizza, Component: PizzasTab },
   { id: "extras", label: "Sides & Desserts", icon: IceCreamCone, Component: ExtrasTab },
   { id: "content", label: "Page Content", icon: FileText, Component: ContentTab },
+  { id: "siteInfo", label: "Site Info", icon: Globe, Component: SiteInfoTab },
   { id: "settings", label: "Settings", icon: Settings, Component: SettingsTab },
 ];
 

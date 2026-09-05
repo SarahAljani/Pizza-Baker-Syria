@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useThemeLanguage } from "../context/ThemeLanguageContext";
+import { SITE_SETTINGS } from "../data";
 
 export default function Navbar({
   cart,
@@ -36,14 +37,15 @@ export default function Navbar({
 
   const totalCartItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
+  const { sectionVisibility } = SITE_SETTINGS;
   const navLinks = [
     { id: "hero", label: t("home") },
-    { id: "menu", label: t("menu") },
-    { id: "extras", label: t("extras") },
-    { id: "builder", label: t("builder") },
-    { id: "reviews", label: t("reviews") },
-    { id: "reservation", label: t("bookTable") },
-  ];
+    sectionVisibility.menu && { id: "menu", label: t("menu") },
+    sectionVisibility.extras && { id: "extras", label: t("extras") },
+    sectionVisibility.builder && { id: "builder", label: t("builder") },
+    sectionVisibility.reviews && { id: "reviews", label: t("reviews") },
+    sectionVisibility.reservation && { id: "reservation", label: t("bookTable") },
+  ].filter(Boolean);
 
   const handleLinkClick = (id) => {
     setIsMobileMenuOpen(false);
@@ -128,7 +130,7 @@ export default function Navbar({
               {/* Social Media Links */}
               <div className="flex items-center gap-3 border-l border-border-primary pl-4">
                 <a
-                  href="https://facebook.com"
+                  href={SITE_SETTINGS.socialLinks.facebook}
                   id="header-social-fb"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -139,7 +141,7 @@ export default function Navbar({
                   <Facebook className="w-4 h-4 fill-current" strokeWidth={0} />
                 </a>
                 <a
-                  href="https://instagram.com"
+                  href={SITE_SETTINGS.socialLinks.instagram}
                   id="header-social-ig"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -294,7 +296,7 @@ export default function Navbar({
               {/* Mobile Social Icons */}
               <div className="flex items-center justify-center gap-6 py-2">
                 <a
-                  href="https://facebook.com"
+                  href={SITE_SETTINGS.socialLinks.facebook}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Facebook"
@@ -306,7 +308,7 @@ export default function Navbar({
                   />
                 </a>
                 <a
-                  href="https://instagram.com"
+                  href={SITE_SETTINGS.socialLinks.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Instagram"

@@ -1,8 +1,17 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ShoppingCart, Check, Flame, User, Users, Search } from "lucide-react";
+import {
+  ShoppingCart,
+  Check,
+  Flame,
+  User,
+  Users,
+  Search,
+  Eye,
+} from "lucide-react";
 import { INITIAL_MENU } from "../data";
 import { useThemeLanguage } from "../context/ThemeLanguageContext";
+import PizzaDetailModal from "./PizzaDetailModal";
 
 function PizzaCardImage({ pizza, altText }) {
   // Both pizza.image and pizza.hoverImage are editable from the dashboard.
@@ -39,11 +48,12 @@ function PizzaCardImage({ pizza, altText }) {
   );
 }
 
-export default function PizzaMenu({ onAddToCart, cart }) {
+export default function PizzaMenu({ onAddToCart, onAddCustomizedToCart, cart }) {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedSizes, setSelectedSizes] = useState({}); // { [pizzaId]: 'small' | 'medium' | 'large' }
   const [addedAlert, setAddedAlert] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [viewingPizza, setViewingPizza] = useState(null);
   const { t, isRtl, language } = useThemeLanguage();
 
   // Categories mapper
@@ -71,7 +81,11 @@ export default function PizzaMenu({ onAddToCart, cart }) {
   };
 
   const getQuantityInCart = (pizzaId, size) => {
-    const item = cart.find((c) => c.id === pizzaId && c.size === size);
+    // Only counts the plain (non-customized) line — a pizza added via the
+    // detail popup with ingredients removed is tracked as its own cart line.
+    const item = cart.find(
+      (c) => c.id === pizzaId && c.size === size && !c.excludedIngredients?.length,
+    );
     return item ? item.quantity : 0;
   };
 
@@ -406,7 +420,16 @@ export default function PizzaMenu({ onAddToCart, cart }) {
                         </span>
                       </div>
 
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center gap-2">
+                        <button
+                          id={`btn-view-menu-${pizza.id}`}
+                          onClick={() => setViewingPizza(pizza)}
+                          aria-label={isRtl ? "عرض التفاصيل" : "View details"}
+                          title={isRtl ? "عرض التفاصيل" : "View details"}
+                          className="border border-border-primary hover:border-brand-gold text-text-secondary hover:text-brand-gold p-2 transition-all rounded-none cursor-pointer active:scale-95"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
                         <button
                           id={`btn-add-menu-${pizza.id}`}
                           onClick={() => handleAddClick(pizza, currentSize)}
@@ -445,6 +468,18 @@ export default function PizzaMenu({ onAddToCart, cart }) {
           </AnimatePresence>
         </div>
       </div>
+
+      {viewingPizza && (
+        <PizzaDetailModal
+          pizza={viewingPizza}
+          onClose={() => setViewingPizza(null)}
+          onAddToCart={(pizza, size, excludedIngredients) => {
+            onAddCustomizedToCart(pizza, size, excludedIngredients);
+            setAddedAlert(pizza.id);
+            setTimeout(() => setAddedAlert(null), 2000);
+          }}
+        />
+      )}
     </section>
   );
 }

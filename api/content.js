@@ -5,6 +5,7 @@ const KEYS = {
   menu: "pbdash/menu.json",
   extras: "pbdash/extras.json",
   translations: "pbdash/translations.json",
+  settings: "pbdash/settings.json",
 };
 
 export default async function handler(req, res) {
@@ -19,13 +20,14 @@ export default async function handler(req, res) {
         return res.status(200).json({ value });
       }
 
-      const [menu, extras, translations] = await Promise.all([
+      const [menu, extras, translations, settings] = await Promise.all([
         readJson(KEYS.menu),
         readJson(KEYS.extras),
         readJson(KEYS.translations),
+        readJson(KEYS.settings),
       ]);
       res.setHeader("Cache-Control", "no-store");
-      return res.status(200).json({ menu, extras, translations });
+      return res.status(200).json({ menu, extras, translations, settings });
     } catch (err) {
       console.error("content GET failed", err);
       return res.status(500).json({ error: "Failed to load content" });

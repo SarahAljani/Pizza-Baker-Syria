@@ -11,12 +11,23 @@ import Footer from "./components/Footer";
 import SecurityShieldModal from "./components/SecurityShieldModal";
 import SEOHead from "./components/SEOHead";
 import { SecurityErrorBoundary } from "./components/SecurityErrorBoundary";
+import { SITE_SETTINGS } from "./data";
 import {
   secureStorage,
   initConsoleSecurityWarning,
   enforceFrameSecurity,
   fetchCSRFToken,
 } from "./utils/securityUtils";
+
+// Identifies a cart line: same id+size merges quantity, but a pizza with
+// different removed ingredients is kept as its own separate line.
+function getLineKey(id, size, excludedIngredients) {
+  const suffix =
+    excludedIngredients && excludedIngredients.length
+      ? `|excl:${[...excludedIngredients].sort().join(",")}`
+      : "";
+  return `${id}|${size}${suffix}`;
+}
 
 export default function App() {
   const [cart, setCart] = useState([]);
@@ -30,16 +41,25 @@ export default function App() {
     enforceFrameSecurity();
     fetchCSRFToken();
 
+    // Carts saved before lineKey existed won't have one — backfill so
+    // quantity/remove buttons keep working for anything already in a cart.
+    const withLineKeys = (items) =>
+      items.map((item) =>
+        item.lineKey
+          ? item
+          : { ...item, lineKey: getLineKey(item.id, item.size, item.excludedIngredients) },
+      );
+
     // Load encrypted cart from secure storage
     const savedCart = secureStorage.getItem("pizzabaker_cart");
     if (savedCart && Array.isArray(savedCart)) {
-      setCart(savedCart);
+      setCart(withLineKeys(savedCart));
     } else {
       // Backward compatibility check for plain local storage
       const plainSaved = localStorage.getItem("pizzabaker_cart");
       if (plainSaved) {
         try {
-          const parsed = JSON.parse(plainSaved);
+          const parsed = withLineKeys(JSON.parse(plainSaved));
           setCart(parsed);
           secureStorage.setItem("pizzabaker_cart", parsed);
           localStorage.removeItem("pizzabaker_cart");
@@ -56,11 +76,10 @@ export default function App() {
     secureStorage.setItem("pizzabaker_cart", updatedCart);
   };
 
-  // Add standard menu item to cart
+  // Add standard menu item to cart (no ingredient customization)
   const handleAddToCart = (item, size) => {
-    const existingIndex = cart.findIndex(
-      (c) => c.id === item.id && c.size === size,
-    );
+    const lineKey = getLineKey(item.id, size);
+    const existingIndex = cart.findIndex((c) => c.lineKey === lineKey);
 
     // Support custom/standard sizes for pizzas and extras
     const itemPrice =
@@ -80,6 +99,35 @@ export default function App() {
         size,
         price: itemPrice,
         quantity: 1,
+        lineKey,
+      };
+      saveCart([...cart, newItem]);
+    }
+  };
+
+  // Add a pizza to cart from the detail popup, with any unwanted ingredients
+  // unchecked — kept as its own cart line so it never merges with a plain add.
+  const handleAddPizzaWithExclusions = (pizza, size, excludedIngredients) => {
+    const lineKey = getLineKey(pizza.id, size, excludedIngredients);
+    const existingIndex = cart.findIndex((c) => c.lineKey === lineKey);
+    const itemPrice = pizza.prices[size] ?? pizza.prices.medium ?? 0;
+
+    if (existingIndex > -1) {
+      const updated = [...cart];
+      updated[existingIndex].quantity += 1;
+      saveCart(updated);
+    } else {
+      const newItem = {
+        id: pizza.id,
+        name: pizza.name,
+        size,
+        price: itemPrice,
+        quantity: 1,
+        lineKey,
+        excludedIngredients:
+          excludedIngredients && excludedIngredients.length
+            ? excludedIngredients
+            : undefined,
       };
       saveCart([...cart, newItem]);
     }
@@ -96,14 +144,15 @@ export default function App() {
       quantity: 1,
       customToppings: customPizza.toppings,
       isCustom: true,
+      lineKey: getLineKey(customId, customPizza.size),
     };
     saveCart([...cart, newItem]);
     setIsCartOpen(true);
   };
 
   // Update item quantity inside cart drawer
-  const handleUpdateQuantity = (id, size, delta) => {
-    const index = cart.findIndex((c) => c.id === id && c.size === size);
+  const handleUpdateQuantity = (lineKey, delta) => {
+    const index = cart.findIndex((c) => c.lineKey === lineKey);
     if (index > -1) {
       const updated = [...cart];
       updated[index].quantity += delta;
@@ -115,8 +164,8 @@ export default function App() {
   };
 
   // Remove single item from cart
-  const handleRemoveItem = (id, size) => {
-    const filtered = cart.filter((c) => !(c.id === id && c.size === size));
+  const handleRemoveItem = (lineKey) => {
+    const filtered = cart.filter((c) => c.lineKey !== lineKey);
     saveCart(filtered);
   };
 
@@ -197,19 +246,31 @@ export default function App() {
           />
 
           {/* Pizza Menu Section */}
-          <PizzaMenu onAddToCart={handleAddToCart} cart={cart} />
+          {SITE_SETTINGS.sectionVisibility.menu && (
+            <PizzaMenu
+              onAddToCart={handleAddToCart}
+              onAddCustomizedToCart={handleAddPizzaWithExclusions}
+              cart={cart}
+            />
+          )}
 
           {/* Snacks & Dessert Section */}
-          <ExtrasMenu onAddToCart={handleAddToCart} cart={cart} />
+          {SITE_SETTINGS.sectionVisibility.extras && (
+            <ExtrasMenu onAddToCart={handleAddToCart} cart={cart} />
+          )}
 
           {/* Visual Pizza Builder */}
-          <PizzaBuilder onAddCustomToCart={handleAddCustomToCart} />
+          {SITE_SETTINGS.sectionVisibility.builder && (
+            <PizzaBuilder onAddCustomToCart={handleAddCustomToCart} />
+          )}
 
           {/* Table Reservation Desk */}
-          <ReservationSection />
+          {SITE_SETTINGS.sectionVisibility.reservation && (
+            <ReservationSection />
+          )}
 
-          {/* Reviews Explorer with persistence
-          <ReviewsSection /> */}
+          {/* Reviews Explorer with persistence */}
+          {SITE_SETTINGS.sectionVisibility.reviews && <ReviewsSection />}
         </main>
 
         {/* Footer */}
