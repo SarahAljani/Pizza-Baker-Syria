@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   MapPin,
   Loader2,
+  AlertTriangle,
 } from "lucide-react";
 import { useThemeLanguage } from "../context/ThemeLanguageContext";
 import { SITE_SETTINGS } from "../data";
@@ -17,7 +18,7 @@ import {
   generateRecaptchaToken,
   getCachedCSRFToken,
 } from "../utils/securityUtils";
-import { getUserLocationLink } from "../utils/geolocation";
+import { requestUserLocation } from "../utils/geolocation";
 
 export default function CartDrawer({
   isOpen,
@@ -29,7 +30,27 @@ export default function CartDrawer({
 }) {
   const [checkoutStep, setCheckoutStep] = useState("cart");
   const [gettingLocation, setGettingLocation] = useState(false);
+  const [locationErrorReason, setLocationErrorReason] = useState(null);
   const { t, isRtl, language } = useThemeLanguage();
+
+  const LOCATION_ERROR_MESSAGES = {
+    denied: {
+      en: "Location access was blocked. Please allow location for this site in your browser's site settings, then tap Checkout again.",
+      ar: "تم حظر الوصول إلى الموقع. الرجاء السماح بالوصول للموقع من إعدادات المتصفح، ثم اضغط على إتمام الطلب مرة أخرى.",
+    },
+    timeout: {
+      en: "Couldn't get your location in time. Please check that Location Services are turned on for your device and browser, then try again.",
+      ar: "تعذر تحديد موقعك في الوقت المناسب. الرجاء التأكد من تفعيل خدمة الموقع (Location Services) على جهازك والمتصفح، ثم حاول مرة أخرى.",
+    },
+    unavailable: {
+      en: "Couldn't determine your location. Please check that Location Services are turned on for your device and browser, then try again.",
+      ar: "تعذر تحديد موقعك. الرجاء التأكد من تفعيل خدمة الموقع (Location Services) على جهازك والمتصفح، ثم حاول مرة أخرى.",
+    },
+    unsupported: {
+      en: "Your browser doesn't support sharing location, so we can't place this order here. Please try a different browser.",
+      ar: "متصفحك لا يدعم مشاركة الموقع، لذا لا يمكن إتمام الطلب من هنا. الرجاء تجربة متصفح آخر.",
+    },
+  };
 
   const subtotal = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -39,22 +60,31 @@ export default function CartDrawer({
   const total = subtotal + deliveryFee;
 
   const handleCheckout = async () => {
+    setLocationErrorReason(null);
+
     // Open the tab synchronously (within the click gesture) so it isn't
     // blocked as a popup once we `await` geolocation below; we navigate it
-    // to the real WhatsApp URL once the message is ready.
+    // to the real WhatsApp URL once the message is ready, or close it again
+    // if location turns out to be unavailable.
     const whatsappWindow = window.open("", "_blank");
 
     setGettingLocation(true);
-    const locationLink = await getUserLocationLink();
+    const locationResult = await requestUserLocation();
     setGettingLocation(false);
+
+    if (!locationResult.success) {
+      whatsappWindow?.close();
+      setLocationErrorReason(locationResult.reason);
+      return;
+    }
+
+    const locationLink = locationResult.link;
 
     // Construct WhatsApp message content
     let messageText = "";
     if (language === "ar") {
       messageText = `مرحباً بيتزا بيكر! أود تقديم طلب بيتزا مميز (التركيز على المكونات الطازجة والصلصات المدهشة):\n\n`;
-      messageText += locationLink
-        ? `📍 *الموقع:* ${locationLink}\n\n`
-        : `📍 *الموقع:* لم تتم مشاركته — الرجاء سؤال الزبون عن عنوان التوصيل\n\n`;
+      messageText += `📍 *الموقع:* ${locationLink}\n\n`;
       cart.forEach((item, index) => {
         const itemSize =
           item.size === "small"
@@ -100,9 +130,7 @@ export default function CartDrawer({
       messageText += `\nالرجاء تأكيد الطلب والبدء في إعداد رحلة البيتزا الاستثنائية من الصفر فوراً! شكراً لكم!`;
     } else {
       messageText = `Hello Pizza Baker! I would like to place a new signature pizza order featuring premium ingredients and rich sauces:\n\n`;
-      messageText += locationLink
-        ? `📍 *Location:* ${locationLink}\n\n`
-        : `📍 *Location:* not shared — please ask the customer for the delivery address\n\n`;
+      messageText += `📍 *Location:* ${locationLink}\n\n`;
       cart.forEach((item, index) => {
         const itemSize =
           item.size === "small"
@@ -509,12 +537,19 @@ export default function CartDrawer({
                     )}
                   </button>
 
+                  {locationErrorReason && (
+                    <div className="flex items-start gap-2 text-red-400 text-[11px] font-sans leading-relaxed bg-red-950/40 border border-red-900/60 px-3 py-2.5">
+                      <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                      <span>{LOCATION_ERROR_MESSAGES[locationErrorReason][language]}</span>
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-center gap-1.5 text-[10px] font-mono text-text-tertiary">
                     <MapPin className="w-3.5 h-3.5 text-brand-gold flex-shrink-0" />
                     <span>
                       {isRtl
-                        ? "سنطلب موقعك لمساعدتنا في إيصال طلبك بسرعة أكبر"
-                        : "We'll ask for your location to help deliver your order faster"}
+                        ? "موقعك مطلوب لإتمام الطلب عبر الواتساب"
+                        : "Your location is required to complete the order via WhatsApp"}
                     </span>
                   </div>
 
