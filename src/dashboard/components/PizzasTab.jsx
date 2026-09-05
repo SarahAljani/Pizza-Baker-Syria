@@ -6,7 +6,8 @@ import {
   saveTranslationOverrides,
   getEffectivePizzaText,
   mergePizzaPatch,
-  fileToCompressedDataUrl as compressImage,
+  uploadImageFile,
+  migrateEmbeddedImage,
 } from "../storage";
 import {
   Button,
@@ -55,6 +56,28 @@ function buildEditModel(pizza, translationOverrides) {
   };
 }
 
+function toMenuItem(p) {
+  return {
+    id: p.id,
+    number: Number(p.number) || 0,
+    name: p.nameEn,
+    description: p.descEn,
+    ingredients: p.ingredients
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean),
+    category: p.category,
+    prices: {
+      small: Number(p.prices.small) || 0,
+      medium: Number(p.prices.medium) || 0,
+      large: Number(p.prices.large) || 0,
+      thin: Number(p.prices.thin) || 0,
+    },
+    image: p.image,
+    hoverImage: p.hoverImage,
+  };
+}
+
 function emptyPizza(nextNumber) {
   return {
     id: `pizza-${Date.now()}`,
@@ -89,13 +112,48 @@ export default function PizzasTab() {
     setLoading(true);
     setLoadError(null);
     loadAllContent()
-      .then(({ menu, translationOverrides: overrides }) => {
+      .then(async ({ menu, translationOverrides: overrides }) => {
         setTranslationOverrides(overrides);
-        setPizzas(menu.map((p) => buildEditModel(p, overrides)));
+        const models = menu.map((p) => buildEditModel(p, overrides));
+        setPizzas(models);
         setDirty(false);
+        setLoading(false);
+
+        // One-time cleanup: pizzas saved before uploads went through Blob
+        // storage may still have images embedded as base64 data URLs —
+        // that's what makes the whole menu too large to save. Migrate any
+        // still-embedded images to hosted URLs and persist the fix
+        // automatically, so saving isn't blocked waiting on a manual re-edit.
+        let migrated = false;
+        for (const p of models) {
+          const [newImage, newHover] = await Promise.all([
+            migrateEmbeddedImage(p.image),
+            migrateEmbeddedImage(p.hoverImage),
+          ]);
+          if (newImage !== p.image) {
+            p.image = newImage;
+            migrated = true;
+          }
+          if (newHover !== p.hoverImage) {
+            p.hoverImage = newHover;
+            migrated = true;
+          }
+        }
+
+        if (migrated) {
+          setPizzas([...models]);
+          try {
+            await saveMenu(models.map(toMenuItem));
+            toast(t("imagesOptimized"));
+          } catch (err) {
+            toast(err.message || t("couldntSave"), "error");
+          }
+        }
       })
-      .catch((err) => setLoadError(err.message))
-      .finally(() => setLoading(false));
+      .catch((err) => {
+        setLoadError(err.message);
+        setLoading(false);
+      });
   };
 
   useEffect(load, []);
@@ -144,25 +202,7 @@ export default function PizzasTab() {
   const saveAll = async () => {
     setSaving(true);
     try {
-      const newMenu = pizzas.map((p) => ({
-        id: p.id,
-        number: Number(p.number) || 0,
-        name: p.nameEn,
-        description: p.descEn,
-        ingredients: p.ingredients
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
-        category: p.category,
-        prices: {
-          small: Number(p.prices.small) || 0,
-          medium: Number(p.prices.medium) || 0,
-          large: Number(p.prices.large) || 0,
-          thin: Number(p.prices.thin) || 0,
-        },
-        image: p.image,
-        hoverImage: p.hoverImage,
-      }));
+      const newMenu = pizzas.map(toMenuItem);
 
       // Re-fetch the shared translations blob right before merging, so a
       // save here doesn't clobber edits made concurrently from another tab.
@@ -343,6 +383,8 @@ export default function PizzasTab() {
 function PizzaFormModal({ model, isNew, onClose, onSave }) {
   const { t } = useDashboardLanguage();
   const [form, setForm] = useState(model);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingHover, setUploadingHover] = useState(false);
   const toast = useToast();
 
   const set = (patch) => setForm((prev) => ({ ...prev, ...patch }));
@@ -350,20 +392,26 @@ function PizzaFormModal({ model, isNew, onClose, onSave }) {
     setForm((prev) => ({ ...prev, prices: { ...prev.prices, [size]: value } }));
 
   const handleFile = async (file) => {
+    setUploadingImage(true);
     try {
-      const dataUrl = await compressImage(file);
-      set({ image: dataUrl });
-    } catch {
-      toast(t("couldntReadImage"), "error");
+      const url = await uploadImageFile(file);
+      set({ image: url });
+    } catch (err) {
+      toast(err.message || t("couldntReadImage"), "error");
+    } finally {
+      setUploadingImage(false);
     }
   };
 
   const handleHoverFile = async (file) => {
+    setUploadingHover(true);
     try {
-      const dataUrl = await compressImage(file);
-      set({ hoverImage: dataUrl });
-    } catch {
-      toast(t("couldntReadImage"), "error");
+      const url = await uploadImageFile(file);
+      set({ hoverImage: url });
+    } catch (err) {
+      toast(err.message || t("couldntReadImage"), "error");
+    } finally {
+      setUploadingHover(false);
     }
   };
 
@@ -459,6 +507,7 @@ function PizzaFormModal({ model, isNew, onClose, onSave }) {
           value={form.image}
           onChange={(url) => set({ image: url })}
           onFile={handleFile}
+          loading={uploadingImage}
         />
 
         <ImagePicker
@@ -466,6 +515,7 @@ function PizzaFormModal({ model, isNew, onClose, onSave }) {
           value={form.hoverImage}
           onChange={(url) => set({ hoverImage: url })}
           onFile={handleHoverFile}
+          loading={uploadingHover}
         />
         <p className="text-[10px] text-text-tertiary -mt-3">{t("hoverImageHint")}</p>
 

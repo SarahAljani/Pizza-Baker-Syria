@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Save, RotateCcw, Loader2 } from "lucide-react";
-import { loadAllContent, saveSettings, fileToCompressedDataUrl } from "../storage";
+import { loadAllContent, saveSettings, uploadImageFile, migrateEmbeddedImage } from "../storage";
 import { Button, Field, TextArea, SectionCard, ImagePicker, useToast } from "../ui";
 import { useDashboardLanguage } from "../DashboardLanguageContext";
 
@@ -19,18 +19,45 @@ export default function SiteInfoTab() {
   const [settings, setSettings] = useState(null);
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploadingHero, setUploadingHero] = useState(false);
+  const [uploadingOg, setUploadingOg] = useState(false);
   const toast = useToast();
 
   const load = () => {
     setLoading(true);
     setLoadError(null);
     loadAllContent()
-      .then(({ settings: loaded }) => {
+      .then(async ({ settings: loaded }) => {
         setSettings(loaded);
         setDirty(false);
+        setLoading(false);
+
+        // One-time cleanup: settings saved before uploads went through Blob
+        // storage may still have the hero/share image embedded as a base64
+        // data URL — migrate it to a hosted URL and persist automatically.
+        const [newHero, newOg] = await Promise.all([
+          migrateEmbeddedImage(loaded.heroImage),
+          migrateEmbeddedImage(loaded.seo.ogImage),
+        ]);
+        if (newHero !== loaded.heroImage || newOg !== loaded.seo.ogImage) {
+          const migrated = {
+            ...loaded,
+            heroImage: newHero,
+            seo: { ...loaded.seo, ogImage: newOg },
+          };
+          setSettings(migrated);
+          try {
+            await saveSettings(migrated);
+            toast(t("imagesOptimized"));
+          } catch (err) {
+            toast(err.message || t("couldntSave"), "error");
+          }
+        }
       })
-      .catch((err) => setLoadError(err.message))
-      .finally(() => setLoading(false));
+      .catch((err) => {
+        setLoadError(err.message);
+        setLoading(false);
+      });
   };
 
   useEffect(load, []);
@@ -78,11 +105,14 @@ export default function SiteInfoTab() {
   };
 
   const handleOgImageFile = async (file) => {
+    setUploadingOg(true);
     try {
-      const dataUrl = await fileToCompressedDataUrl(file, 1200, 0.8);
-      setOgImage(dataUrl);
-    } catch {
-      toast(t("couldntReadImage"), "error");
+      const url = await uploadImageFile(file, 1200, 0.8);
+      setOgImage(url);
+    } catch (err) {
+      toast(err.message || t("couldntReadImage"), "error");
+    } finally {
+      setUploadingOg(false);
     }
   };
 
@@ -91,11 +121,14 @@ export default function SiteInfoTab() {
   };
 
   const handleHeroImageFile = async (file) => {
+    setUploadingHero(true);
     try {
-      const dataUrl = await fileToCompressedDataUrl(file, 1600, 0.8);
-      setHeroImage(dataUrl);
-    } catch {
-      toast(t("couldntReadImage"), "error");
+      const url = await uploadImageFile(file, 1600, 0.8);
+      setHeroImage(url);
+    } catch (err) {
+      toast(err.message || t("couldntReadImage"), "error");
+    } finally {
+      setUploadingHero(false);
     }
   };
 
@@ -161,6 +194,7 @@ export default function SiteInfoTab() {
           value={settings.heroImage}
           onChange={setHeroImage}
           onFile={handleHeroImageFile}
+          loading={uploadingHero}
         />
       </SectionCard>
 
@@ -276,6 +310,7 @@ export default function SiteInfoTab() {
             value={settings.seo.ogImage}
             onChange={setOgImage}
             onFile={handleOgImageFile}
+            loading={uploadingOg}
           />
           <p className="text-[10px] text-text-tertiary mt-2">{t("shareImageHint")}</p>
         </div>

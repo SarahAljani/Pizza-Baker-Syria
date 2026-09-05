@@ -6,7 +6,8 @@ import {
   saveTranslationOverrides,
   getEffectiveText,
   mergeLanguagePatch,
-  fileToCompressedDataUrl as compressImage,
+  uploadImageFile,
+  migrateEmbeddedImage,
 } from "../storage";
 import {
   Button,
@@ -44,6 +45,23 @@ function buildEditModel(item, translationOverrides) {
       size,
       price,
     })),
+  };
+}
+
+function toExtraItem(item) {
+  const pricesObj = {};
+  for (const { size, price } of item.prices) {
+    if (size) pricesObj[size] = Number(price) || 0;
+  }
+  return {
+    id: item.id,
+    number: Number(item.number) || 0,
+    name: item.nameEn,
+    arabicName: item.nameAr,
+    translationKey: item.translationKey,
+    prices: pricesObj,
+    sizes: item.prices.map((p) => p.size).filter(Boolean),
+    image: item.image,
   };
 }
 
@@ -133,15 +151,42 @@ export default function ExtrasTab() {
     setLoading(true);
     setLoadError(null);
     loadAllContent()
-      .then(({ extras: rawExtras, translationOverrides: overrides }) => {
-        setExtras({
-          snacks: rawExtras.snacks.map((i) => buildEditModel(i, overrides)),
-          desserts: rawExtras.desserts.map((i) => buildEditModel(i, overrides)),
-        });
+      .then(async ({ extras: rawExtras, translationOverrides: overrides }) => {
+        const snacks = rawExtras.snacks.map((i) => buildEditModel(i, overrides));
+        const desserts = rawExtras.desserts.map((i) => buildEditModel(i, overrides));
+        setExtras({ snacks, desserts });
         setDirty(false);
+        setLoading(false);
+
+        // One-time cleanup: items saved before uploads went through Blob
+        // storage may still have images embedded as base64 data URLs —
+        // that's what makes the whole extras blob too large to save.
+        let migrated = false;
+        for (const item of [...snacks, ...desserts]) {
+          const newImage = await migrateEmbeddedImage(item.image);
+          if (newImage !== item.image) {
+            item.image = newImage;
+            migrated = true;
+          }
+        }
+
+        if (migrated) {
+          setExtras({ snacks: [...snacks], desserts: [...desserts] });
+          try {
+            await saveExtras({
+              snacks: snacks.map(toExtraItem),
+              desserts: desserts.map(toExtraItem),
+            });
+            toast(t("imagesOptimized"));
+          } catch (err) {
+            toast(err.message || t("couldntSave"), "error");
+          }
+        }
       })
-      .catch((err) => setLoadError(err.message))
-      .finally(() => setLoading(false));
+      .catch((err) => {
+        setLoadError(err.message);
+        setLoading(false);
+      });
   };
 
   useEffect(load, []);
@@ -186,23 +231,6 @@ export default function ExtrasTab() {
   const saveAll = async () => {
     setSaving(true);
     try {
-      const toDataItem = (item) => {
-        const pricesObj = {};
-        for (const { size, price } of item.prices) {
-          if (size) pricesObj[size] = Number(price) || 0;
-        }
-        return {
-          id: item.id,
-          number: Number(item.number) || 0,
-          name: item.nameEn,
-          arabicName: item.nameAr,
-          translationKey: item.translationKey,
-          prices: pricesObj,
-          sizes: item.prices.map((p) => p.size).filter(Boolean),
-          image: item.image,
-        };
-      };
-
       // Re-fetch the shared translations blob right before merging, so a
       // save here doesn't clobber edits made concurrently from another tab.
       const { translationOverrides: latest } = await loadAllContent();
@@ -218,8 +246,8 @@ export default function ExtrasTab() {
       }
 
       await saveExtras({
-        snacks: extras.snacks.map(toDataItem),
-        desserts: extras.desserts.map(toDataItem),
+        snacks: extras.snacks.map(toExtraItem),
+        desserts: extras.desserts.map(toExtraItem),
       });
       await saveTranslationOverrides(latest);
 
@@ -320,6 +348,7 @@ function ExtraFormModal({ category, model, isNew, onClose, onSave }) {
     ...model,
     translationKey: model.translationKey || "",
   }));
+  const [uploadingImage, setUploadingImage] = useState(false);
   const toast = useToast();
 
   const set = (patch) => setForm((prev) => ({ ...prev, ...patch }));
@@ -337,11 +366,14 @@ function ExtraFormModal({ category, model, isNew, onClose, onSave }) {
     setForm((prev) => ({ ...prev, prices: prev.prices.filter((_, i) => i !== idx) }));
 
   const handleFile = async (file) => {
+    setUploadingImage(true);
     try {
-      const dataUrl = await compressImage(file);
-      set({ image: dataUrl });
-    } catch {
-      toast(t("couldntReadImage"), "error");
+      const url = await uploadImageFile(file);
+      set({ image: url });
+    } catch (err) {
+      toast(err.message || t("couldntReadImage"), "error");
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -439,7 +471,12 @@ function ExtraFormModal({ category, model, isNew, onClose, onSave }) {
           </Button>
         </div>
 
-        <ImagePicker value={form.image} onChange={(url) => set({ image: url })} onFile={handleFile} />
+        <ImagePicker
+          value={form.image}
+          onChange={(url) => set({ image: url })}
+          onFile={handleFile}
+          loading={uploadingImage}
+        />
 
         <div className="flex justify-end gap-3 pt-2">
           <Button type="button" variant="secondary" onClick={onClose}>

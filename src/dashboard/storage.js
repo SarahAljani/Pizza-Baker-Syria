@@ -164,10 +164,11 @@ export async function resetAllDashboardData() {
   ]);
 }
 
-// Compresses/resizes an uploaded image file client-side and returns a data
-// URL, so a handful of photo uploads don't blow past reasonable payload
-// sizes for the content JSON.
-export function fileToCompressedDataUrl(file, maxDim = 900, quality = 0.75) {
+// Compresses/resizes an image file client-side and returns a data URL. This
+// is only an intermediate step now — see uploadImageFile below — kept
+// separate so the canvas logic can be reused for both fresh uploads and
+// migrating already-embedded images.
+function compressFileToDataUrl(file, maxDim = 900, quality = 0.75) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onerror = () => reject(reader.error);
@@ -196,4 +197,46 @@ export function fileToCompressedDataUrl(file, maxDim = 900, quality = 0.75) {
     };
     reader.readAsDataURL(file);
   });
+}
+
+// Uploads a data: URL (already compressed) to its own Blob object and
+// returns the resulting public URL. Never embed images inside menu.json/
+// extras.json/settings.json directly — that's what caused those blobs to
+// grow past Vercel's request body limit as more photos were added over time.
+async function uploadDataUrl(dataUrl) {
+  const token = getSessionToken();
+  const res = await fetch("/api/upload", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ dataUrl }),
+  });
+  if (!res.ok) {
+    if (res.status === 401) throw new Error("Your session expired — please log in again.");
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.error || `Failed to upload image (${res.status})`);
+  }
+  const { url } = await res.json();
+  return url;
+}
+
+// Compresses an uploaded photo and stores it as its own Blob object,
+// returning its URL — this is what every dashboard image picker's onFile
+// handler should call.
+export async function uploadImageFile(file, maxDim = 900, quality = 0.75) {
+  const dataUrl = await compressFileToDataUrl(file, maxDim, quality);
+  return uploadDataUrl(dataUrl);
+}
+
+// One-time cleanup for images saved before uploads went through Blob
+// storage: if a stored image value is still an embedded data: URL, upload it
+// now and return its new hosted URL; anything else (a real URL, or empty) is
+// returned unchanged. Safe to call on every load — it's a no-op once migrated.
+export async function migrateEmbeddedImage(value) {
+  if (typeof value === "string" && value.startsWith("data:")) {
+    return uploadDataUrl(value);
+  }
+  return value;
 }

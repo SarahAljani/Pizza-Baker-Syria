@@ -51,6 +51,8 @@ export const dashboardTranslations = {
     nameEnRequired: "English name is required.",
     imageLabel: "Image",
     close: "Close",
+    uploading: "Uploading...",
+    imagesOptimized: "Optimized older images for faster saving.",
 
     // Pizzas tab
     pizzasTitle: "Pizzas",
@@ -230,6 +232,8 @@ export const dashboardTranslations = {
     nameEnRequired: "الاسم بالإنجليزية مطلوب.",
     imageLabel: "الصورة",
     close: "إغلاق",
+    uploading: "جارٍ الرفع...",
+    imagesOptimized: "تم تحسين الصور القديمة لتسريع الحفظ.",
 
     // Pizzas tab
     pizzasTitle: "البيتزا",

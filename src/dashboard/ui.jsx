@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback } from "react";
-import { X, CheckCircle2, AlertTriangle } from "lucide-react";
+import { X, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react";
 import { useDashboardLanguage } from "./DashboardLanguageContext";
 
 // ---- Basic form atoms, styled to match the public site's visual identity ----
@@ -191,18 +191,23 @@ export function SectionCard({ title, subtitle, actions, children }) {
   );
 }
 
-export function ImagePicker({ value, onChange, onFile, label }) {
+export function ImagePicker({ value, onChange, onFile, label, loading }) {
   const { t } = useDashboardLanguage();
   return (
     <div>
       <Label>{label ?? t("imageLabel")}</Label>
       <div className="flex items-start gap-3">
-        <div className="w-20 h-20 flex-shrink-0 bg-bg-primary border border-border-primary overflow-hidden">
+        <div className="relative w-20 h-20 flex-shrink-0 bg-bg-primary border border-border-primary overflow-hidden">
           {value ? (
             <img src={value} alt="" className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-text-tertiary text-[9px] font-mono uppercase">
               {t("noImage")}
+            </div>
+          )}
+          {loading && (
+            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+              <Loader2 className="w-5 h-5 text-brand-gold animate-spin" />
             </div>
           )}
         </div>
@@ -212,19 +217,23 @@ export function ImagePicker({ value, onChange, onFile, label }) {
             placeholder={t("pasteImageUrl")}
             value={value?.startsWith("data:") ? "" : value || ""}
             onChange={(e) => onChange(e.target.value)}
+            disabled={loading}
           />
-          <label className="inline-flex items-center gap-2 text-[10px] font-mono text-text-secondary hover:text-brand-gold cursor-pointer uppercase tracking-wide">
+          <label
+            className={`inline-flex items-center gap-2 text-[10px] font-mono uppercase tracking-wide ${loading ? "text-text-tertiary cursor-wait" : "text-text-secondary hover:text-brand-gold cursor-pointer"}`}
+          >
             <input
               type="file"
               accept="image/*"
               className="hidden"
+              disabled={loading}
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) onFile(file);
                 e.target.value = "";
               }}
             />
-            {t("uploadPhotoHint")}
+            {loading ? t("uploading") : t("uploadPhotoHint")}
           </label>
         </div>
       </div>
