@@ -1,11 +1,16 @@
 import { put } from "@vercel/blob";
 import { verifySessionToken, getBearerToken } from "./_lib/auth.js";
 
-// Uploaded photos are meant to be publicly visible on the site (they're
-// product photos, not private data), so they're stored as their own public
-// Blob object with a real URL — never embedded as base64 inside menu.json/
-// extras.json/settings.json. Embedding them there is what caused those blobs
-// to grow past Vercel's ~4.5MB request body limit as more photos piled up.
+// Uploaded photos are stored as their own Blob object instead of embedded as
+// base64 inside menu.json/extras.json/settings.json — embedding them there
+// is what caused those blobs to grow past Vercel's ~4.5MB request body limit
+// as more photos piled up.
+//
+// The store backing this project is configured for private access only
+// (confirmed live: access: "public" throws "Cannot use public access on a
+// private store"), so every upload is private too, and the URL returned
+// here points at /api/image (a public read proxy) rather than the raw,
+// auth-required Blob URL — that's what actually goes into an <img src>.
 const MAX_DECODED_BYTES = 4 * 1024 * 1024; // 4MB, comfortably under the limit
 
 export default async function handler(req, res) {
@@ -39,15 +44,15 @@ export default async function handler(req, res) {
   }
 
   const extension = mimeType.split("/")[1]?.replace("jpeg", "jpg").replace(/[^a-z0-9]/gi, "") || "jpg";
-  const filename = `pbdash/uploads/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`;
+  const pathname = `pbdash/uploads/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`;
 
   try {
-    const blob = await put(filename, buffer, {
-      access: "public",
+    await put(pathname, buffer, {
+      access: "private",
       contentType: mimeType,
       addRandomSuffix: false,
     });
-    return res.status(200).json({ url: blob.url });
+    return res.status(200).json({ url: `/api/image?path=${encodeURIComponent(pathname)}` });
   } catch (err) {
     console.error("upload failed", err);
     return res.status(500).json({ error: "Failed to upload image" });
