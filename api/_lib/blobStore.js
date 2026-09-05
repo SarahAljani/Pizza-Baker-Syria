@@ -3,7 +3,7 @@ import { get, put, del } from "@vercel/blob";
 // Reads a JSON blob by its fixed pathname. Returns null if it has never been
 // saved yet (first run) or its content is somehow corrupt.
 export async function readJson(pathname) {
-  const blob = await get(pathname, { access: "public", useCache: false });
+  const blob = await get(pathname, { access: "private", useCache: false });
   if (!blob) return null;
   const text = await new Response(blob.stream).text();
   try {
@@ -17,7 +17,7 @@ export async function readJson(pathname) {
 // since every save reuses the same pathname rather than creating a new blob.
 export async function writeJson(pathname, value) {
   await put(pathname, JSON.stringify(value), {
-    access: "public",
+    access: "private",
     contentType: "application/json",
     addRandomSuffix: false,
     allowOverwrite: true,
