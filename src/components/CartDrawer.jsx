@@ -52,11 +52,12 @@ export default function CartDrawer({
     },
   };
 
+  const { fee: deliveryFeeAmount, freeThreshold } = SITE_SETTINGS.delivery;
   const subtotal = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
-  const deliveryFee = subtotal >= 3000 || subtotal === 0 ? 0 : 200;
+  const deliveryFee = subtotal >= freeThreshold || subtotal === 0 ? 0 : deliveryFeeAmount;
   const total = subtotal + deliveryFee;
 
   const handleCheckout = async () => {
@@ -486,7 +487,7 @@ export default function CartDrawer({
                     </span>
                   </div>
 
-                  {subtotal < 3000 && (
+                  {subtotal < freeThreshold && (
                     <span
                       className={`text-[9px] font-sans text-brand-gold block ${isRtl ? "text-left" : "text-right"}`}
                     >
@@ -494,7 +495,7 @@ export default function CartDrawer({
                         <span>
                           أضف بقيمة{" "}
                           <strong className="text-text-primary font-semibold">
-                            {3000 - subtotal} ل.س
+                            {freeThreshold - subtotal} ل.س
                           </strong>{" "}
                           إضافية للتوصيل المجاني!
                         </span>
@@ -502,7 +503,7 @@ export default function CartDrawer({
                         <span>
                           Add{" "}
                           <strong className="text-white font-semibold">
-                            {3000 - subtotal} SYP
+                            {freeThreshold - subtotal} SYP
                           </strong>{" "}
                           more for FREE delivery!
                         </span>

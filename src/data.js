@@ -16,6 +16,10 @@ export const SITE_SETTINGS = {
     instagram: "https://instagram.com",
   },
   whatsappNumber: "963983923768",
+  delivery: {
+    fee: 200,
+    freeThreshold: 3000,
+  },
   sectionVisibility: {
     menu: true,
     extras: true,
@@ -54,6 +58,9 @@ export function applySettingsOverride(settings) {
   }
   if (typeof settings.whatsappNumber === "string" && settings.whatsappNumber) {
     SITE_SETTINGS.whatsappNumber = settings.whatsappNumber;
+  }
+  if (settings.delivery) {
+    Object.assign(SITE_SETTINGS.delivery, settings.delivery);
   }
   if (settings.sectionVisibility) {
     Object.assign(SITE_SETTINGS.sectionVisibility, settings.sectionVisibility);

@@ -48,6 +48,14 @@ export default function SiteInfoTab() {
     setDirty(true);
   };
 
+  const setDelivery = (key, value) => {
+    setSettings((prev) => ({
+      ...prev,
+      delivery: { ...prev.delivery, [key]: Number(value) || 0 },
+    }));
+    setDirty(true);
+  };
+
   const setVisibility = (key, value) => {
     setSettings((prev) => ({
       ...prev,
@@ -177,6 +185,31 @@ export default function SiteInfoTab() {
             label={t("instagramUrl")}
             value={settings.socialLinks.instagram}
             onChange={(e) => setSocial("instagram", e.target.value)}
+          />
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        title={t("deliveryTitle")}
+        subtitle={t("deliverySubtitle")}
+        actions={actions}
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field
+            label={t("deliveryFeeLabel")}
+            hint={t("deliveryFeeHint")}
+            type="number"
+            min="0"
+            value={settings.delivery.fee}
+            onChange={(e) => setDelivery("fee", e.target.value)}
+          />
+          <Field
+            label={t("freeThresholdLabel")}
+            hint={t("freeThresholdHint")}
+            type="number"
+            min="0"
+            value={settings.delivery.freeThreshold}
+            onChange={(e) => setDelivery("freeThreshold", e.target.value)}
           />
         </div>
       </SectionCard>

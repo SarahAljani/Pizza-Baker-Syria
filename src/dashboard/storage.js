@@ -65,6 +65,7 @@ function mergeSettingsWithDefaults(settings) {
   if (typeof settings?.whatsappNumber === "string" && settings.whatsappNumber) {
     merged.whatsappNumber = settings.whatsappNumber;
   }
+  if (settings?.delivery) Object.assign(merged.delivery, settings.delivery);
   if (settings?.sectionVisibility) Object.assign(merged.sectionVisibility, settings.sectionVisibility);
   if (settings?.seo?.en) Object.assign(merged.seo.en, settings.seo.en);
   if (settings?.seo?.ar) Object.assign(merged.seo.ar, settings.seo.ar);
