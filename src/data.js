@@ -1,13 +1,9 @@
 import heroImage from "./assets/images/bistro_hero_1783274357884.jpg";
-import margheritaImage from "./assets/images/margherita_pizza_1783274371968.jpg";
-import burrataImage from "./assets/images/burrata_pizza_1783274387992.jpg";
 import footerBgImage from "./assets/images/footer_ingredients_1783274399702.jpg";
 
-// High quality pizza and ambient illustrations
+// High quality ambient illustrations (pizza photos live in /public/pizza_images)
 export const IMAGES = {
   hero: heroImage,
-  margherita: margheritaImage,
-  burrata: burrataImage,
   footerBg: footerBgImage,
 };
 
@@ -20,7 +16,7 @@ export const INITIAL_MENU = [
     ingredients: ["Sauce", "Cheese"],
     category: "classic",
     prices: { small: 400, medium: 800, large: 1250, thin: 800 },
-    image: IMAGES.margherita,
+    image: "/pizza_images/1 The Classic Margherita.jpeg",
   },
   {
     id: "pizza-2",
@@ -30,8 +26,7 @@ export const INITIAL_MENU = [
     ingredients: ["Sauce", "Cheese", "Salami", "Mushroom"],
     category: "classic",
     prices: { small: 500, medium: 1050, large: 1600, thin: 1000 },
-    image:
-      "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/2 The Salami One.jpeg",
   },
   {
     id: "pizza-3",
@@ -41,8 +36,7 @@ export const INITIAL_MENU = [
     ingredients: ["Sauce", "Minced beef", "Cheese", "Bell pepper"],
     category: "specialty",
     prices: { small: 500, medium: 1050, large: 1600, thin: 1050 },
-    image:
-      "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/3 My Dream.jpeg",
   },
   {
     id: "pizza-4",
@@ -52,8 +46,7 @@ export const INITIAL_MENU = [
     ingredients: ["Sauce", "Minced beef", "Onion", "Cheese", "Beef bacon cut"],
     category: "specialty",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
-    image:
-      "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/4 Pizzabaker Special.jpeg",
   },
   {
     id: "pizza-5",
@@ -63,8 +56,7 @@ export const INITIAL_MENU = [
     ingredients: ["Sauce", "Minced beef", "Onion", "Cheese", "Pineapple"],
     category: "specialty",
     prices: { small: 500, medium: 1050, large: 1600, thin: 1050 },
-    image:
-      "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/5 Hawaii.jpeg",
   },
   {
     id: "pizza-6",
@@ -74,8 +66,7 @@ export const INITIAL_MENU = [
     ingredients: ["Sauce", "Onion", "Cheese", "Pepperoni", "Bell pepper"],
     category: "meat",
     prices: { small: 550, medium: 1100, large: 1600, thin: 1100 },
-    image:
-      "https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/6 Pepperoni.jpeg",
   },
   {
     id: "pizza-7",
@@ -95,8 +86,7 @@ export const INITIAL_MENU = [
     ],
     category: "spicy",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
-    image:
-      "https://images.unsplash.com/photo-1590947132387-155cc02f3212?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/7 Mexicano.jpeg",
   },
   {
     id: "pizza-8",
@@ -112,8 +102,7 @@ export const INITIAL_MENU = [
     ],
     category: "meat",
     prices: { small: 500, medium: 1050, large: 1600, thin: 1050 },
-    image:
-      "https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/8 Meat Lover.jpeg",
   },
   {
     id: "pizza-9",
@@ -129,8 +118,7 @@ export const INITIAL_MENU = [
     ],
     category: "meat",
     prices: { small: 500, medium: 1050, large: 1600, thin: 1050 },
-    image:
-      "https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/9 The Marinated.jpeg",
   },
   {
     id: "pizza-10",
@@ -147,8 +135,7 @@ export const INITIAL_MENU = [
     ],
     category: "spicy",
     prices: { small: 500, medium: 1050, large: 1600, thin: 1050 },
-    image:
-      "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/10 Hot Pepper Beef.jpeg",
   },
   {
     id: "pizza-11",
@@ -166,8 +153,7 @@ export const INITIAL_MENU = [
     ],
     category: "spicy",
     prices: { small: 500, medium: 1050, large: 1600, thin: 1050 },
-    image:
-      "https://images.unsplash.com/photo-1585238342024-78d387f4a707?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/11 The Flame.jpeg",
   },
   {
     id: "pizza-12",
@@ -185,8 +171,7 @@ export const INITIAL_MENU = [
     ],
     category: "spicy",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
-    image:
-      "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/12 Taco Chicken.jpeg",
   },
   {
     id: "pizza-13",
@@ -203,8 +188,7 @@ export const INITIAL_MENU = [
     ],
     category: "chicken",
     prices: { small: 500, medium: 1050, large: 1600, thin: 1050 },
-    image:
-      "https://images.unsplash.com/photo-1590947132387-155cc02f3212?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/13 Master Chicken.jpeg",
   },
   {
     id: "pizza-14",
@@ -220,8 +204,7 @@ export const INITIAL_MENU = [
     ],
     category: "specialty",
     prices: { small: 500, medium: 1050, large: 1600, thin: 1050 },
-    image:
-      "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/14 Master Favourite.jpeg",
   },
   {
     id: "pizza-15",
@@ -238,8 +221,7 @@ export const INITIAL_MENU = [
     ],
     category: "spicy",
     prices: { small: 500, medium: 1050, large: 1600, thin: 1050 },
-    image:
-      "https://images.unsplash.com/photo-1585238342024-78d387f4a707?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/15 Spark Baker.jpeg",
   },
   {
     id: "pizza-16",
@@ -256,8 +238,7 @@ export const INITIAL_MENU = [
     ],
     category: "chicken",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
-    image:
-      "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/16 Chicken Deluxe.jpeg",
   },
   {
     id: "pizza-17",
@@ -274,8 +255,7 @@ export const INITIAL_MENU = [
     ],
     category: "chicken",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
-    image:
-      "https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/17 Pesto Chicken.jpeg",
   },
   {
     id: "pizza-18",
@@ -293,7 +273,7 @@ export const INITIAL_MENU = [
     ],
     category: "vegetarian",
     prices: { small: 500, medium: 950, large: 1450, thin: 950 },
-    image: IMAGES.burrata,
+    image: "/pizza_images/18 Vegan.jpeg",
   },
   {
     id: "pizza-19",
@@ -310,8 +290,7 @@ export const INITIAL_MENU = [
     ],
     category: "specialty",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
-    image:
-      "https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/19 Kebab Pizza.jpeg",
   },
   {
     id: "pizza-20",
@@ -321,8 +300,7 @@ export const INITIAL_MENU = [
     ingredients: ["Sauce", "Cheese", "Salami", "Beef bacon cut"],
     category: "meat",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
-    image:
-      "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/20 Mr. Mix.jpeg",
   },
   {
     id: "pizza-21",
@@ -339,8 +317,7 @@ export const INITIAL_MENU = [
     ],
     category: "specialty",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
-    image:
-      "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/21 Mr. X.jpeg",
   },
   {
     id: "pizza-22",
@@ -350,8 +327,7 @@ export const INITIAL_MENU = [
     ingredients: ["Sauce", "Minced beef", "Cheese", "Salami", "Oregano"],
     category: "meat",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
-    image:
-      "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/22 The Double Decker.jpeg",
   },
   {
     id: "pizza-23",
@@ -361,8 +337,7 @@ export const INITIAL_MENU = [
     ingredients: ["Sauce", "Beef chorizo", "Onion", "Cheese", "Minced beef"],
     category: "meat",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
-    image:
-      "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/23 Chorizo.jpeg",
   },
   {
     id: "pizza-24",
@@ -378,8 +353,7 @@ export const INITIAL_MENU = [
     ],
     category: "chicken",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
-    image:
-      "https://images.unsplash.com/photo-1590947132387-155cc02f3212?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/24 Hot Chicken.jpeg",
   },
   {
     id: "pizza-25",
@@ -396,8 +370,7 @@ export const INITIAL_MENU = [
     ],
     category: "meat",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
-    image:
-      "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/25 Chorizo.jpeg",
   },
   {
     id: "pizza-26",
@@ -418,8 +391,7 @@ export const INITIAL_MENU = [
     ],
     category: "vegetarian",
     prices: { small: 500, medium: 1000, large: 1550, thin: 1000 },
-    image:
-      "https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/26.jpg",
   },
   {
     id: "pizza-27",
@@ -429,8 +401,7 @@ export const INITIAL_MENU = [
     ingredients: ["Sauce", "Onion", "Cheese"],
     category: "vegetarian",
     prices: { small: 500, medium: 1050, large: 1600, thin: 1050 },
-    image:
-      "https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/27 Moby Tuna.jpeg",
   },
   {
     id: "pizza-28",
@@ -440,8 +411,7 @@ export const INITIAL_MENU = [
     ingredients: ["Sauce", "Cheese", "Chili", "Onion", "Bell pepper"],
     category: "vegetarian",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
-    image:
-      "https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/28 Greek Special.jpeg",
   },
   {
     id: "pizza-29",
@@ -457,8 +427,7 @@ export const INITIAL_MENU = [
     ],
     category: "specialty",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
-    image:
-      "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/29 Tropicana.jpeg",
   },
   {
     id: "pizza-30",
@@ -468,8 +437,7 @@ export const INITIAL_MENU = [
     ingredients: ["Sauce", "Cheese", "Beef bacon cut", "Corn", "Onion"],
     category: "meat",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
-    image:
-      "https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?auto=format&fit=crop&q=80&w=600",
+    image: "/pizza_images/30.jpg",
   },
 ];
 
