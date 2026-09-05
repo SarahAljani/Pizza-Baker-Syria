@@ -5,14 +5,13 @@ import { INITIAL_MENU } from "../data";
 import { useThemeLanguage } from "../context/ThemeLanguageContext";
 
 function PizzaCardImage({ pizza, altText }) {
-  // pizza.image is the single source of truth (editable from the dashboard).
-  // The hover close-up still uses the curated /pizza_images/{number}.jpg set
-  // when available, falling back to the main image if that file is missing.
-  const hoverPath = `/pizza_images/${pizza.number}.jpg`;
+  // Both pizza.image and pizza.hoverImage are editable from the dashboard.
+  // An empty/missing hoverImage (or one that fails to load) just falls back
+  // to the main image instead of showing a broken hover state.
   const [hoverFailed, setHoverFailed] = useState(false);
 
   const mainSrc = pizza.image;
-  const hoverSrc = hoverFailed ? mainSrc : hoverPath;
+  const hoverSrc = hoverFailed || !pizza.hoverImage ? mainSrc : pizza.hoverImage;
 
   return (
     <div className="relative h-48 overflow-hidden bg-black/40">

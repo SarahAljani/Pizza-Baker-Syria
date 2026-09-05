@@ -17,6 +17,7 @@ export const INITIAL_MENU = [
     category: "classic",
     prices: { small: 400, medium: 800, large: 1250, thin: 800 },
     image: "/pizza_images/1 The Classic Margherita.jpeg",
+    hoverImage: "/pizza_images/1.jpg",
   },
   {
     id: "pizza-2",
@@ -27,6 +28,7 @@ export const INITIAL_MENU = [
     category: "classic",
     prices: { small: 500, medium: 1050, large: 1600, thin: 1000 },
     image: "/pizza_images/2 The Salami One.jpeg",
+    hoverImage: "/pizza_images/2.jpg",
   },
   {
     id: "pizza-3",
@@ -37,6 +39,7 @@ export const INITIAL_MENU = [
     category: "specialty",
     prices: { small: 500, medium: 1050, large: 1600, thin: 1050 },
     image: "/pizza_images/3 My Dream.jpeg",
+    hoverImage: "/pizza_images/3.jpg",
   },
   {
     id: "pizza-4",
@@ -47,6 +50,7 @@ export const INITIAL_MENU = [
     category: "specialty",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
     image: "/pizza_images/4 Pizzabaker Special.jpeg",
+    hoverImage: "/pizza_images/4.jpg",
   },
   {
     id: "pizza-5",
@@ -57,6 +61,7 @@ export const INITIAL_MENU = [
     category: "specialty",
     prices: { small: 500, medium: 1050, large: 1600, thin: 1050 },
     image: "/pizza_images/5 Hawaii.jpeg",
+    hoverImage: "/pizza_images/5.jpg",
   },
   {
     id: "pizza-6",
@@ -67,6 +72,7 @@ export const INITIAL_MENU = [
     category: "meat",
     prices: { small: 550, medium: 1100, large: 1600, thin: 1100 },
     image: "/pizza_images/6 Pepperoni.jpeg",
+    hoverImage: "/pizza_images/6.jpg",
   },
   {
     id: "pizza-7",
@@ -87,6 +93,7 @@ export const INITIAL_MENU = [
     category: "spicy",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
     image: "/pizza_images/7 Mexicano.jpeg",
+    hoverImage: "/pizza_images/7.jpg",
   },
   {
     id: "pizza-8",
@@ -103,6 +110,7 @@ export const INITIAL_MENU = [
     category: "meat",
     prices: { small: 500, medium: 1050, large: 1600, thin: 1050 },
     image: "/pizza_images/8 Meat Lover.jpeg",
+    hoverImage: "/pizza_images/8.jpg",
   },
   {
     id: "pizza-9",
@@ -119,6 +127,7 @@ export const INITIAL_MENU = [
     category: "meat",
     prices: { small: 500, medium: 1050, large: 1600, thin: 1050 },
     image: "/pizza_images/9 The Marinated.jpeg",
+    hoverImage: "/pizza_images/9.jpg",
   },
   {
     id: "pizza-10",
@@ -136,6 +145,7 @@ export const INITIAL_MENU = [
     category: "spicy",
     prices: { small: 500, medium: 1050, large: 1600, thin: 1050 },
     image: "/pizza_images/10 Hot Pepper Beef.jpeg",
+    hoverImage: "/pizza_images/10.jpg",
   },
   {
     id: "pizza-11",
@@ -154,6 +164,7 @@ export const INITIAL_MENU = [
     category: "spicy",
     prices: { small: 500, medium: 1050, large: 1600, thin: 1050 },
     image: "/pizza_images/11 The Flame.jpeg",
+    hoverImage: "/pizza_images/11.jpg",
   },
   {
     id: "pizza-12",
@@ -172,6 +183,7 @@ export const INITIAL_MENU = [
     category: "spicy",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
     image: "/pizza_images/12 Taco Chicken.jpeg",
+    hoverImage: "/pizza_images/12.jpg",
   },
   {
     id: "pizza-13",
@@ -189,6 +201,7 @@ export const INITIAL_MENU = [
     category: "chicken",
     prices: { small: 500, medium: 1050, large: 1600, thin: 1050 },
     image: "/pizza_images/13 Master Chicken.jpeg",
+    hoverImage: "/pizza_images/13.jpg",
   },
   {
     id: "pizza-14",
@@ -205,6 +218,7 @@ export const INITIAL_MENU = [
     category: "specialty",
     prices: { small: 500, medium: 1050, large: 1600, thin: 1050 },
     image: "/pizza_images/14 Master Favourite.jpeg",
+    hoverImage: "/pizza_images/14.jpg",
   },
   {
     id: "pizza-15",
@@ -222,6 +236,7 @@ export const INITIAL_MENU = [
     category: "spicy",
     prices: { small: 500, medium: 1050, large: 1600, thin: 1050 },
     image: "/pizza_images/15 Spark Baker.jpeg",
+    hoverImage: "/pizza_images/15.jpg",
   },
   {
     id: "pizza-16",
@@ -239,6 +254,7 @@ export const INITIAL_MENU = [
     category: "chicken",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
     image: "/pizza_images/16 Chicken Deluxe.jpeg",
+    hoverImage: "/pizza_images/16.jpg",
   },
   {
     id: "pizza-17",
@@ -256,6 +272,7 @@ export const INITIAL_MENU = [
     category: "chicken",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
     image: "/pizza_images/17 Pesto Chicken.jpeg",
+    hoverImage: "/pizza_images/17.jpg",
   },
   {
     id: "pizza-18",
@@ -274,6 +291,7 @@ export const INITIAL_MENU = [
     category: "vegetarian",
     prices: { small: 500, medium: 950, large: 1450, thin: 950 },
     image: "/pizza_images/18 Vegan.jpeg",
+    hoverImage: "/pizza_images/18.jpg",
   },
   {
     id: "pizza-19",
@@ -291,6 +309,7 @@ export const INITIAL_MENU = [
     category: "specialty",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
     image: "/pizza_images/19 Kebab Pizza.jpeg",
+    hoverImage: "/pizza_images/19.jpg",
   },
   {
     id: "pizza-20",
@@ -301,6 +320,7 @@ export const INITIAL_MENU = [
     category: "meat",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
     image: "/pizza_images/20 Mr. Mix.jpeg",
+    hoverImage: "/pizza_images/20.jpg",
   },
   {
     id: "pizza-21",
@@ -318,6 +338,7 @@ export const INITIAL_MENU = [
     category: "specialty",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
     image: "/pizza_images/21 Mr. X.jpeg",
+    hoverImage: "/pizza_images/21.jpg",
   },
   {
     id: "pizza-22",
@@ -328,6 +349,7 @@ export const INITIAL_MENU = [
     category: "meat",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
     image: "/pizza_images/22 The Double Decker.jpeg",
+    hoverImage: "/pizza_images/22.jpg",
   },
   {
     id: "pizza-23",
@@ -338,6 +360,7 @@ export const INITIAL_MENU = [
     category: "meat",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
     image: "/pizza_images/23 Chorizo.jpeg",
+    hoverImage: "/pizza_images/23.jpg",
   },
   {
     id: "pizza-24",
@@ -354,6 +377,7 @@ export const INITIAL_MENU = [
     category: "chicken",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
     image: "/pizza_images/24 Hot Chicken.jpeg",
+    hoverImage: "/pizza_images/24.jpg",
   },
   {
     id: "pizza-25",
@@ -371,6 +395,7 @@ export const INITIAL_MENU = [
     category: "meat",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
     image: "/pizza_images/25 Chorizo.jpeg",
+    hoverImage: "/pizza_images/25.jpg",
   },
   {
     id: "pizza-26",
@@ -392,6 +417,7 @@ export const INITIAL_MENU = [
     category: "vegetarian",
     prices: { small: 500, medium: 1000, large: 1550, thin: 1000 },
     image: "/pizza_images/26.jpg",
+    hoverImage: "/pizza_images/26.jpg",
   },
   {
     id: "pizza-27",
@@ -402,6 +428,7 @@ export const INITIAL_MENU = [
     category: "vegetarian",
     prices: { small: 500, medium: 1050, large: 1600, thin: 1050 },
     image: "/pizza_images/27 Moby Tuna.jpeg",
+    hoverImage: "/pizza_images/27.jpg",
   },
   {
     id: "pizza-28",
@@ -412,6 +439,7 @@ export const INITIAL_MENU = [
     category: "vegetarian",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
     image: "/pizza_images/28 Greek Special.jpeg",
+    hoverImage: "",
   },
   {
     id: "pizza-29",
@@ -428,6 +456,7 @@ export const INITIAL_MENU = [
     category: "specialty",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
     image: "/pizza_images/29 Tropicana.jpeg",
+    hoverImage: "/pizza_images/29.jpg",
   },
   {
     id: "pizza-30",
@@ -438,6 +467,7 @@ export const INITIAL_MENU = [
     category: "meat",
     prices: { small: 600, medium: 1100, large: 1650, thin: 1100 },
     image: "/pizza_images/30.jpg",
+    hoverImage: "/pizza_images/30.jpg",
   },
 ];
 

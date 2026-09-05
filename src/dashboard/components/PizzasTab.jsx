@@ -35,6 +35,7 @@ function buildEditModel(pizza, translationOverrides) {
     number: pizza.number,
     category: pizza.category,
     image: pizza.image,
+    hoverImage: pizza.hoverImage || "",
     ingredients: (pizza.ingredients || []).join(", "),
     prices: { ...pizza.prices },
     nameEn: getEffectivePizzaText(translationOverrides, "en", pizza.id, "name") || pizza.name,
@@ -52,6 +53,7 @@ function emptyPizza(nextNumber) {
     number: nextNumber,
     category: "classic",
     image: "",
+    hoverImage: "",
     ingredients: "",
     prices: { small: 0, medium: 0, large: 0, thin: 0 },
     nameEn: "",
@@ -150,6 +152,7 @@ export default function PizzasTab() {
           thin: Number(p.prices.thin) || 0,
         },
         image: p.image,
+        hoverImage: p.hoverImage,
       }));
 
       // Re-fetch the shared translations blob right before merging, so a
@@ -343,6 +346,15 @@ function PizzaFormModal({ model, isNew, onClose, onSave }) {
     }
   };
 
+  const handleHoverFile = async (file) => {
+    try {
+      const dataUrl = await compressImage(file);
+      set({ hoverImage: dataUrl });
+    } catch {
+      toast("Could not read that image file.", "error");
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.nameEn.trim()) {
@@ -431,10 +443,22 @@ function PizzaFormModal({ model, isNew, onClose, onSave }) {
         />
 
         <ImagePicker
+          label="Main Image"
           value={form.image}
           onChange={(url) => set({ image: url })}
           onFile={handleFile}
         />
+
+        <ImagePicker
+          label="Hover Image"
+          value={form.hoverImage}
+          onChange={(url) => set({ hoverImage: url })}
+          onFile={handleHoverFile}
+        />
+        <p className="text-[10px] text-text-tertiary -mt-3">
+          Shown when a visitor hovers over the pizza card. Leave empty to just
+          reuse the main image.
+        </p>
 
         <div className="flex justify-end gap-3 pt-2">
           <Button type="button" variant="secondary" onClick={onClose}>
