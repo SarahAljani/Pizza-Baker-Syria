@@ -22,8 +22,10 @@ export default function DashboardShell({ onLogout }) {
 
   return (
     <div dir={isRtl ? "rtl" : "ltr"} className="min-h-screen bg-bg-primary flex flex-col lg:flex-row">
-      {/* Sidebar */}
-      <aside className="lg:w-64 flex-shrink-0 bg-bg-secondary border-b lg:border-b-0 lg:border-r border-border-primary flex flex-col">
+      {/* Sidebar: pinned to the viewport height on desktop so it never
+          stretches to match a tall tab's content — otherwise the bottom
+          links (language, view site, log out) end up far below the fold. */}
+      <aside className="lg:w-64 flex-shrink-0 bg-bg-secondary border-b lg:border-b-0 lg:border-r border-border-primary flex flex-col lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
         <div className="flex items-center gap-3 px-5 py-5 border-b border-border-primary">
           <div className="w-9 h-9 rounded-full bg-brand-burgundy/40 border border-brand-gold/30 flex items-center justify-center flex-shrink-0">
             <ChefHat className="w-4.5 h-4.5 text-brand-gold" />
