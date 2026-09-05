@@ -8,6 +8,8 @@ import {
   ShoppingBag,
   Check,
   ShieldCheck,
+  MapPin,
+  Loader2,
 } from "lucide-react";
 import { useThemeLanguage } from "../context/ThemeLanguageContext";
 import { SITE_SETTINGS } from "../data";
@@ -15,6 +17,7 @@ import {
   generateRecaptchaToken,
   getCachedCSRFToken,
 } from "../utils/securityUtils";
+import { getUserLocationLink } from "../utils/geolocation";
 
 export default function CartDrawer({
   isOpen,
@@ -25,6 +28,7 @@ export default function CartDrawer({
   onClearCart,
 }) {
   const [checkoutStep, setCheckoutStep] = useState("cart");
+  const [gettingLocation, setGettingLocation] = useState(false);
   const { t, isRtl, language } = useThemeLanguage();
 
   const subtotal = cart.reduce(
@@ -34,11 +38,23 @@ export default function CartDrawer({
   const deliveryFee = subtotal >= 3000 || subtotal === 0 ? 0 : 200;
   const total = subtotal + deliveryFee;
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
+    // Open the tab synchronously (within the click gesture) so it isn't
+    // blocked as a popup once we `await` geolocation below; we navigate it
+    // to the real WhatsApp URL once the message is ready.
+    const whatsappWindow = window.open("", "_blank");
+
+    setGettingLocation(true);
+    const locationLink = await getUserLocationLink();
+    setGettingLocation(false);
+
     // Construct WhatsApp message content
     let messageText = "";
     if (language === "ar") {
       messageText = `مرحباً بيتزا بيكر! أود تقديم طلب بيتزا مميز (التركيز على المكونات الطازجة والصلصات المدهشة):\n\n`;
+      messageText += locationLink
+        ? `📍 *الموقع:* ${locationLink}\n\n`
+        : `📍 *الموقع:* لم تتم مشاركته — الرجاء سؤال الزبون عن عنوان التوصيل\n\n`;
       cart.forEach((item, index) => {
         const itemSize =
           item.size === "small"
@@ -84,6 +100,9 @@ export default function CartDrawer({
       messageText += `\nالرجاء تأكيد الطلب والبدء في إعداد رحلة البيتزا الاستثنائية من الصفر فوراً! شكراً لكم!`;
     } else {
       messageText = `Hello Pizza Baker! I would like to place a new signature pizza order featuring premium ingredients and rich sauces:\n\n`;
+      messageText += locationLink
+        ? `📍 *Location:* ${locationLink}\n\n`
+        : `📍 *Location:* not shared — please ask the customer for the delivery address\n\n`;
       cart.forEach((item, index) => {
         const itemSize =
           item.size === "small"
@@ -132,8 +151,13 @@ export default function CartDrawer({
     // Switch step to success
     setCheckoutStep("success");
 
-    // Redirect to WhatsApp chat
-    window.open(whatsappUrl, "_blank");
+    // Navigate the tab we opened synchronously at the start (or, if the
+    // browser blocked that for some reason, fall back to opening fresh).
+    if (whatsappWindow) {
+      whatsappWindow.location.href = whatsappUrl;
+    } else {
+      window.open(whatsappUrl, "_blank");
+    }
   };
 
   const handleReset = () => {
@@ -470,10 +494,29 @@ export default function CartDrawer({
                   <button
                     id="btn-drawer-checkout"
                     onClick={handleCheckout}
-                    className="flex-1 bg-brand-gold hover:bg-yellow-500 text-black py-4 font-mono text-xs font-bold tracking-widest transition-all rounded-none flex items-center justify-center gap-2 shadow-lg shadow-brand-gold/5 cursor-pointer active:scale-[0.98]"
+                    disabled={gettingLocation}
+                    className="flex-1 bg-brand-gold hover:bg-yellow-500 text-black py-4 font-mono text-xs font-bold tracking-widest transition-all rounded-none flex items-center justify-center gap-2 shadow-lg shadow-brand-gold/5 cursor-pointer active:scale-[0.98] disabled:opacity-70 disabled:cursor-wait"
                   >
-                    <span>{t("checkoutWhatsApp")}</span>
+                    {gettingLocation ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>
+                          {isRtl ? "جارٍ تحديد الموقع..." : "Getting your location..."}
+                        </span>
+                      </>
+                    ) : (
+                      <span>{t("checkoutWhatsApp")}</span>
+                    )}
                   </button>
+
+                  <div className="flex items-center justify-center gap-1.5 text-[10px] font-mono text-text-tertiary">
+                    <MapPin className="w-3.5 h-3.5 text-brand-gold flex-shrink-0" />
+                    <span>
+                      {isRtl
+                        ? "سنطلب موقعك لمساعدتنا في إيصال طلبك بسرعة أكبر"
+                        : "We'll ask for your location to help deliver your order faster"}
+                    </span>
+                  </div>
 
                   <div className="flex items-center justify-center gap-1.5 text-[10px] font-mono text-text-tertiary">
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
