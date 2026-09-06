@@ -135,6 +135,11 @@ export function applySettingsOverride(settings) {
   if (typeof settings.seo?.ogImage === "string" && settings.seo.ogImage) {
     SITE_SETTINGS.seo.ogImage = settings.seo.ogImage;
   }
+  // Backward-compat: settings saved before per-section SEO existed had a
+  // flat { en, ar } shape for the whole site — migrate that into the new
+  // "home" section so already-customized SEO isn't silently dropped.
+  if (settings.seo?.en) Object.assign(SITE_SETTINGS.seo.sections.home.en, settings.seo.en);
+  if (settings.seo?.ar) Object.assign(SITE_SETTINGS.seo.sections.home.ar, settings.seo.ar);
   if (settings.seo?.sections) {
     for (const key of Object.keys(SITE_SETTINGS.seo.sections)) {
       const section = settings.seo.sections[key];
