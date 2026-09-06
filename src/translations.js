@@ -388,6 +388,24 @@ export const translations = {
         desc: "Sauce, Cheese, Red onion, Corn, Minced Beef",
       },
     },
+
+    // Sauces & Drinks
+    sauces: "Sauces",
+    drinks: "Drinks",
+    saucesPreTitle: "DIPS & CONDIMENTS",
+    saucesTitle: "SIGNATURE SAUCES",
+    saucesDesc: "RICH, HAND-MADE SAUCES TO PAIR WITH EVERY BITE.",
+    drinksPreTitle: "ICE COLD REFRESHMENTS",
+    drinksTitle: "DRINKS",
+    drinksDesc: "COLD DRINKS TO COMPLETE YOUR MEAL.",
+    sauce_mayonnaise: "Mayonnaise",
+    sauce_mayonnaise_desc: "Creamy, house-made mayonnaise.",
+    sauce_bbq: "BBQ Sauce",
+    sauce_bbq_desc: "Smoky, tangy barbecue sauce.",
+    drink_pepsi: "Pepsi",
+    drink_pepsi_desc: "Ice-cold classic cola.",
+    drink_water: "Water",
+    drink_water_desc: "Chilled bottled water.",
   },
   ar: {
     // Navigation
@@ -805,6 +823,24 @@ export const translations = {
         desc: "صوص بيتزا، جبنة، بصل أحمر ، ذرة ، شرائح اللحم بقري",
       },
     },
+
+    // Sauces & Drinks
+    sauces: "الصلصات",
+    drinks: "المشروبات",
+    saucesPreTitle: "صلصات ومقبلات",
+    saucesTitle: "صلصاتنا المميزة",
+    saucesDesc: "صلصات غنية ومحضرة بعناية لتناسب كل قضمة.",
+    drinksPreTitle: "مشروبات باردة ومنعشة",
+    drinksTitle: "المشروبات",
+    drinksDesc: "مشروبات باردة لإكمال وجبتك.",
+    sauce_mayonnaise: "مايونيز",
+    sauce_mayonnaise_desc: "مايونيز كريمي محضر منزلياً.",
+    sauce_bbq: "صوص الباربكيو",
+    sauce_bbq_desc: "صوص باربكيو مدخن وحامض لذيذ.",
+    drink_pepsi: "بيبسي",
+    drink_pepsi_desc: "مشروب كولا كلاسيكي بارد.",
+    drink_water: "مياه",
+    drink_water_desc: "مياه معبأة مبردة.",
   },
 };
 

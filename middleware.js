@@ -50,7 +50,7 @@ export default async function middleware(request) {
 
     // index.html defaults to Arabic (the site's primary language), so that's
     // the copy link-preview crawlers see — match that here.
-    const title = settings?.seo?.ar?.title;
+    const title = settings?.seo?.sections?.home?.ar?.title;
     if (title) {
       html = replaceMetaContent(html, /(<title>)[\s\S]*?(<\/title>)/, title);
       html = replaceMetaContent(
@@ -70,7 +70,7 @@ export default async function middleware(request) {
       );
     }
 
-    const description = settings?.seo?.ar?.description;
+    const description = settings?.seo?.sections?.home?.ar?.description;
     if (description) {
       html = replaceMetaContent(
         html,

@@ -20,13 +20,18 @@ import {
 } from "./utils/securityUtils";
 
 // Identifies a cart line: same id+size merges quantity, but a pizza with
-// different removed ingredients is kept as its own separate line.
-function getLineKey(id, size, excludedIngredients) {
-  const suffix =
+// different removed ingredients or different sauce/drink add-ons is kept as
+// its own separate line.
+function getLineKey(id, size, excludedIngredients, addons) {
+  const exclSuffix =
     excludedIngredients && excludedIngredients.length
       ? `|excl:${[...excludedIngredients].sort().join(",")}`
       : "";
-  return `${id}|${size}${suffix}`;
+  const addonsSuffix =
+    addons && addons.length
+      ? `|addons:${addons.map((a) => a.translationKey).sort().join(",")}`
+      : "";
+  return `${id}|${size}${exclSuffix}${addonsSuffix}`;
 }
 
 export default function App() {
@@ -47,7 +52,10 @@ export default function App() {
       items.map((item) =>
         item.lineKey
           ? item
-          : { ...item, lineKey: getLineKey(item.id, item.size, item.excludedIngredients) },
+          : {
+              ...item,
+              lineKey: getLineKey(item.id, item.size, item.excludedIngredients, item.addons),
+            },
       );
 
     // Load encrypted cart from secure storage
@@ -106,11 +114,13 @@ export default function App() {
   };
 
   // Add a pizza to cart from the detail popup, with any unwanted ingredients
-  // unchecked — kept as its own cart line so it never merges with a plain add.
-  const handleAddPizzaWithExclusions = (pizza, size, excludedIngredients) => {
-    const lineKey = getLineKey(pizza.id, size, excludedIngredients);
+  // unchecked and any sauces/drinks selected — kept as its own cart line so
+  // it never merges with a plain add or a differently-customized one.
+  const handleAddPizzaWithExclusions = (pizza, size, excludedIngredients, addons) => {
+    const lineKey = getLineKey(pizza.id, size, excludedIngredients, addons);
     const existingIndex = cart.findIndex((c) => c.lineKey === lineKey);
-    const itemPrice = pizza.prices[size] ?? pizza.prices.medium ?? 0;
+    const addonsTotal = (addons || []).reduce((sum, a) => sum + a.price, 0);
+    const itemPrice = (pizza.prices[size] ?? pizza.prices.medium ?? 0) + addonsTotal;
 
     if (existingIndex > -1) {
       const updated = [...cart];
@@ -128,6 +138,7 @@ export default function App() {
           excludedIngredients && excludedIngredients.length
             ? excludedIngredients
             : undefined,
+        addons: addons && addons.length ? addons : undefined,
       };
       saveCart([...cart, newItem]);
     }

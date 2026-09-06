@@ -1,19 +1,33 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, ShoppingCart, Check } from "lucide-react";
+import { EXTRAS_MENU } from "../data";
 import { useThemeLanguage } from "../context/ThemeLanguageContext";
 
 const SIZES = ["small", "medium", "large", "thin"];
+
+// An addon's own price, whatever size key it happens to be stored under
+// (sauces/drinks are usually a single "standard" price, but this works even
+// if an admin adds size options to one later).
+function addonPrice(item) {
+  return item.prices.standard ?? Object.values(item.prices)[0] ?? 0;
+}
 
 export default function PizzaDetailModal({ pizza, onClose, onAddToCart }) {
   const { t, isRtl } = useThemeLanguage();
   const [size, setSize] = useState("medium");
   const [excluded, setExcluded] = useState(() => new Set());
+  const [selectedAddons, setSelectedAddons] = useState(() => new Set());
   const [added, setAdded] = useState(false);
 
   if (!pizza) return null;
 
-  const price = pizza.prices[size] ?? pizza.prices.medium ?? 0;
+  const basePrice = pizza.prices[size] ?? pizza.prices.medium ?? 0;
+  const addonItems = [...EXTRAS_MENU.sauces, ...EXTRAS_MENU.drinks].filter((item) =>
+    selectedAddons.has(item.translationKey),
+  );
+  const addonsTotal = addonItems.reduce((sum, item) => sum + addonPrice(item), 0);
+  const price = basePrice + addonsTotal;
 
   const toggleIngredient = (ingredient) => {
     setExcluded((prev) => {
@@ -24,8 +38,21 @@ export default function PizzaDetailModal({ pizza, onClose, onAddToCart }) {
     });
   };
 
+  const toggleAddon = (translationKey) => {
+    setSelectedAddons((prev) => {
+      const next = new Set(prev);
+      if (next.has(translationKey)) next.delete(translationKey);
+      else next.add(translationKey);
+      return next;
+    });
+  };
+
   const handleAdd = () => {
-    onAddToCart(pizza, size, Array.from(excluded));
+    const addons = addonItems.map((item) => ({
+      translationKey: item.translationKey,
+      price: addonPrice(item),
+    }));
+    onAddToCart(pizza, size, Array.from(excluded), addons);
     setAdded(true);
     setTimeout(() => {
       setAdded(false);
@@ -137,6 +164,52 @@ export default function PizzaDetailModal({ pizza, onClose, onAddToCart }) {
                   })}
                 </div>
               </div>
+            )}
+
+            {/* Sauces & drinks add-ons — right here so a customer doesn't
+                have to scroll down to the Sides section to add them. */}
+            {[
+              { items: EXTRAS_MENU.sauces, label: isRtl ? "أضف صلصة" : "ADD A SAUCE" },
+              { items: EXTRAS_MENU.drinks, label: isRtl ? "أضف مشروباً" : "ADD A DRINK" },
+            ].map(
+              ({ items, label }) =>
+                items.length > 0 && (
+                  <div key={label} className="space-y-2">
+                    <span className="text-[10px] font-mono tracking-widest text-brand-gold block font-bold uppercase">
+                      {label}
+                    </span>
+                    <div className="grid grid-cols-2 gap-2">
+                      {items.map((item) => {
+                        const isChecked = selectedAddons.has(item.translationKey);
+                        return (
+                          <label
+                            key={item.id}
+                            className={`flex items-center justify-between gap-2 px-3 py-2 border cursor-pointer select-none transition-colors ${
+                              isChecked
+                                ? "border-brand-gold/60 text-text-primary bg-brand-gold/5"
+                                : "border-border-primary hover:border-brand-gold/40 text-text-primary"
+                            }`}
+                          >
+                            <span className="flex items-center gap-2 min-w-0">
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => toggleAddon(item.translationKey)}
+                                className="accent-brand-gold w-3.5 h-3.5 flex-shrink-0"
+                              />
+                              <span className="text-xs font-sans truncate">
+                                {t(item.translationKey)}
+                              </span>
+                            </span>
+                            <span className="text-[10px] font-mono text-brand-gold flex-shrink-0">
+                              +{addonPrice(item)}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ),
             )}
           </div>
 

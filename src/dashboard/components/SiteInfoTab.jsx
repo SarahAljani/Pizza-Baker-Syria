@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Save, RotateCcw, Loader2 } from "lucide-react";
+import { ChevronDown, Save, RotateCcw, Loader2 } from "lucide-react";
 import { loadAllContent, saveSettings, uploadImageFile, migrateEmbeddedImage } from "../storage";
 import { Button, Field, TextArea, SectionCard, ImagePicker, useToast } from "../ui";
 import { useDashboardLanguage } from "../DashboardLanguageContext";
@@ -12,6 +12,17 @@ const SECTION_KEYS = {
   reviews: "sectionReviews",
 };
 
+// SEO is editable per section — "home" covers the hero section and is also
+// what link-preview crawlers (WhatsApp/Facebook) see for the bare site URL.
+const SEO_SECTIONS = [
+  { key: "home", labelKey: "sectionHome" },
+  { key: "menu", labelKey: "sectionMenu" },
+  { key: "extras", labelKey: "sectionExtras" },
+  { key: "builder", labelKey: "sectionBuilder" },
+  { key: "reservation", labelKey: "sectionReservation" },
+  { key: "reviews", labelKey: "sectionReviews" },
+];
+
 export default function SiteInfoTab() {
   const { t } = useDashboardLanguage();
   const [loading, setLoading] = useState(true);
@@ -21,7 +32,15 @@ export default function SiteInfoTab() {
   const [saving, setSaving] = useState(false);
   const [uploadingHero, setUploadingHero] = useState(false);
   const [uploadingOg, setUploadingOg] = useState(false);
+  const [openSeoSections, setOpenSeoSections] = useState(() => new Set(["home"]));
   const toast = useToast();
+
+  const toggleSeoSection = (key) =>
+    setOpenSeoSections((prev) => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
 
   const load = () => {
     setLoading(true);
@@ -91,10 +110,19 @@ export default function SiteInfoTab() {
     setDirty(true);
   };
 
-  const setSeo = (lang, key, value) => {
+  const setSeoSection = (sectionKey, lang, field, value) => {
     setSettings((prev) => ({
       ...prev,
-      seo: { ...prev.seo, [lang]: { ...prev.seo[lang], [key]: value } },
+      seo: {
+        ...prev.seo,
+        sections: {
+          ...prev.seo.sections,
+          [sectionKey]: {
+            ...prev.seo.sections[sectionKey],
+            [lang]: { ...prev.seo.sections[sectionKey][lang], [field]: value },
+          },
+        },
+      },
     }));
     setDirty(true);
   };
@@ -273,38 +301,11 @@ export default function SiteInfoTab() {
       </SectionCard>
 
       <SectionCard
-        title={t("defaultSeoTitle")}
-        subtitle={t("defaultSeoSubtitle")}
+        title={t("perSectionSeoTitle")}
+        subtitle={t("perSectionSeoSubtitle")}
         actions={actions}
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field
-            label={t("titleEn")}
-            value={settings.seo.en.title}
-            onChange={(e) => setSeo("en", "title", e.target.value)}
-          />
-          <Field
-            label={t("titleAr")}
-            dir="rtl"
-            value={settings.seo.ar.title}
-            onChange={(e) => setSeo("ar", "title", e.target.value)}
-          />
-          <TextArea
-            label={t("descriptionEn")}
-            rows={3}
-            value={settings.seo.en.description}
-            onChange={(e) => setSeo("en", "description", e.target.value)}
-          />
-          <TextArea
-            label={t("descriptionAr")}
-            dir="rtl"
-            rows={3}
-            value={settings.seo.ar.description}
-            onChange={(e) => setSeo("ar", "description", e.target.value)}
-          />
-        </div>
-
-        <div className="mt-5">
+        <div className="mb-5">
           <ImagePicker
             label={t("shareImageLabel")}
             value={settings.seo.ogImage}
@@ -313,6 +314,57 @@ export default function SiteInfoTab() {
             loading={uploadingOg}
           />
           <p className="text-[10px] text-text-tertiary mt-2">{t("shareImageHint")}</p>
+        </div>
+
+        <div className="space-y-3">
+          {SEO_SECTIONS.map(({ key, labelKey }) => {
+            const isOpen = openSeoSections.has(key);
+            const section = settings.seo.sections[key];
+            return (
+              <div key={key} className="border border-border-primary">
+                <button
+                  type="button"
+                  onClick={() => toggleSeoSection(key)}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-bg-primary hover:bg-white/[0.02] transition-colors cursor-pointer"
+                >
+                  <span className="font-serif text-base text-text-primary uppercase tracking-wide">
+                    {t(labelKey)}
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-brand-gold transition-transform ${isOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+                {isOpen && (
+                  <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Field
+                      label={t("titleEn")}
+                      value={section.en.title}
+                      onChange={(e) => setSeoSection(key, "en", "title", e.target.value)}
+                    />
+                    <Field
+                      label={t("titleAr")}
+                      dir="rtl"
+                      value={section.ar.title}
+                      onChange={(e) => setSeoSection(key, "ar", "title", e.target.value)}
+                    />
+                    <TextArea
+                      label={t("descriptionEn")}
+                      rows={3}
+                      value={section.en.description}
+                      onChange={(e) => setSeoSection(key, "en", "description", e.target.value)}
+                    />
+                    <TextArea
+                      label={t("descriptionAr")}
+                      dir="rtl"
+                      rows={3}
+                      value={section.ar.description}
+                      onChange={(e) => setSeoSection(key, "ar", "description", e.target.value)}
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </SectionCard>
     </div>

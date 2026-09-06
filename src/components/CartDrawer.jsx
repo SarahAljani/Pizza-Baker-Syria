@@ -120,6 +120,9 @@ export default function CartDrawer({
         if (item.excludedIngredients && item.excludedIngredients.length > 0) {
           messageText += `   بدون: ${item.excludedIngredients.join("، ")}\n`;
         }
+        if (item.addons && item.addons.length > 0) {
+          messageText += `   إضافات: ${item.addons.map((a) => t(a.translationKey)).join("، ")}\n`;
+        }
         messageText += `\n`;
       });
       messageText += `*القيمة الإجمالية للطلب:* ${total} ل.س\n`;
@@ -162,6 +165,9 @@ export default function CartDrawer({
         }
         if (item.excludedIngredients && item.excludedIngredients.length > 0) {
           messageText += `   Without: ${item.excludedIngredients.join(", ")}\n`;
+        }
+        if (item.addons && item.addons.length > 0) {
+          messageText += `   Added: ${item.addons.map((a) => t(a.translationKey)).join(", ")}\n`;
         }
         messageText += `\n`;
       });
@@ -321,6 +327,26 @@ export default function CartDrawer({
                                   ))}
                                 </div>
                               )}
+
+                            {/* Sauces/drinks added to a customized pizza */}
+                            {item.addons && item.addons.length > 0 && (
+                              <div className="bg-bg-primary border border-border-primary p-2 rounded text-[10px] text-text-secondary font-mono space-y-0.5 transition-colors">
+                                <span className="text-text-tertiary block uppercase font-bold mb-1">
+                                  {isRtl ? "إضافات" : "Added"}:
+                                </span>
+                                {item.addons.map((addon, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="flex items-center gap-1"
+                                  >
+                                    <span className="text-brand-gold">+</span>
+                                    <span>
+                                      {t(addon.translationKey)} ({addon.price} {isRtl ? "ل.س" : "SYP"})
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
 
                             <span className="font-mono text-xs text-brand-gold font-bold block">
                               {item.price} {isRtl ? "ل.س" : "SYP"}{" "}

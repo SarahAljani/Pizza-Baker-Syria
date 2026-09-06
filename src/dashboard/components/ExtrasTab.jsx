@@ -21,6 +21,16 @@ import {
 } from "../ui";
 import { useDashboardLanguage } from "../DashboardLanguageContext";
 
+// Snacks/desserts/sauces/drinks all share the exact same data shape and
+// CRUD UI — this list is what drives the generic rendering below instead of
+// hand-duplicating a block of JSX per category.
+const CATEGORIES = [
+  { key: "snacks", titleKey: "snacksTitle", addModalKey: "addSnackModalTitle" },
+  { key: "desserts", titleKey: "dessertsTitle", addModalKey: "addDessertModalTitle" },
+  { key: "sauces", titleKey: "saucesTitle", addModalKey: "addSauceModalTitle" },
+  { key: "drinks", titleKey: "drinksTitle", addModalKey: "addDrinkModalTitle" },
+];
+
 function slugify(name) {
   return (
     name
@@ -140,7 +150,7 @@ export default function ExtrasTab() {
   const { t } = useDashboardLanguage();
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
-  const [extras, setExtras] = useState({ snacks: [], desserts: [] });
+  const [extras, setExtras] = useState({ snacks: [], desserts: [], sauces: [], drinks: [] });
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -152,9 +162,11 @@ export default function ExtrasTab() {
     setLoadError(null);
     loadAllContent()
       .then(async ({ extras: rawExtras, translationOverrides: overrides }) => {
-        const snacks = rawExtras.snacks.map((i) => buildEditModel(i, overrides));
-        const desserts = rawExtras.desserts.map((i) => buildEditModel(i, overrides));
-        setExtras({ snacks, desserts });
+        const byCategory = {};
+        for (const { key } of CATEGORIES) {
+          byCategory[key] = rawExtras[key].map((i) => buildEditModel(i, overrides));
+        }
+        setExtras(byCategory);
         setDirty(false);
         setLoading(false);
 
@@ -162,21 +174,24 @@ export default function ExtrasTab() {
         // storage may still have images embedded as base64 data URLs —
         // that's what makes the whole extras blob too large to save.
         let migrated = false;
-        for (const item of [...snacks, ...desserts]) {
-          const newImage = await migrateEmbeddedImage(item.image);
-          if (newImage !== item.image) {
-            item.image = newImage;
-            migrated = true;
+        for (const { key } of CATEGORIES) {
+          for (const item of byCategory[key]) {
+            const newImage = await migrateEmbeddedImage(item.image);
+            if (newImage !== item.image) {
+              item.image = newImage;
+              migrated = true;
+            }
           }
         }
 
         if (migrated) {
-          setExtras({ snacks: [...snacks], desserts: [...desserts] });
+          const refreshed = {};
+          for (const { key } of CATEGORIES) refreshed[key] = [...byCategory[key]];
+          setExtras(refreshed);
           try {
-            await saveExtras({
-              snacks: snacks.map(toExtraItem),
-              desserts: desserts.map(toExtraItem),
-            });
+            const payload = {};
+            for (const { key } of CATEGORIES) payload[key] = byCategory[key].map(toExtraItem);
+            await saveExtras(payload);
             toast(t("imagesOptimized"));
           } catch (err) {
             toast(err.message || t("couldntSave"), "error");
@@ -192,12 +207,10 @@ export default function ExtrasTab() {
   useEffect(load, []);
 
   const openAdd = (category) => {
-    const nextNumber =
-      Math.max(
-        0,
-        ...extras.snacks.map((s) => Number(s.number) || 0),
-        ...extras.desserts.map((d) => Number(d.number) || 0),
-      ) + 1;
+    const allNumbers = CATEGORIES.flatMap(({ key }) =>
+      extras[key].map((i) => Number(i.number) || 0),
+    );
+    const nextNumber = Math.max(0, ...allNumbers) + 1;
     setEditing({ category, model: emptyItem(category, nextNumber), isNew: true });
   };
 
@@ -234,7 +247,8 @@ export default function ExtrasTab() {
       // Re-fetch the shared translations blob right before merging, so a
       // save here doesn't clobber edits made concurrently from another tab.
       const { translationOverrides: latest } = await loadAllContent();
-      for (const item of [...extras.snacks, ...extras.desserts]) {
+      const allItems = CATEGORIES.flatMap(({ key }) => extras[key]);
+      for (const item of allItems) {
         mergeLanguagePatch(latest, "en", {
           [item.translationKey]: item.nameEn,
           [`${item.translationKey}_desc`]: item.descEn,
@@ -245,10 +259,9 @@ export default function ExtrasTab() {
         });
       }
 
-      await saveExtras({
-        snacks: extras.snacks.map(toExtraItem),
-        desserts: extras.desserts.map(toExtraItem),
-      });
+      const payload = {};
+      for (const { key } of CATEGORIES) payload[key] = extras[key].map(toExtraItem);
+      await saveExtras(payload);
       await saveTranslationOverrides(latest);
 
       setDirty(false);
@@ -302,20 +315,16 @@ export default function ExtrasTab() {
       }
     >
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <ItemGrid
-          title={t("snacksTitle")}
-          items={extras.snacks}
-          onAdd={() => openAdd("snacks")}
-          onEdit={(item) => openEdit("snacks", item)}
-          onDelete={(item) => setDeleteTarget({ category: "snacks", id: item.id })}
-        />
-        <ItemGrid
-          title={t("dessertsTitle")}
-          items={extras.desserts}
-          onAdd={() => openAdd("desserts")}
-          onEdit={(item) => openEdit("desserts", item)}
-          onDelete={(item) => setDeleteTarget({ category: "desserts", id: item.id })}
-        />
+        {CATEGORIES.map(({ key, titleKey }) => (
+          <ItemGrid
+            key={key}
+            title={t(titleKey)}
+            items={extras[key]}
+            onAdd={() => openAdd(key)}
+            onEdit={(item) => openEdit(key, item)}
+            onDelete={(item) => setDeleteTarget({ category: key, id: item.id })}
+          />
+        ))}
       </div>
 
       {editing && (
@@ -388,9 +397,7 @@ function ExtraFormModal({ category, model, isNew, onClose, onSave }) {
   };
 
   const modalTitle = isNew
-    ? category === "snacks"
-      ? t("addSnackModalTitle")
-      : t("addDessertModalTitle")
+    ? t(CATEGORIES.find((c) => c.key === category)?.addModalKey || "add")
     : t("editItemModalTitle");
 
   return (

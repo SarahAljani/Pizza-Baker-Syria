@@ -28,21 +28,88 @@ export const SITE_SETTINGS = {
     reviews: false,
   },
   seo: {
-    en: {
-      title:
-        "Pizza Baker Syria | Premium Italian Oven-Baked Pizza, Snacks & Nutella Desserts",
-      description:
-        "Syria’s premier Italian pizzeria offering over 30 signature pizzas, garlic bread, chicken drumsticks, and Nutella desserts.",
-    },
-    ar: {
-      title:
-        "بيتزا بيكر سوريا | Pizza Baker Syria - أشهى بيتزا إيطالية حرارية ومقبلات وحلويات نوتيلا",
-      description:
-        "المطعم الأرقى للبيتزا الإيطالية الفاخرة في سوريا. استمتع بأكثر من 30 صنف بيتزا حرارية، خبزة الثوم، دبابيس الدجاج، وحلويات نوتيلا فواكه وبستاشيو.",
-    },
     // Shown when the site link is shared (WhatsApp/Facebook/Twitter/Google).
     ogImage:
       "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&q=80&w=1200",
+    // Title/description per section, swapped in by SEOHead.jsx as the
+    // visitor scrolls — "home" is the fallback used for the hero section
+    // and for static (non-JS) contexts like link-preview crawlers.
+    sections: {
+      home: {
+        en: {
+          title:
+            "Pizza Baker Syria | Premium Italian Oven-Baked Pizza, Snacks & Nutella Desserts",
+          description:
+            "Syria’s premier Italian pizzeria offering over 30 signature pizzas, garlic bread, chicken drumsticks, and Nutella desserts.",
+        },
+        ar: {
+          title:
+            "بيتزا بيكر سوريا | Pizza Baker Syria - أشهى بيتزا إيطالية حرارية ومقبلات وحلويات نوتيلا",
+          description:
+            "المطعم الأرقى للبيتزا الإيطالية الفاخرة في سوريا. استمتع بأكثر من 30 صنف بيتزا حرارية، خبزة الثوم، دبابيس الدجاج، وحلويات نوتيلا فواكه وبستاشيو.",
+        },
+      },
+      menu: {
+        en: {
+          title: "Artisanal Pizza Menu | Pizza Baker Syria",
+          description:
+            "Explore over 30 authentic oven-baked Italian pizzas with premium melting cheeses and signature sauces.",
+        },
+        ar: {
+          title: "قائمة البيتزا الإيطالية | بيتزا بيكر سوريا (Pizza Baker)",
+          description:
+            "تصفح أكثر من 30 صنف بيتزا إيطالية حرارية فاخرة بأشهى الصلصات والأجبا الموزاريلا المذوبة. طلب أونلاين وتوصيل سريع في سوريا.",
+        },
+      },
+      extras: {
+        en: {
+          title: "Sides, Sauces & Drinks | Pizza Baker Syria",
+          description:
+            "Crispy garlic bread and chicken drumsticks, Nutella dessert pizzas, dipping sauces, and cold drinks.",
+        },
+        ar: {
+          title: "المقبلات والصلصات والمشروبات | بيتزا بيكر سوريا",
+          description:
+            "خبزة الثوم ودبابيس الدجاج المقرمشة، حلويات البيتزا بالنوتيلا، صلصات التغميس، والمشروبات الباردة.",
+        },
+      },
+      builder: {
+        en: {
+          title: "Custom Pizza Builder | Design Your Pizza | Pizza Baker",
+          description:
+            "Interactive artisanal pizza creator: select your dough type, signature sauces, cheeses, and rich toppings.",
+        },
+        ar: {
+          title: "صانع البيتزا التفاعلي | صمم بيتزا أحلامك | بيتزا بيكر",
+          description:
+            "صمم بيتزا إيطالية حرارية مخصصة باختيار نوع العجينة، الصلصة، الأجبان والمكونات الفاخرة خطوة بخطوة.",
+        },
+      },
+      reservation: {
+        en: {
+          title: "Book a Table | Table Reservation Desk | Pizza Baker Syria",
+          description:
+            "Reserve your dining table at Pizza Baker Syria for an exceptional Italian culinary journey.",
+        },
+        ar: {
+          title: "حجز طاولات مطعم بيتزا بيكر سوريا | Reservation Desk",
+          description:
+            "احجز طاولتك الخاصة في مطعم بيتزا بيكر سوريا بسهولة وسرعة للاستمتاع بأجمل الأجواء وأشهى الأطباق الإيطالية.",
+        },
+      },
+      reviews: {
+        en: {
+          title: "Customer Reviews & Ratings | Pizza Baker Syria",
+          description:
+            "Read verified reviews and testimonials from pizza lovers about our food quality and service.",
+        },
+        ar: {
+          title: "تقييمات وآراء العملاء | بيتزا بيكر سوريا",
+          description:
+            "اقرأ آراء عشاق البيتزا والعملاء في سوريا حول تجربة مطعم بيتزا بيكر وتقييمات الوجبات والخدمة الفائقة.",
+        },
+      },
+    },
   },
 };
 
@@ -65,8 +132,16 @@ export function applySettingsOverride(settings) {
   if (settings.sectionVisibility) {
     Object.assign(SITE_SETTINGS.sectionVisibility, settings.sectionVisibility);
   }
-  if (settings.seo) {
-    Object.assign(SITE_SETTINGS.seo, settings.seo);
+  if (typeof settings.seo?.ogImage === "string" && settings.seo.ogImage) {
+    SITE_SETTINGS.seo.ogImage = settings.seo.ogImage;
+  }
+  if (settings.seo?.sections) {
+    for (const key of Object.keys(SITE_SETTINGS.seo.sections)) {
+      const section = settings.seo.sections[key];
+      if (!section) continue;
+      if (section.en) Object.assign(SITE_SETTINGS.seo.sections[key].en, section.en);
+      if (section.ar) Object.assign(SITE_SETTINGS.seo.sections[key].ar, section.ar);
+    }
   }
 }
 
@@ -782,7 +857,7 @@ export const EXTRAS_MENU = {
         "1.png",
         "garlic.jpeg",
       ],
-      image: "public/snacks/garlic_bread.png",
+      image: "/snacks/garlic_bread.png",
     },
     {
       id: "snack-32",
@@ -800,7 +875,7 @@ export const EXTRAS_MENU = {
         "2.png",
         "drumsticks.jpeg",
       ],
-      image: "public/snacks/chicken_drumsticks.png",
+      image: "/snacks/chicken_drumsticks.png",
     },
   ],
   desserts: [
@@ -819,7 +894,7 @@ export const EXTRAS_MENU = {
         "1.png",
         "pure_nutella.jpeg",
       ],
-      image: "public/dessert/nutella_pure.png",
+      image: "/dessert/nutella_pure.png",
     },
     {
       id: "dessert-34",
@@ -836,7 +911,7 @@ export const EXTRAS_MENU = {
         "2.png",
         "pistachio.jpeg",
       ],
-      image: "public/dessert/nutella_pistachio.png",
+      image: "/dessert/nutella_pistachio.png",
     },
     {
       id: "dessert-35",
@@ -853,7 +928,7 @@ export const EXTRAS_MENU = {
         "3.png",
         "banana.jpeg",
       ],
-      image: "public/dessert/nutella_banana.png",
+      image: "/dessert/nutella_banana.png",
     },
     {
       id: "dessert-36",
@@ -870,7 +945,7 @@ export const EXTRAS_MENU = {
         "4.png",
         "strawberry.jpeg",
       ],
-      image: "public/dessert/nutella_strawberry.png",
+      image: "/dessert/nutella_strawberry.png",
     },
     {
       id: "dessert-37",
@@ -887,7 +962,7 @@ export const EXTRAS_MENU = {
         "5.png",
         "fruity.jpeg",
       ],
-      image: "	public/dessert/fruity_nutella.png",
+      image: "/dessert/fruity_nutella.png",
     },
     {
       id: "dessert-38",
@@ -904,7 +979,47 @@ export const EXTRAS_MENU = {
         "6.png",
         "fruity_pistachio.jpeg",
       ],
-      image: "public/dessert/fruity_pistachio_nutella.png",
+      image: "/dessert/fruity_pistachio_nutella.png",
+    },
+  ],
+  sauces: [
+    {
+      id: "sauce-39",
+      number: 39,
+      name: "Mayonnaise",
+      arabicName: "مايونيز",
+      translationKey: "sauce_mayonnaise",
+      prices: { standard: 100 },
+      image: "",
+    },
+    {
+      id: "sauce-40",
+      number: 40,
+      name: "BBQ Sauce",
+      arabicName: "صوص الباربكيو",
+      translationKey: "sauce_bbq",
+      prices: { standard: 100 },
+      image: "",
+    },
+  ],
+  drinks: [
+    {
+      id: "drink-41",
+      number: 41,
+      name: "Pepsi",
+      arabicName: "بيبسي",
+      translationKey: "drink_pepsi",
+      prices: { standard: 150 },
+      image: "",
+    },
+    {
+      id: "drink-42",
+      number: 42,
+      name: "Water",
+      arabicName: "مياه",
+      translationKey: "drink_water",
+      prices: { standard: 100 },
+      image: "",
     },
   ],
 };
@@ -923,14 +1038,12 @@ export function applyMenuOverride(menu) {
   }
 }
 
-// Same idea for EXTRAS_MENU (snacks + desserts).
+// Same idea for EXTRAS_MENU (snacks, desserts, sauces, drinks).
 export function applyExtrasOverride(extras) {
-  if (Array.isArray(extras?.snacks)) {
-    EXTRAS_MENU.snacks.length = 0;
-    EXTRAS_MENU.snacks.push(...extras.snacks);
-  }
-  if (Array.isArray(extras?.desserts)) {
-    EXTRAS_MENU.desserts.length = 0;
-    EXTRAS_MENU.desserts.push(...extras.desserts);
+  for (const category of Object.keys(EXTRAS_MENU)) {
+    if (Array.isArray(extras?.[category])) {
+      EXTRAS_MENU[category].length = 0;
+      EXTRAS_MENU[category].push(...extras[category]);
+    }
   }
 }

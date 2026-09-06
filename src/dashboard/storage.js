@@ -47,13 +47,23 @@ export async function loadAllContent() {
   const { menu, extras, translations, settings } = await apiGetAll();
   return {
     menu: Array.isArray(menu) && menu.length ? menu : structuredClone(DEFAULT_MENU),
-    extras:
-      extras && Array.isArray(extras.snacks) && Array.isArray(extras.desserts)
-        ? extras
-        : structuredClone(DEFAULT_EXTRAS),
+    extras: mergeExtrasWithDefaults(extras),
     translationOverrides: translations && typeof translations === "object" ? translations : { en: {}, ar: {} },
     settings: mergeSettingsWithDefaults(settings),
   };
+}
+
+// Each extras category (snacks/desserts/sauces/drinks) falls back to its own
+// default independently, so adding a new category later never has to wait
+// on every previously-saved extras.json to also contain it.
+function mergeExtrasWithDefaults(extras) {
+  const merged = {};
+  for (const category of Object.keys(DEFAULT_EXTRAS)) {
+    merged[category] = Array.isArray(extras?.[category])
+      ? extras[category]
+      : structuredClone(DEFAULT_EXTRAS[category]);
+  }
+  return merged;
 }
 
 function mergeSettingsWithDefaults(settings) {
@@ -67,10 +77,16 @@ function mergeSettingsWithDefaults(settings) {
   }
   if (settings?.delivery) Object.assign(merged.delivery, settings.delivery);
   if (settings?.sectionVisibility) Object.assign(merged.sectionVisibility, settings.sectionVisibility);
-  if (settings?.seo?.en) Object.assign(merged.seo.en, settings.seo.en);
-  if (settings?.seo?.ar) Object.assign(merged.seo.ar, settings.seo.ar);
   if (typeof settings?.seo?.ogImage === "string" && settings.seo.ogImage) {
     merged.seo.ogImage = settings.seo.ogImage;
+  }
+  if (settings?.seo?.sections) {
+    for (const key of Object.keys(merged.seo.sections)) {
+      const section = settings.seo.sections[key];
+      if (!section) continue;
+      if (section.en) Object.assign(merged.seo.sections[key].en, section.en);
+      if (section.ar) Object.assign(merged.seo.sections[key].ar, section.ar);
+    }
   }
   return merged;
 }
