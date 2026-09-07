@@ -76,7 +76,7 @@ export default function Hero({ onNavigate, onOpenReservation }) {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
-          className="text-xs sm:text-sm md:text-base font-sans tracking-wide text-stone-800 max-w-2xl mx-auto mb-10 leading-relaxed"
+          className="text-xs sm:text-sm md:text-lg font-bold font-sans tracking-wide text-stone-800 max-w-3xl mx-auto mb-10 leading-relaxed"
         >
           {t("heroDesc")}
         </motion.p>
