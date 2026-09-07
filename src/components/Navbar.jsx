@@ -52,6 +52,19 @@ export default function Navbar({
     onNavigate(id);
   };
 
+  // The un-scrolled navbar floats directly over the hero photo, which now
+  // has a light gold overlay (see Hero.jsx) — the normal muted gray/white
+  // chrome colors below have no contrast against that. Once scrolled, the
+  // navbar gets its own opaque glass background over ordinary page content,
+  // where the theme-based colors are correct as-is.
+  const navIconClass = isScrolled
+    ? "text-text-secondary hover:text-brand-gold"
+    : "text-brand-burgundy/80 hover:text-brand-burgundy drop-shadow-[0_1px_6px_rgba(255,255,255,0.5)]";
+  const activeLinkClass = isScrolled
+    ? "text-brand-gold font-semibold"
+    : "text-brand-burgundy font-semibold drop-shadow-[0_1px_6px_rgba(255,255,255,0.5)]";
+  const activeIndicatorClass = isScrolled ? "bg-brand-gold" : "bg-brand-burgundy";
+
   return (
     <>
       <nav
@@ -59,7 +72,7 @@ export default function Navbar({
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           isScrolled
             ? "bg-glass-bg backdrop-blur-xl border-b border-border-primary py-3 shadow-lg"
-            : "bg-gradient-to-b from-black/40 to-transparent py-5"
+            : "bg-gradient-to-b from-[#FED676]/25 to-transparent py-5"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -96,23 +109,21 @@ export default function Navbar({
               </button>
 
               {/* All Nav Links Together (Desktop) */}
-              <div className="hidden md:flex items-center gap-4 lg:gap-6 text-xs font-mono tracking-widest text-text-secondary">
+              <div className="hidden md:flex items-center gap-4 lg:gap-6 text-xs font-mono tracking-widest">
                 {navLinks.map((link) => (
                   <button
                     key={link.id}
                     id={`nav-link-${link.id}`}
                     onClick={() => handleLinkClick(link.id)}
-                    className={`hover:text-brand-gold transition-all duration-300 relative py-1 cursor-pointer whitespace-nowrap ${
-                      activeSection === link.id
-                        ? "text-brand-gold font-semibold"
-                        : ""
+                    className={`transition-all duration-300 relative py-1 cursor-pointer whitespace-nowrap ${
+                      activeSection === link.id ? activeLinkClass : navIconClass
                     }`}
                   >
                     {link.label}
                     {activeSection === link.id && (
                       <motion.div
                         layoutId="activeIndicator"
-                        className="absolute -bottom-1 left-0 right-0 h-[1.5px] bg-brand-gold"
+                        className={`absolute -bottom-1 left-0 right-0 h-[1.5px] ${activeIndicatorClass}`}
                         transition={{
                           type: "spring",
                           stiffness: 380,
@@ -126,7 +137,7 @@ export default function Navbar({
             </div>
 
             {/* Right Controls (Desktop) */}
-            <div className="hidden md:flex items-center gap-5 text-xs font-mono tracking-widest text-text-secondary">
+            <div className={`hidden md:flex items-center gap-5 text-xs font-mono tracking-widest ${navIconClass}`}>
               {/* Social Media Links */}
               <div className="flex items-center gap-3 border-l border-border-primary pl-4">
                 <a
@@ -135,7 +146,7 @@ export default function Navbar({
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Facebook"
-                  className="p-1 text-text-secondary hover:text-brand-gold transition-colors duration-300 cursor-pointer"
+                  className={`p-1 transition-colors duration-300 cursor-pointer ${navIconClass}`}
                   title="Facebook"
                 >
                   <Facebook className="w-4 h-4 fill-current" strokeWidth={0} />
@@ -146,7 +157,7 @@ export default function Navbar({
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Instagram"
-                  className="p-1 text-text-secondary hover:text-brand-gold transition-colors duration-300 cursor-pointer"
+                  className={`p-1 transition-colors duration-300 cursor-pointer ${navIconClass}`}
                   title="Instagram"
                 >
                   <Instagram className="w-4 h-4" />
@@ -158,11 +169,11 @@ export default function Navbar({
                 id="btn-nav-theme"
                 onClick={toggleTheme}
                 aria-label={theme === "dark" ? t("lightMode") : t("darkMode")}
-                className="p-2 text-text-secondary hover:text-brand-gold transition-colors duration-300 cursor-pointer"
+                className={`p-2 transition-colors duration-300 cursor-pointer ${navIconClass}`}
                 title={theme === "dark" ? t("lightMode") : t("darkMode")}
               >
                 {theme === "dark" ? (
-                  <Sun className="w-4.5 h-4.5 text-brand-gold" />
+                  <Sun className={`w-4.5 h-4.5 ${isScrolled ? "text-brand-gold" : ""}`} />
                 ) : (
                   <Moon className="w-4.5 h-4.5" />
                 )}
@@ -173,10 +184,10 @@ export default function Navbar({
                 id="btn-nav-lang"
                 onClick={toggleLanguage}
                 aria-label="Switch Language"
-                className="p-2 text-text-secondary hover:text-brand-gold transition-colors duration-300 flex items-center gap-1 cursor-pointer font-mono font-bold text-[11px]"
+                className={`p-2 transition-colors duration-300 flex items-center gap-1 cursor-pointer font-mono font-bold text-[11px] ${navIconClass}`}
                 title="Switch Language"
               >
-                <Globe className="w-4 h-4 text-brand-gold" />
+                <Globe className={`w-4 h-4 ${isScrolled ? "text-brand-gold" : ""}`} />
                 <span>{language === "en" ? "العربية" : "English"}</span>
               </button>
 
@@ -185,7 +196,7 @@ export default function Navbar({
                 id="btn-nav-cart"
                 onClick={onOpenCart}
                 aria-label="Open Shopping Cart"
-                className="relative p-2 text-text-secondary hover:text-brand-gold transition-colors duration-300 cursor-pointer"
+                className={`relative p-2 transition-colors duration-300 cursor-pointer ${navIconClass}`}
               >
                 <ShoppingBag className="w-5 h-5" />
                 <AnimatePresence>
@@ -212,11 +223,11 @@ export default function Navbar({
                 id="btn-nav-theme-mobile"
                 onClick={toggleTheme}
                 aria-label={theme === "dark" ? t("lightMode") : t("darkMode")}
-                className="p-2 text-text-secondary hover:text-brand-gold transition-colors duration-300 cursor-pointer"
+                className={`p-2 transition-colors duration-300 cursor-pointer ${navIconClass}`}
                 title={theme === "dark" ? t("lightMode") : t("darkMode")}
               >
                 {theme === "dark" ? (
-                  <Sun className="w-4.5 h-4.5 text-brand-gold" />
+                  <Sun className={`w-4.5 h-4.5 ${isScrolled ? "text-brand-gold" : ""}`} />
                 ) : (
                   <Moon className="w-4.5 h-4.5" />
                 )}
@@ -227,9 +238,9 @@ export default function Navbar({
                 id="btn-nav-lang-mobile"
                 onClick={toggleLanguage}
                 aria-label="Switch Language"
-                className="p-2 text-text-secondary hover:text-brand-gold transition-colors duration-300 flex items-center gap-1 cursor-pointer font-mono font-bold text-[11px]"
+                className={`p-2 transition-colors duration-300 flex items-center gap-1 cursor-pointer font-mono font-bold text-[11px] ${navIconClass}`}
               >
-                <Globe className="w-4 h-4 text-brand-gold" />
+                <Globe className={`w-4 h-4 ${isScrolled ? "text-brand-gold" : ""}`} />
                 <span>{language === "en" ? "AR" : "EN"}</span>
               </button>
 
@@ -238,7 +249,7 @@ export default function Navbar({
                 id="btn-nav-cart-mobile"
                 onClick={onOpenCart}
                 aria-label="Open Shopping Cart"
-                className="relative p-2 text-text-secondary hover:text-brand-gold transition-colors duration-300"
+                className={`relative p-2 transition-colors duration-300 ${navIconClass}`}
               >
                 <ShoppingBag className="w-5 h-5" />
                 {totalCartItems > 0 && (
@@ -253,7 +264,7 @@ export default function Navbar({
                 id="btn-mobile-menu-toggle"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-label="Toggle Mobile Menu"
-                className="p-2 text-text-secondary hover:text-brand-gold transition-colors duration-300"
+                className={`p-2 transition-colors duration-300 ${navIconClass}`}
               >
                 {isMobileMenuOpen ? (
                   <X className="w-6 h-6" />
