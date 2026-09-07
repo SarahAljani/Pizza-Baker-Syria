@@ -5,18 +5,10 @@
 //
 // { success: true, link } on success, or
 // { success: false, reason: "denied" | "unavailable" | "timeout" | "unsupported" }
-//
-// Note: enableHighAccuracy is deliberately left off. Forcing GPS-grade
-// precision makes desktops (no GPS hardware) far more likely to time out —
-// network/Wi-Fi based positioning is plenty accurate for a delivery address
-// and resolves faster and more reliably.
-export function requestUserLocation(timeoutMs = 12000) {
-  return new Promise((resolve) => {
-    if (!("geolocation" in navigator)) {
-      resolve({ success: false, reason: "unsupported" });
-      return;
-    }
 
+// One attempt at getCurrentPosition, wrapped as a never-rejecting promise.
+function tryGetPosition(options) {
+  return new Promise((resolve) => {
     let settled = false;
     const finish = (result) => {
       if (settled) return;
@@ -24,7 +16,10 @@ export function requestUserLocation(timeoutMs = 12000) {
       resolve(result);
     };
 
-    const timer = setTimeout(() => finish({ success: false, reason: "timeout" }), timeoutMs);
+    const timer = setTimeout(
+      () => finish({ success: false, reason: "timeout" }),
+      options.timeout,
+    );
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -42,7 +37,29 @@ export function requestUserLocation(timeoutMs = 12000) {
         else if (error.code === error.TIMEOUT) reason = "timeout";
         finish({ success: false, reason });
       },
-      { enableHighAccuracy: false, timeout: timeoutMs, maximumAge: 0 },
+      options,
     );
   });
+}
+
+// Laptops/desktops have no GPS, so a low-accuracy (network/Wi-Fi based) fix
+// is both the fastest and often the *only* one available — forcing high
+// accuracy there just times out more. Phones are the opposite: they have a
+// real GPS chip, which high accuracy lets kick in and is usually faster and
+// more reliable than the network-based fix once it's warmed up. Rather than
+// guess the device type, try the cheap one first and only pay for the
+// slower, more thorough one if that didn't work.
+export async function requestUserLocation() {
+  if (!("geolocation" in navigator)) {
+    return { success: false, reason: "unsupported" };
+  }
+
+  const quick = await tryGetPosition({
+    enableHighAccuracy: false,
+    timeout: 6000,
+    maximumAge: 0,
+  });
+  if (quick.success || quick.reason === "denied") return quick;
+
+  return tryGetPosition({ enableHighAccuracy: true, timeout: 12000, maximumAge: 0 });
 }
