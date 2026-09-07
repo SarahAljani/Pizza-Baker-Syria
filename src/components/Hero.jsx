@@ -22,7 +22,7 @@ export default function Hero({ onNavigate, onOpenReservation }) {
         {/* Radial Dark Overlays to ensure readability */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-black/80" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black" />
-        <div className="absolute inset-0 bg-[#FED676]/40" />
+        <div className="absolute inset-0 bg-[#FED676]/20 mix-blend-multiply" />
       </div>
 
       {/* Hero Content */}
