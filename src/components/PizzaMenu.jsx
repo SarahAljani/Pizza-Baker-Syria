@@ -473,8 +473,8 @@ export default function PizzaMenu({ onAddToCart, onAddCustomizedToCart, cart }) 
         <PizzaDetailModal
           pizza={viewingPizza}
           onClose={() => setViewingPizza(null)}
-          onAddToCart={(pizza, size, excludedIngredients) => {
-            onAddCustomizedToCart(pizza, size, excludedIngredients);
+          onAddToCart={(pizza, size, excludedIngredients, addons) => {
+            onAddCustomizedToCart(pizza, size, excludedIngredients, addons);
             setAddedAlert(pizza.id);
             setTimeout(() => setAddedAlert(null), 2000);
           }}

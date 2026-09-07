@@ -31,6 +31,7 @@ export default function CartDrawer({
   const [checkoutStep, setCheckoutStep] = useState("cart");
   const [gettingLocation, setGettingLocation] = useState(false);
   const [locationErrorReason, setLocationErrorReason] = useState(null);
+  const [manualAddress, setManualAddress] = useState("");
   const { t, isRtl, language } = useThemeLanguage();
 
   const LOCATION_ERROR_MESSAGES = {
@@ -60,32 +61,14 @@ export default function CartDrawer({
   const deliveryFee = subtotal >= freeThreshold || subtotal === 0 ? 0 : deliveryFeeAmount;
   const total = subtotal + deliveryFee;
 
-  const handleCheckout = async () => {
-    setLocationErrorReason(null);
-
-    // Open the tab synchronously (within the click gesture) so it isn't
-    // blocked as a popup once we `await` geolocation below; we navigate it
-    // to the real WhatsApp URL once the message is ready, or close it again
-    // if location turns out to be unavailable.
-    const whatsappWindow = window.open("", "_blank");
-
-    setGettingLocation(true);
-    const locationResult = await requestUserLocation();
-    setGettingLocation(false);
-
-    if (!locationResult.success) {
-      whatsappWindow?.close();
-      setLocationErrorReason(locationResult.reason);
-      return;
-    }
-
-    const locationLink = locationResult.link;
-
-    // Construct WhatsApp message content
+  // A GPS link when geolocation succeeded, or a customer-typed address when
+  // it didn't — either way checkout always has *some* location line, never
+  // "not shared", since staff need to know where to deliver either way.
+  const buildOrderMessage = (locationLine) => {
     let messageText = "";
     if (language === "ar") {
       messageText = `مرحباً بيتزا بيكر! أود تقديم طلب بيتزا مميز (التركيز على المكونات الطازجة والصلصات المدهشة):\n\n`;
-      messageText += `📍 *الموقع:* ${locationLink}\n\n`;
+      messageText += `📍 *الموقع:* ${locationLine}\n\n`;
       cart.forEach((item, index) => {
         const itemSize =
           item.size === "small"
@@ -134,7 +117,7 @@ export default function CartDrawer({
       messageText += `\nالرجاء تأكيد الطلب والبدء في إعداد رحلة البيتزا الاستثنائية من الصفر فوراً! شكراً لكم!`;
     } else {
       messageText = `Hello Pizza Baker! I would like to place a new signature pizza order featuring premium ingredients and rich sauces:\n\n`;
-      messageText += `📍 *Location:* ${locationLink}\n\n`;
+      messageText += `📍 *Location:* ${locationLine}\n\n`;
       cart.forEach((item, index) => {
         const itemSize =
           item.size === "small"
@@ -180,19 +163,54 @@ export default function CartDrawer({
       messageText += `\nPlease confirm and begin crafting my custom pizza journey order!`;
     }
 
+    return messageText;
+  };
+
+  const openWhatsAppWithMessage = (messageText, whatsappWindow) => {
     const encodedText = encodeURIComponent(messageText);
     const whatsappUrl = `https://api.whatsapp.com/send?phone=${SITE_SETTINGS.whatsappNumber}&text=${encodedText}`;
 
-    // Switch step to success
     setCheckoutStep("success");
 
-    // Navigate the tab we opened synchronously at the start (or, if the
-    // browser blocked that for some reason, fall back to opening fresh).
+    // Navigate the tab opened synchronously within the click gesture (or,
+    // if the browser blocked that for some reason, fall back to opening
+    // fresh — still a direct result of a click, so not blocked either way).
     if (whatsappWindow) {
       whatsappWindow.location.href = whatsappUrl;
     } else {
       window.open(whatsappUrl, "_blank");
     }
+  };
+
+  const handleCheckout = async () => {
+    setLocationErrorReason(null);
+
+    // Open the tab synchronously (within the click gesture) so it isn't
+    // blocked as a popup once we `await` geolocation below.
+    const whatsappWindow = window.open("", "_blank");
+
+    setGettingLocation(true);
+    const locationResult = await requestUserLocation();
+    setGettingLocation(false);
+
+    if (locationResult.success) {
+      openWhatsAppWithMessage(buildOrderMessage(locationResult.link), whatsappWindow);
+      return;
+    }
+
+    // Browser geolocation is genuinely unreliable — permission can be
+    // granted and it can still fail (OS-level Location Services off, no
+    // GPS/network fix available, etc.). Rather than block a real order
+    // over that, close the speculative tab and fall back to asking the
+    // customer to type their address instead of giving up entirely.
+    whatsappWindow?.close();
+    setLocationErrorReason(locationResult.reason);
+  };
+
+  const handleManualAddressCheckout = () => {
+    if (!manualAddress.trim()) return;
+    // A direct result of this click, so opening a fresh tab here is fine.
+    openWhatsAppWithMessage(buildOrderMessage(manualAddress.trim()), null);
   };
 
   const handleReset = () => {
@@ -565,9 +583,30 @@ export default function CartDrawer({
                   </button>
 
                   {locationErrorReason && (
-                    <div className="flex items-start gap-2 text-red-400 text-[11px] font-sans leading-relaxed bg-red-950/40 border border-red-900/60 px-3 py-2.5">
-                      <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                      <span>{LOCATION_ERROR_MESSAGES[locationErrorReason][language]}</span>
+                    <div className="space-y-2">
+                      <div className="flex items-start gap-2 text-red-400 text-[11px] font-sans leading-relaxed bg-red-950/40 border border-red-900/60 px-3 py-2.5">
+                        <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                        <span>{LOCATION_ERROR_MESSAGES[locationErrorReason][language]}</span>
+                      </div>
+
+                      <div className="space-y-2 bg-bg-primary border border-border-primary px-3 py-3">
+                        <span className="text-[10px] font-mono tracking-widest text-brand-gold block font-bold uppercase">
+                          {isRtl ? "أو اكتب عنوان التوصيل" : "Or type your delivery address"}
+                        </span>
+                        <input
+                          value={manualAddress}
+                          onChange={(e) => setManualAddress(e.target.value)}
+                          placeholder={isRtl ? "الحي، الشارع، أقرب معلم..." : "Neighborhood, street, nearest landmark..."}
+                          className="w-full bg-bg-secondary border border-border-primary focus:border-brand-gold text-text-primary text-sm px-3 py-2.5 focus:outline-none placeholder-text-tertiary rounded-none"
+                        />
+                        <button
+                          onClick={handleManualAddressCheckout}
+                          disabled={!manualAddress.trim()}
+                          className="w-full bg-brand-gold hover:bg-yellow-500 text-black py-2.5 font-mono text-[11px] font-bold tracking-widest transition-all rounded-none cursor-pointer active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          {isRtl ? "متابعة عبر الواتساب" : "Continue via WhatsApp"}
+                        </button>
+                      </div>
                     </div>
                   )}
 
