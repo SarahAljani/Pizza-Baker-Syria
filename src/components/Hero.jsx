@@ -16,12 +16,12 @@ export default function Hero({ onNavigate, onOpenReservation }) {
         <img
           src={SITE_SETTINGS.heroImage}
           alt="Pizza Baker Journey"
-          className="w-full h-full object-cover object-center scale-105"
+          className="w-full h-full object-cover blur-xs object-center scale-105"
           referrerPolicy="no-referrer"
         />
         {/* Radial Dark Overlays to ensure readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-black/80" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#FED676]/30 via-transparent to-[#FED676]/30" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#FED676]/30 via-transparent to-[#FED676]/30" />
         <div className="absolute inset-0 bg-[#FED676]/20 mix-blend-multiply" />
       </div>
 
@@ -45,13 +45,13 @@ export default function Hero({ onNavigate, onOpenReservation }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="text-xs sm:text-sm font-mono tracking-[0.3em] text-brand-gold font-bold mb-3 uppercase"
+          className="text-xs sm:text-sm font-mono tracking-[0.3em] text-brand-burgundy font-bold mb-3 uppercase"
         >
           {t("heroSubtitle")}
         </motion.p>
 
         {/* Big Heading */}
-        <h1 className="font-serif text-4xl sm:text-7xl md:text-8xl lg:text-9xl text-white font-normal tracking-tight mb-6 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] leading-none uppercase">
+        <h1 className="font-serif text-4xl sm:text-7xl md:text-8xl lg:text-9xl text-brand-burgundy font-normal tracking-tight mb-6 drop-shadow-[0_2px_14px_rgba(255,255,255,0.55)] leading-none uppercase">
           {language === "ar" ? (
             <span>{t("heroTitle")}</span>
           ) : (
@@ -68,7 +68,7 @@ export default function Hero({ onNavigate, onOpenReservation }) {
           initial={{ opacity: 0, width: 0 }}
           animate={{ opacity: 1, width: "120px" }}
           transition={{ duration: 0.8, delay: 0.7 }}
-          className="h-[1px] bg-gradient-to-r from-transparent via-brand-gold to-transparent mb-6"
+          className="h-[1px] bg-gradient-to-r from-transparent via-brand-burgundy to-transparent mb-6"
         />
 
         {/* Subtitle list of attributes */}
@@ -76,7 +76,7 @@ export default function Hero({ onNavigate, onOpenReservation }) {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
-          className="text-xs sm:text-sm md:text-base font-sans tracking-wide text-gray-200 max-w-2xl mx-auto mb-10 leading-relaxed"
+          className="text-xs sm:text-sm md:text-base font-sans tracking-wide text-stone-800 max-w-2xl mx-auto mb-10 leading-relaxed"
         >
           {t("heroDesc")}
         </motion.p>
@@ -113,9 +113,9 @@ export default function Hero({ onNavigate, onOpenReservation }) {
           onClick={() => onNavigate("menu")}
           animate={{ y: [0, 8, 0] }}
           transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
-          className="text-brand-gold hover:text-white transition-colors duration-300 focus:outline-none flex flex-col items-center cursor-pointer"
+          className="text-brand-burgundy hover:text-brand-burgundy/70 transition-colors duration-300 focus:outline-none flex flex-col items-center cursor-pointer"
         >
-          <span className="text-[9px] font-mono tracking-[0.3em] text-gray-500 mb-2 uppercase">
+          <span className="text-[9px] font-mono tracking-[0.3em] text-brand-burgundy/70 mb-2 uppercase">
             {isRtl ? "انزل للأسفل" : "Scroll down"}
           </span>
           <ChevronDown className="w-5 h-5" />
