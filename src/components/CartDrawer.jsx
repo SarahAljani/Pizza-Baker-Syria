@@ -166,51 +166,45 @@ export default function CartDrawer({
     return messageText;
   };
 
-  const openWhatsAppWithMessage = (messageText, whatsappWindow) => {
+  const openWhatsAppWithMessage = (messageText) => {
     const encodedText = encodeURIComponent(messageText);
     const whatsappUrl = `https://api.whatsapp.com/send?phone=${SITE_SETTINGS.whatsappNumber}&text=${encodedText}`;
 
     setCheckoutStep("success");
 
-    // Navigate the tab opened synchronously within the click gesture (or,
-    // if the browser blocked that for some reason, fall back to opening
-    // fresh — still a direct result of a click, so not blocked either way).
-    if (whatsappWindow) {
-      whatsappWindow.location.href = whatsappUrl;
-    } else {
-      window.open(whatsappUrl, "_blank");
-    }
+    // Navigate the current tab rather than opening a new one. Opening a
+    // blank tab up front (to dodge popup blockers around the earlier
+    // `await`) was the previous approach, but on mobile that backgrounds
+    // the tab the geolocation permission prompt needs to appear in — many
+    // mobile browsers refuse to show that prompt (or throttle JS entirely)
+    // in a tab that's no longer focused, which is exactly why this worked
+    // on desktop but not on phones. A same-tab redirect has no popup-blocker
+    // risk in the first place, since it's not opening anything new.
+    window.location.href = whatsappUrl;
   };
 
   const handleCheckout = async () => {
     setLocationErrorReason(null);
-
-    // Open the tab synchronously (within the click gesture) so it isn't
-    // blocked as a popup once we `await` geolocation below.
-    const whatsappWindow = window.open("", "_blank");
-
     setGettingLocation(true);
     const locationResult = await requestUserLocation();
     setGettingLocation(false);
 
     if (locationResult.success) {
-      openWhatsAppWithMessage(buildOrderMessage(locationResult.link), whatsappWindow);
+      openWhatsAppWithMessage(buildOrderMessage(locationResult.link));
       return;
     }
 
     // Browser geolocation is genuinely unreliable — permission can be
     // granted and it can still fail (OS-level Location Services off, no
     // GPS/network fix available, etc.). Rather than block a real order
-    // over that, close the speculative tab and fall back to asking the
-    // customer to type their address instead of giving up entirely.
-    whatsappWindow?.close();
+    // over that, fall back to asking the customer to type their address
+    // instead of giving up entirely.
     setLocationErrorReason(locationResult.reason);
   };
 
   const handleManualAddressCheckout = () => {
     if (!manualAddress.trim()) return;
-    // A direct result of this click, so opening a fresh tab here is fine.
-    openWhatsAppWithMessage(buildOrderMessage(manualAddress.trim()), null);
+    openWhatsAppWithMessage(buildOrderMessage(manualAddress.trim()));
   };
 
   const handleReset = () => {
